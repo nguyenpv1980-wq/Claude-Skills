@@ -1,0 +1,54 @@
+# Merge gate for main: skill validation + self-protection guard.
+#
+# Job names `validate-skills` and `gate-guard` are registered as required status
+# checks — keep them unique across all workflows in this repo and do not rename
+# them without updating branch protection.
+name: validate-skills
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate-skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      # The default bash shell runs with `-eo pipefail`, so a nonzero exit
+      # from the validator fails this job.
+      - name: Run skill validator
+        run: python scripts/validate-skills.py
+
+  gate-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history so the merge-base diff against the PR base is available.
+          fetch-depth: 0
+
+      - name: Fail if this PR modifies the merge gate itself
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch origin "$BASE_REF" --quiet
+          changed_files="$(git diff --name-only "origin/${BASE_REF}...HEAD")"
+          echo "Files changed in this PR:"
+          echo "${changed_files}"
+          gate_files="$(echo "${changed_files}" | grep -E '^(\.github/workflows/|scripts/validate-skills\.py$)' || true)"
+          if [ -n "${gate_files}" ]; then
+            echo "Gate files touched:"
+            echo "${gate_files}"
+            echo "This PR modifies the merge gate itself and requires manual review and merge."
+            exit 1
+          fi
+          echo "No merge-gate files modified."
