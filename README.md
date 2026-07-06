@@ -95,6 +95,28 @@ Behavior: `_template` is ignored. When `_template` is the only skill directory, 
 prints a "no skills found" status and exits `0`. Exit `0` = clean (warnings allowed); non-zero
 = at least one error. Run it before every commit that touches `.claude/skills/`.
 
+## CI (merge gate)
+
+Every pull request targeting `main` runs
+[`.github/workflows/validate-skills.yml`](.github/workflows/validate-skills.yml), which
+provides two required status checks:
+
+| Check | What it does |
+| --- | --- |
+| `validate-skills` | Runs `python scripts/validate-skills.py` on the PR (latest Python 3.x). Fails on any validator error — same checks as running it locally. |
+| `gate-guard` | Diffs the PR against its base and **fails if the PR touches the merge gate itself** (anything under `.github/workflows/` or `scripts/validate-skills.py`). Such PRs print `This PR modifies the merge gate itself and requires manual review and merge.` and must be reviewed and merged manually by a human. |
+
+Notes:
+
+- Both job names are registered as required status checks — do not rename them (and keep
+  them unique across all workflows) without updating branch protection.
+- A `gate-guard` failure is not a defect; it is the intended signal that the change needs
+  human eyes. Fixing the gate to "make CI green" defeats its purpose.
+- The gate uses only `actions/checkout` and `actions/setup-python` — no third-party actions.
+- Auto-merge is enabled per-phase via `gh pr merge --auto --squash` — never for changes
+  touching the merge gate itself (see
+  [`docs/reconciliation/auto-merge-policy.md`](docs/reconciliation/auto-merge-policy.md)).
+
 ## Target repository layout
 
 ```text
