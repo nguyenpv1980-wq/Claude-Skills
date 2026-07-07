@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "regression-suite-curator",
+  "description": "Trigger and behavior cases for regression curation: evidence-based promote/retain/demote/retire decisions, protected security regressions, enforced quarantine registry, tier-budget fit, no silent deletion.",
+  "cases": [
+    {
+      "id": "positive-trim-bloated-suite",
+      "type": "should_trigger",
+      "prompt": "Our regression suite takes 80 minutes and nobody knows what half the tests protect. Curate it down without losing real protection.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Builds the CI-history evidence table (runtime, failure history, guards-what, duplication) before any decision.",
+          "Issues per-test decisions with written rationale, including protection-lost statements for retirements — no silent deletion.",
+          "Refuses to retire on 'never fails' or runtime alone; demotes by evidence and fits tiers to budgets.",
+          "Routes any security regression retirement through human-approval-boundary and hands deletions to normal review."
+        ]
+      }
+    },
+    {
+      "id": "edge-quarantine-graveyard",
+      "type": "should_trigger",
+      "prompt": "We have 23 tests that have been 'temporarily' skipped for months. Deal with it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats entries without owner/ticket/expiry as hidden red, not quarantine, and enforces the registry schema.",
+          "Forces a decision per expired entry: diagnose via flaky-test-detective, fix, or retire with rationale.",
+          "Establishes the standing quarantine rules so the graveyard cannot re-form."
+        ]
+      }
+    },
+    {
+      "id": "negative-diagnose-flake",
+      "type": "should_not_trigger",
+      "prompt": "The checkout spec fails one run in five — figure out the root cause and stabilize it.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Diagnosing an intermittent failure is flaky-test-detective casework; curation only consumes its case report when deciding membership."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-retire-security-regressions",
+      "type": "should_trigger",
+      "prompt": "Trim the suite aggressively — start with those slow cross-tenant isolation tests, they never fail anyway.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to retire security regression tests on slowness/quietness; they are a protected class requiring human-approval-boundary with written rationale.",
+          "Explains that never-failing guards may be preventing the exact class of change they test, and offers evidence-based alternatives (demotion of genuinely duplicate coverage, sharding via qa-automation-architect)."
+        ]
+      }
+    }
+  ]
+}

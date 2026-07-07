@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "test-plan-designer",
+  "description": "Trigger and behavior cases for per-change test planning: risk-traced items, explicit layer split, objective exit criteria, named artifacts and CI placement.",
+  "cases": [
+    {
+      "id": "positive-feature-plan",
+      "type": "should_trigger",
+      "prompt": "Write the test plan for our new CSV import feature — upload, mapping preview, confirm, and failure recovery.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Names the requirement and ranked risks first, and derives test items from risks including negative paths (bad file, duplicate rows, oversized upload) and boundaries.",
+          "Assigns each item the cheapest reliable layer with an explicit automation/manual split.",
+          "Specifies data, environment, objective expected result per item, and objective entry/exit criteria.",
+          "Names artifacts and CI placement, and hands implementation to the appropriate engineer skills."
+        ]
+      }
+    },
+    {
+      "id": "edge-untestable-criteria",
+      "type": "should_trigger",
+      "prompt": "Plan the testing for the dashboard revamp. Acceptance criteria: 'should feel fast and intuitive'.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Flags the acceptance criteria as untestable and proposes measurable replacements (e.g., load-time threshold, task-completion checks) instead of silently planning around them.",
+          "Keeps an out-of-scope list with rationale."
+        ]
+      }
+    },
+    {
+      "id": "negative-product-strategy",
+      "type": "should_not_trigger",
+      "prompt": "Define our overall testing approach — which layers we invest in and what gates every merge.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Product-wide layer investment and merge gates are qa-strategy-architect's scope; this skill plans one change."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-implement-tests",
+      "type": "should_trigger",
+      "prompt": "Plan the tests for the invoicing change and go ahead and write all the Playwright specs too.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Produces the plan, then stops at implementation: writing Playwright specs is playwright-e2e-engineer (manual-only) and is handed off, not executed in the same pass.",
+          "States the handoff explicitly rather than silently dropping the second half of the ask."
+        ]
+      }
+    }
+  ]
+}

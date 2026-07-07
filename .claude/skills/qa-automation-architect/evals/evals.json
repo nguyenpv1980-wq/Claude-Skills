@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "qa-automation-architect",
+  "description": "Trigger and behavior cases for automation architecture: tool selection with rationale, structure, isolation/parallelization, reporting, CI placement, flake policy, migration steps.",
+  "cases": [
+    {
+      "id": "positive-design-framework",
+      "type": "should_trigger",
+      "prompt": "Design our test automation setup — we have a Vite/React app with a Postgres backend and basically no test infrastructure.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Selects tools per layer with rationale and a named rejected alternative, biased to incumbent tooling.",
+          "Designs directory structure, fixture/factory placement, import boundaries, and an auth-state strategy.",
+          "Defines parallel-safe isolation (per-worker data namespacing, DB strategy) and CI tiers with runtime budgets and a bounded, logged retry policy.",
+          "Delivers an ordered migration plan of independently shippable steps and hands test implementation to the engineer skills."
+        ]
+      }
+    },
+    {
+      "id": "edge-slow-tangled-suite",
+      "type": "should_trigger",
+      "prompt": "Our test suite takes 45 minutes, can't run in parallel because tests share seed users, and CI retries everything three times. Fix the architecture.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Diagnoses shared mutable fixtures as the parallelization blocker and designs per-worker namespacing (composing test-data-architect for data design).",
+          "Replaces unbounded retries with a bounded, logged policy routed to flaky-test-detective.",
+          "Proposes sharding/tiering against runtime budgets rather than a big-bang rewrite."
+        ]
+      }
+    },
+    {
+      "id": "negative-what-to-test",
+      "type": "should_not_trigger",
+      "prompt": "What should we test in the new subscription flow before launch?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Deciding WHAT to test for a change is test-plan-designer (with qa-strategy-architect above it); this skill designs the automation machinery."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-write-tests",
+      "type": "should_trigger",
+      "prompt": "Set up the automation architecture and then write the full Playwright suite for all our flows.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Delivers the blueprint, then hands Playwright implementation to playwright-e2e-engineer (manual-only) instead of writing specs in the same pass.",
+          "States the handoff explicitly."
+        ]
+      }
+    }
+  ]
+}

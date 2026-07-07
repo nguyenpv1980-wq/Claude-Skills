@@ -1,0 +1,35 @@
+{
+  "skill": "regression-suite-curator",
+  "description": "Trigger discrimination for the Phase 5 unit/build/flake/data cluster: suite membership curation vs flake diagnosis, CI machinery, coverage auditing, and diff review (shipped code-reviewer).",
+  "overlaps_with": ["flaky-test-detective", "qa-automation-architect", "test-coverage-mapper", "code-reviewer"],
+  "cases": [
+    {
+      "id": "membership-decisions-win-here",
+      "prompt": "Decide which tests belong in smoke versus nightly, retire the dead ones with rationale, and clean up the skip list.",
+      "expected_skill": "regression-suite-curator",
+      "should_not_trigger": ["qa-automation-architect", "test-coverage-mapper", "flaky-test-detective"],
+      "reason": "Membership, tiering, retirement, and quarantine enforcement are curation — filling the tiers the architecture defined."
+    },
+    {
+      "id": "tier-budgets-and-sharding-go-to-architect",
+      "prompt": "Design the CI tiers, sharding, and retry mechanics for our suites.",
+      "expected_skill": "qa-automation-architect",
+      "should_not_trigger": ["regression-suite-curator"],
+      "reason": "Tier machinery and budgets are automation architecture; the curator assigns tests within them."
+    },
+    {
+      "id": "coverage-gaps-go-to-mapper",
+      "prompt": "Which requirements and critical paths have no tests at all?",
+      "expected_skill": "test-coverage-mapper",
+      "should_not_trigger": ["regression-suite-curator"],
+      "reason": "Mapping coverage/gaps is the audit; the curator consumes its output for promotion decisions."
+    },
+    {
+      "id": "test-diff-review-goes-to-code-reviewer",
+      "prompt": "Review this PR that deletes 40 old tests — is it safe to merge?",
+      "expected_skill": "code-reviewer",
+      "should_not_trigger": ["regression-suite-curator"],
+      "reason": "Reviewing an actual diff is the shipped code-reviewer (a curation decision list may be its input, but the merge-gating review is not curation)."
+    }
+  ]
+}

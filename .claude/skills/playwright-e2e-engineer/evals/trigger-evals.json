@@ -1,0 +1,35 @@
+{
+  "skill": "playwright-e2e-engineer",
+  "description": "Trigger discrimination for the Phase 5 test-level cluster: scripted browser E2E vs integration (no browser) vs unit vs contract, plus the permanent-suite vs one-off-walkthrough boundary with clickthrough-test-engineer.",
+  "overlaps_with": ["integration-test-designer", "vitest-unit-component-engineer", "api-contract-test-designer", "clickthrough-test-engineer"],
+  "cases": [
+    {
+      "id": "scripted-journey-wins-here",
+      "prompt": "Automate the checkout journey in a real browser as a permanent regression test with traces on failure.",
+      "expected_skill": "playwright-e2e-engineer",
+      "should_not_trigger": ["clickthrough-test-engineer", "integration-test-designer"],
+      "reason": "A permanent scripted browser test for a critical journey is exactly E2E engineering — not a one-off walkthrough, not a no-browser boundary test."
+    },
+    {
+      "id": "one-off-walkthrough-goes-to-clickthrough",
+      "prompt": "Before the demo tomorrow, click through the whole app once and tell me what's broken.",
+      "expected_skill": "clickthrough-test-engineer",
+      "should_not_trigger": ["playwright-e2e-engineer"],
+      "reason": "A one-time interactive walkthrough with observations is clickthrough testing; building permanent specs for it would be the wrong deliverable."
+    },
+    {
+      "id": "no-browser-goes-to-integration",
+      "prompt": "Exercise the payments command through the real service and database with real permission checks.",
+      "expected_skill": "integration-test-designer",
+      "should_not_trigger": ["playwright-e2e-engineer"],
+      "reason": "Real boundaries without a UI journey is the integration layer — cheaper and more reliable than E2E for this risk."
+    },
+    {
+      "id": "webhook-shape-goes-to-contract",
+      "prompt": "Verify the webhook payloads we send still match the documented schema consumers rely on.",
+      "expected_skill": "api-contract-test-designer",
+      "should_not_trigger": ["playwright-e2e-engineer"],
+      "reason": "Payload shape/compatibility verification is contract testing; no browser journey exists at all."
+    }
+  ]
+}

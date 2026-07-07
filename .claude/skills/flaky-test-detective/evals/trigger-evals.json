@@ -1,0 +1,35 @@
+{
+  "skill": "flaky-test-detective",
+  "description": "Trigger discrimination for the Phase 5 unit/build/flake/data cluster: intermittent-failure casework vs consistent-failure debugging (systematic-debugger), suite policy (qa-automation-architect), suite membership (regression-suite-curator), and data design (test-data-architect).",
+  "overlaps_with": ["systematic-debugger", "qa-automation-architect", "regression-suite-curator", "test-data-architect"],
+  "cases": [
+    {
+      "id": "intermittent-wins-here",
+      "prompt": "Our E2E suite has three tests that fail randomly — sometimes green, sometimes red, no code changes. Diagnose and stabilize them.",
+      "expected_skill": "flaky-test-detective",
+      "should_not_trigger": ["systematic-debugger", "qa-automation-architect"],
+      "reason": "Intermittent test failures are flake casework: classify, reproduce with counts, fix one cause, prove stability."
+    },
+    {
+      "id": "consistent-bug-goes-to-debugger",
+      "prompt": "Checkout throws a 500 every time since the last deploy — find the root cause.",
+      "expected_skill": "systematic-debugger",
+      "should_not_trigger": ["flaky-test-detective"],
+      "reason": "A deterministic failure is ordinary root-cause debugging, not flake work."
+    },
+    {
+      "id": "retry-policy-goes-to-architect",
+      "prompt": "Define our CI retry and quarantine policy across all suites.",
+      "expected_skill": "qa-automation-architect",
+      "should_not_trigger": ["flaky-test-detective"],
+      "reason": "Suite-wide retry/quarantine policy is automation architecture; the detective works individual cases under it."
+    },
+    {
+      "id": "membership-goes-to-curator",
+      "prompt": "Should this chronically flaky legacy test stay in the regression suite at all?",
+      "expected_skill": "regression-suite-curator",
+      "should_not_trigger": ["flaky-test-detective"],
+      "reason": "Suite membership/retirement is curation; the detective supplies the case report as input to that decision."
+    }
+  ]
+}

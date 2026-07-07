@@ -1,0 +1,35 @@
+{
+  "skill": "vite-build-qa-engineer",
+  "description": "Trigger discrimination for the Phase 5 unit/build/flake/data cluster: build-artifact QA vs unit testing vs flake diagnosis vs data design, plus the detection-vs-remediation boundary with the shipped secrets-identity-hardener.",
+  "overlaps_with": ["vitest-unit-component-engineer", "flaky-test-detective", "test-data-architect", "secrets-identity-hardener"],
+  "cases": [
+    {
+      "id": "build-artifact-qa-wins-here",
+      "prompt": "Run the production build, check the bundle for exposed env values, and make sure the preview build serves deep links correctly.",
+      "expected_skill": "vite-build-qa-engineer",
+      "should_not_trigger": ["vitest-unit-component-engineer", "secrets-identity-hardener"],
+      "reason": "Building, bundle inspection, and preview parity are build QA — not app-logic tests, and no confirmed secret is being remediated yet."
+    },
+    {
+      "id": "remediation-goes-to-hardener",
+      "prompt": "That database URL is confirmed in the shipped JS — get it out of the client, rotate the credentials, and fix the env layout.",
+      "expected_skill": "secrets-identity-hardener",
+      "should_not_trigger": ["vite-build-qa-engineer"],
+      "reason": "Confirmed exposure remediation (relocate server-side, rotate, restructure env) is the shipped hardener; build QA detects and proves."
+    },
+    {
+      "id": "component-tests-go-to-vitest",
+      "prompt": "Write tests for the settings form validation logic.",
+      "expected_skill": "vitest-unit-component-engineer",
+      "should_not_trigger": ["vite-build-qa-engineer"],
+      "reason": "App logic/component testing is the Vitest engineer; build QA tests the artifact, not the code's behavior."
+    },
+    {
+      "id": "random-ci-failures-go-to-detective",
+      "prompt": "CI builds fail intermittently on the test step with no code changes — figure out why.",
+      "expected_skill": "flaky-test-detective",
+      "should_not_trigger": ["vite-build-qa-engineer"],
+      "reason": "Intermittent test-step failures are flake diagnosis; build QA handles deterministic build/bundle verification."
+    }
+  ]
+}

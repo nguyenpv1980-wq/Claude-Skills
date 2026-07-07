@@ -1,0 +1,35 @@
+{
+  "skill": "screenshot-evidence-planner",
+  "description": "Trigger discrimination for the Phase 5 UI/manual cluster: evidence policy vs capturing session vs case authoring, plus the boundary with the shipped ai-closeout-reporter (which bundles evidence, doesn't define it).",
+  "overlaps_with": ["clickthrough-test-engineer", "manual-test-case-creator", "accessibility-test-harness", "ai-closeout-reporter"],
+  "cases": [
+    {
+      "id": "evidence-policy-wins-here",
+      "prompt": "Standardize how our QA screenshots are selected, named, masked, and retained across manual and automated runs.",
+      "expected_skill": "screenshot-evidence-planner",
+      "should_not_trigger": ["clickthrough-test-engineer", "ai-closeout-reporter"],
+      "reason": "Selection/naming/masking/retention policy is evidence planning — no session is being executed and no closeout written."
+    },
+    {
+      "id": "capture-session-goes-to-clickthrough",
+      "prompt": "Run through the app and capture the evidence screenshots for this release candidate.",
+      "expected_skill": "clickthrough-test-engineer",
+      "should_not_trigger": ["screenshot-evidence-planner"],
+      "reason": "Driving the app and capturing is a session; the planner defines what that session must capture."
+    },
+    {
+      "id": "closeout-goes-to-ai-closeout-reporter",
+      "prompt": "Write the end-of-release report summarizing what was tested with the evidence attached and what was intentionally skipped.",
+      "expected_skill": "ai-closeout-reporter",
+      "should_not_trigger": ["screenshot-evidence-planner"],
+      "reason": "The closeout report is the shipped ai-closeout-reporter; the planner only defines the evidence conventions that report consumes — this is why a separate qa-closeout-reporter stays in the backlog."
+    },
+    {
+      "id": "cases-referencing-checkpoints-go-to-creator",
+      "prompt": "Write the manual test cases for checkout, marking where screenshots are taken.",
+      "expected_skill": "manual-test-case-creator",
+      "should_not_trigger": ["screenshot-evidence-planner"],
+      "reason": "Authoring cases (which reference checkpoint rules) is the case creator; the planner owns the rules themselves."
+    }
+  ]
+}

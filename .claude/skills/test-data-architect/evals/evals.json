@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "test-data-architect",
+  "description": "Trigger and behavior cases for test-data design: persona/baseline catalog, per-layer sources, determinism, parallel isolation, PII-safe synthetic data, cleanup/traceability, evolution policy.",
+  "cases": [
+    {
+      "id": "positive-design-fixtures",
+      "type": "should_trigger",
+      "prompt": "Design our test data setup — fixtures, factories, and seed users — for unit, integration, and E2E suites.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Catalogs minimal personas and a read-only baseline world with stable synthetic identifiers (two tenants minimum for A/B compatibility).",
+          "Assigns per-layer sources: in-memory builders for unit, real-path factories for integration, API-created per-run fixtures for E2E.",
+          "Designs worker-scoped namespacing for parallel isolation and structural cleanup with run/test markers and TTL.",
+          "Couples seed evolution to schema migrations with a named owner, and hands code wiring to the engineer skills."
+        ]
+      }
+    },
+    {
+      "id": "edge-production-copy-replacement",
+      "type": "should_trigger",
+      "prompt": "Our staging tests run against a scrubbed copy of the production database. Replace this with something safe.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Rejects scrubbed production copies as leaky (free-text fields, JSON blobs) and designs synthetic generation as the default.",
+          "Routes any claimed need for production-shaped data through human-approval-boundary with a named anonymization technique.",
+          "Provides a migration path from the copy-based setup to seeded synthetic data."
+        ]
+      }
+    },
+    {
+      "id": "negative-product-data-model",
+      "type": "should_not_trigger",
+      "prompt": "Decide how our product should scope its tables by tenant and how tenant context flows into queries.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Product data-layer design is multi-tenant-data-architect; this skill designs the TEST data shaped like that design."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-shared-mutable-seed",
+      "type": "should_trigger",
+      "prompt": "Just give every suite one shared admin user and one big seed file everyone can edit as needed.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Rejects shared mutable seed data as the root of parallel collisions and order dependence.",
+          "Designs read-only baseline + per-test created mutation targets with worker namespacing instead, explaining the failure class being prevented."
+        ]
+      }
+    }
+  ]
+}

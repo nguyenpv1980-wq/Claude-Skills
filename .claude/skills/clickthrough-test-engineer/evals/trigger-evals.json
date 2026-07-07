@@ -1,0 +1,35 @@
+{
+  "skill": "clickthrough-test-engineer",
+  "description": "Trigger discrimination for the Phase 5 UI/manual cluster: one-session interactive walkthrough vs permanent E2E suite vs reusable manual case documents vs a11y pass vs evidence policy.",
+  "overlaps_with": ["playwright-e2e-engineer", "manual-test-case-creator", "screenshot-evidence-planner", "accessibility-test-harness"],
+  "cases": [
+    {
+      "id": "interactive-walkthrough-wins-here",
+      "prompt": "Drive through every screen of the demo build today and report broken pages with screenshots.",
+      "expected_skill": "clickthrough-test-engineer",
+      "should_not_trigger": ["playwright-e2e-engineer", "manual-test-case-creator"],
+      "reason": "A one-session interactive drive with observations and evidence is a clickthrough — no permanent specs, no reusable case documents requested."
+    },
+    {
+      "id": "reusable-cases-go-to-case-creator",
+      "prompt": "Write step-by-step manual test cases for onboarding that our contractors can execute every release.",
+      "expected_skill": "manual-test-case-creator",
+      "should_not_trigger": ["clickthrough-test-engineer"],
+      "reason": "Reusable documents another tester executes are manual test cases; the clickthrough engineer executes sessions, it doesn't author the case library."
+    },
+    {
+      "id": "a11y-pass-goes-to-harness",
+      "prompt": "Go through the app keyboard-only and with a screen reader and report accessibility failures.",
+      "expected_skill": "accessibility-test-harness",
+      "should_not_trigger": ["clickthrough-test-engineer"],
+      "reason": "Keyboard/focus/screen-reader verification is the a11y harness's specialized pass, not a general UI walkthrough."
+    },
+    {
+      "id": "evidence-policy-goes-to-planner",
+      "prompt": "Define which screenshots we must capture for release evidence and how to name, mask, and store them.",
+      "expected_skill": "screenshot-evidence-planner",
+      "should_not_trigger": ["clickthrough-test-engineer"],
+      "reason": "Evidence policy design is the planner; the clickthrough engineer follows that policy during sessions."
+    }
+  ]
+}

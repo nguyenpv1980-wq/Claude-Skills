@@ -14,7 +14,9 @@ subagents, and the Step 0 reconciliation of the two earlier planning tracks. **P
 shipped the first real skills: the 8-skill AI engineering **operating-discipline pack**
 (reconciled decision D4). **Phase 2** shipped the 10-skill **core architecture &
 engineering pack**. **Phase 3** shipped the 9-skill **SaaS & tenant isolation pack**.
-**Phase 4** ships the 9-skill **security, RLS & supply-chain pack** — see
+**Phase 4** shipped the 9-skill **security, RLS & supply-chain pack**. **Phase 5**
+ships the 16-skill **QA, E2E, manual QA & evidence pack** (the 13 canonical Phase 5
+skills plus 3 pulled forward from the QA backlog: roadmap #184/#185/#204) — see
 [Skills (shipped)](#skills-shipped) below.
 
 ## Start here (canonical reading order)
@@ -47,8 +49,8 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | 1 | AI engineering **operating-discipline** pack (8 skills) | P0 | ✅ merged |
 | 2 | Core architecture & engineering (10) | P0 | ✅ merged |
 | 3 | SaaS & tenant isolation (9) | P0/P1 | ✅ merged |
-| 4 | Security, RLS & supply chain (9) | P0/P1 | ✅ this branch |
-| 5 | QA, E2E, manual QA & evidence (13) | P0/P1 | backlog |
+| 4 | Security, RLS & supply chain (9) | P0/P1 | ✅ merged |
+| 5 | QA, E2E, manual QA & evidence (16 = 13 canonical + 3 pulled forward from the QA backlog: roadmap #184/#185/#204) | P0/P1 | ✅ this branch |
 | 6 | Cloud, DevOps, reliability & release (10) | P1 | backlog |
 | 7 | AI security & LLM systems (10) | P1 | backlog |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
@@ -126,6 +128,28 @@ Phase 4 — security, RLS & supply-chain pack:
 | `security-pr-reviewer` | Security lens on an actual diff: authz/object-level/tenant-scope, injection, secrets, SSRF, control-weakening detection; exploit-path-gated findings; no diff, no review. | auto + manual |
 | `secure-migration-reviewer` | Whole-migration deploy safety: RLS/policy gaps, GRANT widening, unsafe defaults, destructive/irreversible ops, tenant-scoped backfills, lock risk, expand→contract deploy order, rollback; delegates policy text to `rls-policy-auditor`. | auto + manual |
 | `static-analysis-reviewer` | Triages SAST/CodeQL/SARIF on first-party code: dedup, confirm-against-code disposition (TP/FP/dup/accepted), five-axis ranking (reachability/exploitability/asset/tenant/business), written suppression policy. | auto + manual |
+
+Phase 5 — QA, E2E, manual QA & evidence pack (13 canonical + 3 pulled forward from the
+QA backlog, roadmap #184/#185/#204):
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `qa-strategy-architect` | Product-level QA strategy: ranked risk inventory → cheapest-reliable-layer decisions, explicit automation/manual split, evidence per change class, CI gates, ownership. | auto + manual |
+| `test-plan-designer` | Per-change test plan: risk-traced items with layer/data/environment, objective entry/exit criteria, named artifacts and CI placement, explicit out-of-scope list. | auto + manual |
+| `test-coverage-mapper` | Coverage audit: surface inventory first, maps tests by reading assertions (theater ≠ coverage), risk-ranked gaps with cheapest fill layer, honest not-inspected list. | auto + manual |
+| `qa-automation-architect` | Automation blueprint: tools per layer with rationale, structure/fixtures/auth-state, parallel-safe isolation, CI tiers with bounded logged retries, flake policy, migration steps. | auto + manual |
+| `playwright-e2e-engineer` | Critical-journey Playwright specs: role/label locators, web-first assertions, zero sleeps/networkidle, storageState per persona, failure traces, honest run reports. | **manual only** |
+| `clickthrough-test-engineer` | Pre-planned interactive walkthrough of a running app (forms with invalid input, dialogs, permissions, states, console), severity-rated defects with masked evidence, honest coverage. | **manual only** |
+| `manual-test-case-creator` | Stranger-executable manual cases: exact data/roles/environment, one observable expected result per step, screenshot checkpoints, verdict rules, cleanup. | auto + manual |
+| `screenshot-evidence-planner` | Evidence policy: risk-justified checkpoints, deterministic naming, mandatory pre-storage masking, metadata, storage/retention classes, case/PR/closeout linkage. | auto + manual |
+| `vitest-unit-component-engineer` | Vitest unit/component tests: intentional node-vs-DOM environment per file, owned-seam mocks, Testing Library queries, determinism, real run output. | **manual only** |
+| `vite-build-qa-engineer` | Build-artifact QA: `VITE_` env classification, dist-level secret proof, build/preview parity (base, deep links, modes), bundle budgets, sourcemap policy. | **manual only** |
+| `flaky-test-detective` | Classify → reproduce with counts → fix ONE cause → prove stability; no retries/sleeps/weakened assertions; product races routed as product bugs; quarantine with owner/ticket/expiry. | auto + manual |
+| `test-data-architect` | Test-data design: read-only persona/baseline catalog, per-layer sources, determinism, worker-scoped isolation, synthetic-only PII posture, cleanup + seed evolution. | auto + manual |
+| `regression-suite-curator` | Evidence-based promote/retain/demote/retire with written rationale, protected security regressions, enforced quarantine registry, tier-budget fit. | auto + manual |
+| `integration-test-designer` | (pulled forward, #184) The layer between unit and E2E: real service/command/DB/auth/permission boundaries, named faked seams, persisted-state assertions, no browser. | auto + manual |
+| `api-contract-test-designer` | (pulled forward, #185) Contract verification: provider/consumer roles, schema + error-envelope validation, additive-vs-breaking CI gate, version coverage; design stays with `api-event-architect`. | auto + manual |
+| `accessibility-test-harness` | (pulled forward, #204) WCAG-pinned a11y harness: automated scans (baseline+ratchet) AND manual keyboard/focus/contrast/screen-reader checklists; honest about automation limits. | auto + manual |
 
 ## Authoring a new skill
 

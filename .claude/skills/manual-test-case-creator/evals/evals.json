@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "manual-test-case-creator",
+  "description": "Trigger and behavior cases for manual test case authoring: stranger-executable cases with exact data, one observable expected result per step, checkpoints, verdict rules, cleanup.",
+  "cases": [
+    {
+      "id": "positive-cases-for-feature",
+      "type": "should_trigger",
+      "prompt": "Write manual test cases for the workspace invitation flow so our contractors can run them each release.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Produces cases with ids, requirement traces, exact roles, environments, preconditions, and literal test data values.",
+          "Writes numbered steps with exactly one action and one observable expected result each — no 'verify it works'.",
+          "Covers happy, negative (already-member, expired invite), and boundary paths; marks screenshot checkpoints with masking notes.",
+          "Defines pass/fail/blocked semantics and cleanup returning the environment to neutral."
+        ]
+      }
+    },
+    {
+      "id": "edge-acceptance-criteria-conversion",
+      "type": "should_trigger",
+      "prompt": "Turn these acceptance criteria for the export feature into a manual verification pass. One criterion says 'export should be fast'.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Converts testable criteria into traced cases and flags 'fast' as untestable, returning it for measurable restatement instead of writing a judgment-free case.",
+          "Keeps steps implementation-agnostic (screen outcomes, not API/DB internals)."
+        ]
+      }
+    },
+    {
+      "id": "negative-execute-now",
+      "type": "should_not_trigger",
+      "prompt": "Go click through the invitation flow on staging right now and tell me if it's broken.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Executing a live session is clickthrough-test-engineer; this skill authors the reusable case documents."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-vague-steps",
+      "type": "should_trigger",
+      "prompt": "Write quick manual test cases — keep them short, just 'open the page and check everything looks right'.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Rejects 'check everything looks right' as an expected result and writes observable, criterion-based outcomes instead.",
+          "Explains the stranger-executability bar rather than shipping vague cases on request."
+        ]
+      }
+    }
+  ]
+}

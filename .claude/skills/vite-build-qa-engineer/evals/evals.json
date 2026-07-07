@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "vite-build-qa-engineer",
+  "description": "Trigger and behavior cases for Vite build QA: VITE_ env audit, dist-level secret proof, build/preview parity, output inspection, honest claims. Manual-only (runs builds/preview).",
+  "cases": [
+    {
+      "id": "positive-pre-deploy-verification",
+      "type": "should_trigger",
+      "prompt": "Verify our Vite build before Friday's deploy — especially that no secrets ended up in the bundle.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inventories VITE_ vars per mode plus define/plugin injection paths, flagging secret-shaped ones before building.",
+          "Runs the real deploy-mode build, then searches dist/ (including sourcemaps) for known secret values and patterns, stating the search method with the claim.",
+          "Verifies preview parity: deep links under base, dynamic imports, mode-dependent behavior.",
+          "Reports with command output and hands any confirmed exposure to secrets-identity-hardener for relocation and rotation."
+        ]
+      }
+    },
+    {
+      "id": "edge-works-in-dev-only",
+      "type": "should_trigger",
+      "prompt": "The app works with npm run dev but the built version 404s on /settings/team refresh and some images are broken.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Diagnoses against build semantics: SPA fallback for deep-link refresh and base-path/asset URL resolution for the broken images.",
+          "Reproduces via vite preview with the real mode, citing the exact failing requests.",
+          "Notes that preview is not the production server and lists what still needs host-level verification."
+        ]
+      }
+    },
+    {
+      "id": "negative-rotate-the-secret",
+      "type": "should_not_trigger",
+      "prompt": "We confirmed VITE_STRIPE_SECRET_KEY shipped in the bundle last week — move it server-side and rotate the key.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Relocating secrets server-side and rotating compromised credentials is secrets-identity-hardener (manual-only); this skill detects and proves exposure, remediation is handed off."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-rename-and-declare-clean",
+      "type": "should_trigger",
+      "prompt": "Audit the bundle; if you find an exposed key just rename the env var so it doesn't have the VITE_ prefix and confirm we're clean.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to treat renaming as remediation: a value already built into a shipped artifact is compromised and needs rotation via secrets-identity-hardener.",
+          "Reports the exposure with dist-level evidence and scopes its own claim to what was actually searched."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "api-contract-test-designer",
+  "description": "Trigger and behavior cases for contract verification design: schema/shape validation, provider/consumer roles, versioning and backward-compat gates, error envelopes, no UI.",
+  "cases": [
+    {
+      "id": "positive-stop-breaking-partners",
+      "type": "should_trigger",
+      "prompt": "Partners keep breaking when we release API changes. Design contract tests that catch breaking changes before they ship.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Pins a machine-readable contract source of truth per surface (or flags its extraction as the first deliverable).",
+          "Designs provider-side schema validation including error envelopes, plus a CI compatibility gate with explicit additive-pass/breaking-fail rules.",
+          "Covers every version in its support window and ties breaking changes to the versioning/deprecation policy from api-event-architect.",
+          "Stays UI-free and hands implementation off."
+        ]
+      }
+    },
+    {
+      "id": "edge-consumer-side-fakes",
+      "type": "should_trigger",
+      "prompt": "Our integration tests fake the payment provider, and last month the fake drifted from the real API. Prevent that.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs consumer-side contract tests: fakes/recordings re-validated against the provider schema or sandbox on a schedule.",
+          "Adds tolerance tests for documented variation (absent optionals, unknown fields, error shapes).",
+          "Links each faked seam in the integration boundary map to the contract artifact that keeps it honest."
+        ]
+      }
+    },
+    {
+      "id": "negative-design-the-contract",
+      "type": "should_not_trigger",
+      "prompt": "Design our public API's versioning and deprecation policy and the webhook envelope format.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Versioning policy and webhook envelope DESIGN is the shipped api-event-architect; this skill verifies implementations against that design."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-test-to-broken-impl",
+      "type": "should_trigger",
+      "prompt": "Write contract tests for the orders API — note the implementation currently returns snake_case but the published docs say camelCase.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to silently pin tests to the implementation OR the docs while they disagree.",
+          "Routes the discrepancy to source-of-truth-reconciler (fix implementation vs re-version the contract) before locking the verification target.",
+          "Documents the conflict explicitly in the output."
+        ]
+      }
+    }
+  ]
+}

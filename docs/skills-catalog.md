@@ -8,8 +8,10 @@ checks that every *implemented* skill is listed here and in `README.md`.
 
 > **Status:** Phase 0 (foundation), Phase 1 (the 8-skill operating-discipline pack,
 > decision D4), Phase 2 (the 10-skill core architecture & engineering pack),
-> Phase 3 (the 9-skill SaaS & tenant isolation pack), and Phase 4 (the 9-skill
-> security, RLS & supply-chain pack) are implemented. `_template` remains a
+> Phase 3 (the 9-skill SaaS & tenant isolation pack), Phase 4 (the 9-skill
+> security, RLS & supply-chain pack), and Phase 5 (the 16-skill QA, E2E, manual QA
+> & evidence pack — the 13 canonical skills plus 3 pulled forward from the QA
+> backlog, roadmap #184/#185/#204) are implemented. `_template` remains a
 > reference template ignored by the validator. Everything under "Backlog" is
 > planned, not built.
 
@@ -40,7 +42,7 @@ in the reconciliation doc §5.
 
 ---
 
-## Implemented (Phases 0–4)
+## Implemented (Phases 0–5)
 
 ### Foundation (Phase 0)
 
@@ -184,6 +186,60 @@ cluster (`multi-tenant-security-tester`, `rls-policy-auditor`) additionally disc
 against the shipped `tenant-isolation-reviewer` (inspection-based review vs executable
 tests vs database-policy audit).
 
+### Skills (Phase 5 — QA, E2E, manual QA & evidence pack)
+
+All under `.claude/skills/<name>/`; every one ships `evals/evals.json` **and**
+`evals/trigger-evals.json` (all sixteen sit in one of four overlap clusters). Per
+master-prompt §7: QA starts from risk; every layer choice picks the cheapest reliable
+layer; E2E is reserved for critical journeys; manual cases are executable by another
+tester; screenshot evidence carries naming/masking/metadata/storage rules; Playwright
+uses resilient locators and web-first assertions with no arbitrary sleeps; Vite skills
+prove `VITE_` secret non-exposure at the `dist/` level; Vitest skills choose the
+environment intentionally; flake work classifies, reproduces, fixes one cause, and
+proves stability. Four skills have side effects and are **manual-only**
+(`disable-model-invocation: true`): `playwright-e2e-engineer` (writes specs, drives a
+browser), `clickthrough-test-engineer` (drives a live app), `vitest-unit-component-engineer`
+(writes test files, runs suites), and `vite-build-qa-engineer` (runs builds/preview).
+
+**Pulled forward from the QA backlog** (in addition to the 13 canonical Phase 5 skills):
+`integration-test-designer` (roadmap #184), `api-contract-test-designer` (roadmap #185),
+and `accessibility-test-harness` (roadmap #204) — each with mandatory trigger-eval
+discrimination against its nearest neighbors. Per reconciliation §3, `acceptance-criteria-tester`,
+`e2e-test-architect`, and `qa-closeout-reporter` stay in the expansion backlog
+(`qa-closeout-reporter` overlaps the shipped `ai-closeout-reporter` +
+`screenshot-evidence-planner`, whose evidence bundle the closeout consumes).
+
+| Skill | Source (category doc) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `qa-strategy-architect` | cat 06 #181/#182 | yes | Product-level QA strategy: ranked risk inventory → cheapest-reliable-layer decisions, explicit automation/manual split, evidence per change class, CI gates, ownership; delegates security negatives. |
+| `test-plan-designer` | cat 06 #181/#192 | yes | Per-change test plan: risk-traced items with layer/data/environment, objective entry/exit criteria, named artifacts + CI placement, engineer-skill handoffs, explicit out-of-scope list. |
+| `test-coverage-mapper` | cat 06 #191/#192 | yes | Surface-inventory-first coverage audit; maps by reading assertions (theater ≠ coverage); risk-ranked gap list with cheapest fill layer; honest covered/theater/uncovered/not-inspected statement. |
+| `qa-automation-architect` | cat 06 #200/#211/#212 | yes | Automation blueprint: tools per layer with rationale, structure/fixtures/auth-state, parallel-safe isolation, artifacts, CI tiers with bounded logged retries, flake policy, small-step migration. |
+| `playwright-e2e-engineer` | cat 06 #187/#189 | **no** (manual-only; writes specs, drives browser) | Critical-journey Playwright specs: role/label locators (testid = flagged semantics gap), web-first assertions, zero sleeps/networkidle, storageState per persona, failure traces, honest run reports incl. pass-on-retry. |
+| `clickthrough-test-engineer` | cat 06 #222 | **no** (manual-only; drives a live app) | Pre-planned route-by-route interactive walkthrough (forms w/ invalid input, dialogs, permissions, states, console), severity-rated defects with masked evidence, honest executed/skipped coverage. |
+| `manual-test-case-creator` | cat 06 #221 | yes | Stranger-executable manual cases: exact data/roles/environment, one observable expected result per step, screenshot checkpoints, pass/fail/blocked verdict rules, cleanup, requirement traces. |
+| `screenshot-evidence-planner` | cat 06 #223 | yes | Evidence policy: risk-justified checkpoints, deterministic naming, mandatory pre-storage block-out masking, metadata (build/env/persona/viewport), storage/retention classes, case/PR/closeout linkage. |
+| `vitest-unit-component-engineer` | cat 06 #183 + cat 05 #180 | **no** (manual-only; writes test files, runs suites) | Vitest unit/component tests: intentional node-vs-DOM environment per file, owned-seam mocks only, Testing Library user-facing queries, determinism, real run output, regression spot-check. |
+| `vite-build-qa-engineer` | cat 05 #178 + cat 06 #217 | **no** (manual-only; runs builds/preview) | Build-artifact QA: `VITE_` env classification, dist-level secret value+pattern proof, build/preview parity (base, deep links, modes), bundle budgets + sourcemap policy; exposures → `secrets-identity-hardener`. |
+| `flaky-test-detective` | cat 06 #209/#210 | yes | Classify → reproduce with counts → fix ONE cause → prove stability with repeated runs; no retries/sleeps/weakened assertions; product races routed as product bugs; quarantine with owner/ticket/expiry. |
+| `test-data-architect` | cat 06 #196–#199 | yes | Persona/baseline catalog (read-only), per-layer data sources, determinism, worker-scoped parallel isolation, synthetic-only PII posture, structural cleanup + traceability, schema-coupled seed evolution. |
+| `regression-suite-curator` | cat 06 #190/#210 | yes | Evidence-based promote/retain/demote/retire with written rationale (never silent deletion), protected security regressions (human-approval to retire), enforced quarantine registry, tier-budget fit. |
+| `integration-test-designer` | cat 06 **#184 (pulled forward)** | yes | The layer BETWEEN unit and E2E: real service/command/DB/auth/permission boundaries, named faked seams with rationale, real-path auth minting, persisted-state assertions, no browser; security matrices deferred to `multi-tenant-security-tester`. |
+| `api-contract-test-designer` | cat 06 **#185 (pulled forward)** | yes | Contract VERIFICATION (not design): provider/consumer roles, request/response schema + error-envelope validation, additive-vs-breaking CI gate, version coverage, fake-fidelity re-validation; contract design stays with `api-event-architect`. |
+| `accessibility-test-harness` | cat 06 **#204 (pulled forward)** + cat 05 #173 | yes | WCAG-pinned a11y harness: automated scans (component/E2E/CI, baseline+ratchet) AND manual keyboard/focus/contrast/screen-reader checklists; explicit about what automation cannot judge. |
+
+Trigger-overlap coverage (`evals/trigger-evals.json`) ships for the four Phase 5 clusters:
+**strategy/plan/coverage** (`qa-strategy-architect`, `test-plan-designer`,
+`test-coverage-mapper`, `qa-automation-architect`), **test-level**
+(`vitest-unit-component-engineer`, `integration-test-designer`, `playwright-e2e-engineer`,
+`api-contract-test-designer`), **UI/manual** (`clickthrough-test-engineer`,
+`manual-test-case-creator`, `screenshot-evidence-planner`, `accessibility-test-harness`),
+and **unit/build/flake/data** (`vite-build-qa-engineer`, `flaky-test-detective`,
+`test-data-architect`, `regression-suite-curator`) — with cross-phase discrimination
+against the shipped `code-reviewer`, `full-codebase-auditor`, `api-event-architect`,
+`multi-tenant-security-tester`, `tdd-engineer`, `systematic-debugger`,
+`secrets-identity-hardener`, and `ai-closeout-reporter`.
+
 ---
 
 ## Backlog by phase (reconciled)
@@ -228,12 +284,16 @@ design, logging redaction, compliance-evidence mapping, privacy-by-design, secur
 detection, security-impact-note authoring) remains backlog, built in Phase 8 batches.
 
 ### Phase 5 — QA, E2E, manual QA & evidence (P0/P1)
-`qa-strategy-architect`, `test-plan-designer`, `test-coverage-mapper`, `qa-automation-architect`,
-`playwright-e2e-engineer`, `clickthrough-test-engineer`, `manual-test-case-creator`,
-`screenshot-evidence-planner`, `vitest-unit-component-engineer`, `vite-build-qa-engineer`,
-`flaky-test-detective`, `test-data-architect`, `regression-suite-curator`.
+✅ **Implemented** — all 13 canonical first-pass skills PLUS 3 pulled forward from the
+QA backlog (`integration-test-designer` #184, `api-contract-test-designer` #185,
+`accessibility-test-harness` #204) moved to
+[Implemented → Skills (Phase 5)](#skills-phase-5--qa-e2e-manual-qa--evidence-pack) above.
 Source: [`docs/skills/06-qa-test-engineering.md`](skills/06-qa-test-engineering.md),
 [`05-frontend-ux-engineering.md`](skills/05-frontend-ux-engineering.md).
+Per reconciliation §3, the Phase 5 **expansion backlog** (`acceptance-criteria-tester`,
+`e2e-test-architect`, `qa-closeout-reporter` — the latter overlaps the shipped
+`ai-closeout-reporter` + `screenshot-evidence-planner` — plus the remaining cat-06 rows)
+remains backlog, built in Phase 8 batches.
 
 ### Phase 6 — Cloud, DevOps, reliability & release (P1)
 `cloud-architecture-decider`, `azure-saas-architect`, `aws-saas-architect`, `iac-reviewer`,

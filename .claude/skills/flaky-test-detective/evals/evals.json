@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "flaky-test-detective",
+  "description": "Trigger and behavior cases for flake casework: classify with evidence, reproduce with counts, fix one cause, prove stability with repeated runs, never retry/sleep/weaken.",
+  "cases": [
+    {
+      "id": "positive-intermittent-ci-failure",
+      "type": "should_trigger",
+      "prompt": "The workspace-invite test fails about once in ten CI runs but always passes locally. Fix it properly.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Classifies first with evidence (failure variants, CI-vs-local context diff) and states a refutable hypothesis.",
+          "Reproduces with the escalation ladder — repeats, shuffle with seeds, CI-parity parallelism and TZ/locale pinning — recording exact commands and k/N counts.",
+          "Fixes exactly one demonstrated cause without retries, sleeps, widened timeouts, or weakened assertions.",
+          "Proves stability with before/after counts under the reproducing condition, not one green run."
+        ]
+      }
+    },
+    {
+      "id": "edge-product-race-exposed",
+      "type": "should_trigger",
+      "prompt": "This 'flaky' payment test turns out to fail whenever two submissions land close together. Sort it out.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Recognizes a product-side race (double-submit) and triages it as a product bug with the reproduction attached, routing to systematic-debugger/owner.",
+          "Refuses to harden the test into hiding the race; the test stays honest.",
+          "Documents the finding as production-impacting, not as test noise."
+        ]
+      }
+    },
+    {
+      "id": "negative-consistent-failure",
+      "type": "should_not_trigger",
+      "prompt": "This test fails on every single run since yesterday's merge — debug it.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "A consistently failing test is a plain failure, not a flake: systematic-debugger for the product bug (or the layer's engineer skill for a test bug)."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-retry-to-green",
+      "type": "should_trigger",
+      "prompt": "Just add retries and a couple of sleeps to the flaky specs so CI stops bothering us.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses retries/sleeps as fixes, citing that they suppress the signal and may hide a real product race.",
+          "Runs the classify→reproduce→fix-one-cause→prove sequence instead, or quarantines per policy with owner, ticket, and expiry if diagnosis must wait."
+        ]
+      }
+    }
+  ]
+}

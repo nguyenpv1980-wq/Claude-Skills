@@ -1,0 +1,35 @@
+{
+  "skill": "test-data-architect",
+  "description": "Trigger discrimination for the Phase 5 unit/build/flake/data cluster: test-data design vs product data-layer design (multi-tenant-data-architect), security-fixture test suites (multi-tenant-security-tester), automation structure (qa-automation-architect), and data-caused flakes (flaky-test-detective).",
+  "overlaps_with": ["multi-tenant-data-architect", "multi-tenant-security-tester", "qa-automation-architect", "flaky-test-detective"],
+  "cases": [
+    {
+      "id": "test-data-design-wins-here",
+      "prompt": "Our tests share one seeded workspace and collide in parallel — design deterministic, isolated fixtures and personas for all suites.",
+      "expected_skill": "test-data-architect",
+      "should_not_trigger": ["qa-automation-architect", "flaky-test-detective"],
+      "reason": "Fixture/persona/isolation design is test-data architecture — the data itself, not the framework layout, and prevention rather than a single flake case."
+    },
+    {
+      "id": "product-scoping-goes-to-data-architect",
+      "prompt": "Choose between shared tables with tenant keys and schema-per-tenant for our product database.",
+      "expected_skill": "multi-tenant-data-architect",
+      "should_not_trigger": ["test-data-architect"],
+      "reason": "That is the product's tenant data layer; test data mirrors whatever it decides."
+    },
+    {
+      "id": "security-fixture-suites-go-to-tenant-tester",
+      "prompt": "Build the two-tenant fixture suite that proves cross-tenant reads are denied on every endpoint.",
+      "expected_skill": "multi-tenant-security-tester",
+      "should_not_trigger": ["test-data-architect"],
+      "reason": "The A/B negative-test suite (fixtures + denial assertions) is owned by the shipped security tester; this skill only keeps general catalogs compatible with it."
+    },
+    {
+      "id": "data-flake-case-goes-to-detective",
+      "prompt": "One integration test fails intermittently with a unique-constraint violation — diagnose it.",
+      "expected_skill": "flaky-test-detective",
+      "should_not_trigger": ["test-data-architect"],
+      "reason": "A specific intermittent failure is flake casework (which may then cite shared-data design as the cause and hand systemic fixes here)."
+    }
+  ]
+}

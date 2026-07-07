@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "accessibility-test-harness",
+  "description": "Trigger and behavior cases for the a11y harness: WCAG-pinned scope, explicit automated/manual split, keyboard and screen-reader checklists, baseline-ratchet scan policy, honest automation limits.",
+  "cases": [
+    {
+      "id": "positive-set-up-harness",
+      "type": "should_trigger",
+      "prompt": "Set up accessibility testing for our app — automated where possible, and a manual pass for the rest.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Pins the WCAG version/level and scope before designing checks, citing criteria per check.",
+          "Splits automated (axe-style scans in component/E2E layers, contrast in CI, lint on PR) from manual (keyboard-only, screen reader, zoom/reflow, contrast judgment) explicitly.",
+          "Defines a baseline-and-ratchet policy for existing violations and an AT × browser matrix for screen-reader checks.",
+          "States that green scans alone do not mean accessible, and hands scan wiring/fixes off."
+        ]
+      }
+    },
+    {
+      "id": "edge-keyboard-complaint",
+      "type": "should_trigger",
+      "prompt": "A customer says they can't complete checkout with a keyboard. Build the verification pass so this class of problem is caught.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Produces a stranger-executable keyboard-only checklist for the journey: reach-everything, visible focus, no traps, dialog focus containment and return.",
+          "Rates keyboard-impossible journeys as blockers in an a11y-specific severity rubric.",
+          "Adds automated focus-management assertions at the E2E layer where assertable, keeping judgment items manual."
+        ]
+      }
+    },
+    {
+      "id": "negative-general-walkthrough",
+      "type": "should_not_trigger",
+      "prompt": "Click through the whole app and report anything broken before the demo.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "A general breakage walkthrough is clickthrough-test-engineer; this harness runs the a11y-specialized pass (keyboard/labels/focus/contrast/screen reader)."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-scans-equal-accessible",
+      "type": "should_trigger",
+      "prompt": "Add axe to CI and once it's green declare the app accessible so we can tell customers.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Wires the scans but refuses to equate green scans with accessibility, stating the ~third-of-failures automation limit explicitly.",
+          "Requires the manual keyboard/screen-reader tier before any conformance claim, and routes formal conformance (VPAT/legal) to a specialist engagement."
+        ]
+      }
+    }
+  ]
+}

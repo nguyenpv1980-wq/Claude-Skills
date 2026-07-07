@@ -101,6 +101,47 @@ Execution-plan equivalents merged: `rls-policy-author`/`rls-negative-test-design
 Execution-plan `rls-policy-author` + `rls-negative-test-designer` **→ merged into**
 `rls-policy-auditor` (which per v4 includes the negative-test plan).
 
+#### OWASP Top 10 (Web Application Security) coverage map
+
+Gap audit (D8) of the nine **shipped** Phase 4 skills against the **OWASP Top 10:2025** for
+web application security, A01:2025–A10:2025. Source: <https://owasp.org/www-project-top-ten/>
+(verified 2026-07-06 — the project page states the current released edition is the 2025 list,
+published at <https://owasp.org/Top10/2025/>). This map records coverage of already-shipped
+work and tracks gaps as Phase 8 backlog items; it creates no skills and changes no phase list.
+
+| OWASP Top 10:2025 (web app) | Covering shipped Phase 4 skill(s) | Status |
+|---|---|---|
+| A01:2025 Broken Access Control | `multi-tenant-security-tester` (IDOR, cross-tenant, privilege escalation), `rls-policy-auditor`, `security-pr-reviewer` (object-level/tenant-scope checks, SSRF hunting in diffs), `appsec-implementer` (authz checks, SSRF/redirect allowlists), `threat-modeler` | covered |
+| A02:2025 Security Misconfiguration | `secure-migration-reviewer` (unsafe defaults, over-broad GRANTs, RLS-enablement gaps), `rls-policy-auditor` (deny-by-default posture), `secrets-identity-hardener` (env classification, client-bundle exposure) | partial |
+| A03:2025 Software Supply Chain Failures | `supply-chain-security-reviewer` (dependencies, lockfiles, CI/CD, artifact provenance; extended to AI supply chain per D6/LLM03) | covered |
+| A04:2025 Cryptographic Failures | `secrets-identity-hardener` (key/credential custody, rotation, exposure), `static-analysis-reviewer` (triage of weak-crypto findings) | partial |
+| A05:2025 Injection | `security-pr-reviewer` (injection in diffs), `appsec-implementer` (parameterized queries, input validation, output encoding), `static-analysis-reviewer` (SAST injection triage) | covered |
+| A06:2025 Insecure Design | `threat-modeler` (trust boundaries, STRIDE enumeration, abuse cases, mitigations each with a negative test); `appsec-implementer` builds the decided controls | covered |
+| A07:2025 Authentication Failures | `secrets-identity-hardener` (session/token expiry, refresh, storage flags, revocation), `security-pr-reviewer` (authn gaps in diffs), `threat-modeler` (auth is a named design surface) | covered |
+| A08:2025 Software or Data Integrity Failures | `supply-chain-security-reviewer` (CI/CD integrity, unpinned Actions, artifact provenance), `security-pr-reviewer` (unsafe deserialization) | covered |
+| A09:2025 Security Logging and Alerting Failures | — no Phase 4 skill | gap |
+| A10:2025 Mishandling of Exceptional Conditions | — no Phase 4 skill | gap |
+
+- **Rubric:** *covered* = the category's core risk is named in at least one shipped Phase 4
+  skill contract; *partial* = only a slice is named (residue listed below); *gap* = no
+  Phase 4 skill owns it. Honest residue beats optimistic green.
+- **A01 / SSRF:** the 2025 edition folds SSRF (A10:2021) into Broken Access Control. SSRF is
+  covered at three points (`threat-modeler` enumeration, `appsec-implementer` allowlists,
+  `security-pr-reviewer` diff hunting), so no standalone `ssrf-defense-reviewer` backlog item
+  is opened.
+- **A02 residue:** application/platform configuration — security headers, CORS, XML-parser
+  hardening (XXE-class), default accounts, cloud posture — has no Phase 4 owner. Cloud
+  posture is owed to Phase 6 (`iac-reviewer`, plus `cloud-security-baseline-reviewer` in the
+  Phase 6 expansion backlog); the app-config slice remains open residue.
+- **A04 residue:** encryption-in-transit/at-rest design and algorithm/library review are
+  unowned; coverage today is custody of keys/credentials plus SAST-finding triage only.
+- **A09/A10 gaps:** tracked as named candidate skills in the Phase 8 backlog per D8. Nearest
+  existing mitigation for A09 is Phase 3 `audit-log-architect`, which records tenant-scoped
+  audit trails but does not design detection or alerting.
+- **Framework distinction:** this is a third OWASP framework, distinct from the OWASP LLM
+  Top 10 (Phase 7 map below, D6) and from the separate OWASP Agentic framework (Phase 7.5
+  map below, D7).
+
 ### Phase 5 — QA, E2E, manual QA & evidence (P0/P1)
 **Canonical = v4's 13:** `qa-strategy-architect`, `test-plan-designer`, `test-coverage-mapper`,
 `qa-automation-architect`, `playwright-e2e-engineer`, `clickthrough-test-engineer`,
@@ -211,6 +252,19 @@ target (36 skills) is unchanged.
 Convert the remaining 300-skill roadmap into executable skills **in validated batches** under
 the batch rules in §4 below. Run only after Phases 0–7.5 validate cleanly.
 
+**Tracked backlog items — Phase 4 × OWASP Top 10:2025 (web app) gap audit (D8):**
+
+- `security-logging-alerting-architect` *(candidate — not built)* — closes A09:2025 Security
+  Logging and Alerting Failures: security-event detection coverage, alerting rules, and
+  response wiring; complements Phase 3 `audit-log-architect` (which records, but does not
+  detect or alert).
+- `error-handling-security-reviewer` *(candidate — not built)* — closes A10:2025 Mishandling
+  of Exceptional Conditions: fail-closed defaults, error-path authorization, exception-driven
+  logic bypass, leak-free error responses.
+
+Per D8, uncovered web-app categories land here as backlog items — not as a new phase and not
+as changes to the shipped Phase 4 list.
+
 ---
 
 ## 4. Ported from the execution plan into v4
@@ -284,6 +338,17 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   numbers; the shipped validator skill-count target is unchanged. Source:
   <https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/>.
   Coverage map in §3 Phase 7.5.
+- **D8 (2026-07-06) — Phase 4 is cross-checked against the OWASP Top 10 for Web Application
+  Security; uncovered categories are tracked as Phase 8 backlog.** Audited against the current
+  released edition, OWASP Top 10:2025 (A01:2025–A10:2025). Source:
+  <https://owasp.org/www-project-top-ten/> (category list: <https://owasp.org/Top10/2025/>).
+  Result: 6 covered, 2 partial (A02 Security Misconfiguration, A04 Cryptographic Failures),
+  2 gaps (A09 Security Logging and Alerting Failures, A10 Mishandling of Exceptional
+  Conditions) — gaps recorded as candidate skills in the §3 Phase 8 backlog
+  (`security-logging-alerting-architect`, `error-handling-security-reviewer`). Coverage map
+  in §3 Phase 4. This is a gap audit of shipped work: no skills created or changed, no phases
+  renumbered, validator target unchanged. Third distinct framework: separate from the OWASP
+  Top 10 for LLM Applications (D6) and from the OWASP Agentic Top 10 for 2026 (D7, Phase 7.5).
 
 ---
 

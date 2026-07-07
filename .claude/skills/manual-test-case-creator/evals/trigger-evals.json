@@ -1,0 +1,35 @@
+{
+  "skill": "manual-test-case-creator",
+  "description": "Trigger discrimination for the Phase 5 UI/manual cluster: reusable case documents vs live walkthrough vs evidence policy vs a11y-specific checks.",
+  "overlaps_with": ["clickthrough-test-engineer", "screenshot-evidence-planner", "accessibility-test-harness", "test-plan-designer"],
+  "cases": [
+    {
+      "id": "case-documents-win-here",
+      "prompt": "Author step-by-step manual QA scripts with test data and expected results that any tester can execute for the billing pages.",
+      "expected_skill": "manual-test-case-creator",
+      "should_not_trigger": ["clickthrough-test-engineer", "test-plan-designer"],
+      "reason": "Reusable stranger-executable scripts are manual case authoring — not a live session, and more granular than a test plan."
+    },
+    {
+      "id": "live-session-goes-to-clickthrough",
+      "prompt": "Walk through the billing pages on the current build and report defects with screenshots today.",
+      "expected_skill": "clickthrough-test-engineer",
+      "should_not_trigger": ["manual-test-case-creator"],
+      "reason": "Driving the app now and reporting is a clickthrough session, not document authoring."
+    },
+    {
+      "id": "a11y-cases-go-to-harness",
+      "prompt": "Write the keyboard-only and screen-reader verification checklist for our forms.",
+      "expected_skill": "accessibility-test-harness",
+      "should_not_trigger": ["manual-test-case-creator"],
+      "reason": "A11y-specific manual checks (keyboard/focus/SR) belong to the accessibility harness, which owns both the automated and manual halves of that domain."
+    },
+    {
+      "id": "which-screenshots-goes-to-planner",
+      "prompt": "Decide which checkpoints need screenshots for release evidence and the masking rules for them.",
+      "expected_skill": "screenshot-evidence-planner",
+      "should_not_trigger": ["manual-test-case-creator"],
+      "reason": "Evidence policy (checkpoints, naming, masking, storage) is the planner; cases only reference its rules."
+    }
+  ]
+}

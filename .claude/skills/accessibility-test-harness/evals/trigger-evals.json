@@ -1,0 +1,35 @@
+{
+  "skill": "accessibility-test-harness",
+  "description": "MANDATORY anti-overlap (pulled-forward roadmap #204): discriminates the a11y-specialized pass (keyboard/labels/focus/contrast/screen reader) from the general UI walkthrough (clickthrough-test-engineer) and general manual case authoring (manual-test-case-creator), within the UI/manual cluster.",
+  "overlaps_with": ["clickthrough-test-engineer", "manual-test-case-creator", "screenshot-evidence-planner", "playwright-e2e-engineer"],
+  "cases": [
+    {
+      "id": "a11y-specific-wins-here",
+      "prompt": "Verify our app works keyboard-only and with a screen reader, check contrast, and wire automated a11y scans into CI.",
+      "expected_skill": "accessibility-test-harness",
+      "should_not_trigger": ["clickthrough-test-engineer", "manual-test-case-creator"],
+      "reason": "Keyboard/focus/contrast/screen-reader verification with automated + manual halves is exactly the a11y harness — not a general walkthrough or generic case authoring."
+    },
+    {
+      "id": "general-walkthrough-goes-to-clickthrough",
+      "prompt": "Do a full pass over the app clicking every screen and form to find what's broken.",
+      "expected_skill": "clickthrough-test-engineer",
+      "should_not_trigger": ["accessibility-test-harness"],
+      "reason": "General breakage hunting across the UI is a clickthrough session; no a11y-specific lens was requested."
+    },
+    {
+      "id": "generic-manual-cases-go-to-creator",
+      "prompt": "Write manual test cases for the subscription upgrade flow with steps and expected results.",
+      "expected_skill": "manual-test-case-creator",
+      "should_not_trigger": ["accessibility-test-harness"],
+      "reason": "Generic functional manual cases belong to the case creator; the harness owns only the a11y checklists."
+    },
+    {
+      "id": "journey-automation-goes-to-playwright",
+      "prompt": "Automate the checkout journey in the browser as a regression test.",
+      "expected_skill": "playwright-e2e-engineer",
+      "should_not_trigger": ["accessibility-test-harness"],
+      "reason": "Journey automation is E2E engineering; the harness only injects a11y assertions into that layer by design handoff."
+    }
+  ]
+}
