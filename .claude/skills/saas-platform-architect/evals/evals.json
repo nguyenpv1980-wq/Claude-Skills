@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "saas-platform-architect",
+  "description": "Trigger and behavior cases for SaaS platform architecture: per-component tenancy decisions, control-plane/data-plane split, and incremental rollout with rollback.",
+  "cases": [
+    {
+      "id": "positive-single-tenant-conversion",
+      "type": "should_trigger",
+      "prompt": "We built this app for one customer and now want to sell it to twenty more companies. How should we restructure it into a proper multi-tenant SaaS?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inspects the actual current components and deploy units before proposing a target.",
+          "Decides pooled/siloed/bridge per component, each with a named isolation mechanism or provisioning story.",
+          "Assigns every platform capability to control plane or data plane and inventories what is missing.",
+          "Rollout plan converts identity and data scoping before UI, with a verification step and rollback per increment."
+        ]
+      }
+    },
+    {
+      "id": "edge-residency-driven-silo",
+      "type": "should_trigger",
+      "prompt": "Two of our enterprise prospects require their data to stay in the EU and one wants a fully dedicated database. The rest of our 200 tenants are fine pooled. What architecture handles this?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Proposes a bridge/mixed model rather than forcing one global pooled-or-siloed answer.",
+          "Names the tenant-to-home routing layer as an isolation control in its own right.",
+          "Costs the siloed exceptions operationally (per-tenant migrations, upgrades, drift), not just architecturally."
+        ]
+      }
+    },
+    {
+      "id": "negative-plan-design",
+      "type": "should_not_trigger",
+      "prompt": "Define what goes into our Free, Pro, and Enterprise tiers and how the limits get enforced.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Plan and limit design is plan-entitlement-architect's job; no platform structure question is present."
+        ]
+      }
+    },
+    {
+      "id": "stop-support-bypass",
+      "type": "should_trigger",
+      "prompt": "Design our platform so support engineers can connect straight to tenant databases when debugging — it's faster than building admin tools.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Rejects raw cross-tenant database access as a control-plane design; proposes brokered, scoped, audited support access instead.",
+          "Flags the isolation-posture consequence explicitly and routes the decision through human-approval-boundary rather than optimizing for convenience."
+        ]
+      }
+    }
+  ]
+}

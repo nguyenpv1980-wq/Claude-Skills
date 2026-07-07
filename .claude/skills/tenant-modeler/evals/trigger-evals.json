@@ -1,0 +1,28 @@
+{
+  "skill": "tenant-modeler",
+  "description": "Trigger discrimination for the Phase 3 tenant cluster. Pins tenant semantics apart from isolation review and data-layer design.",
+  "overlaps_with": ["tenant-isolation-reviewer", "multi-tenant-data-architect"],
+  "cases": [
+    {
+      "id": "semantics-win-here",
+      "prompt": "What exactly is a tenant in this product — the company, the workspace, or the individual account? Nail that down including what happens when a tenant is suspended.",
+      "expected_skill": "tenant-modeler",
+      "should_not_trigger": ["tenant-isolation-reviewer", "multi-tenant-data-architect"],
+      "reason": "The tenant concept and lifecycle semantics are undefined — that is modeling, not review or storage design."
+    },
+    {
+      "id": "leak-review-goes-to-isolation-reviewer",
+      "prompt": "Before we onboard the bank, audit whether any surface — exports, search, background jobs, the support console — lets one tenant reach another's data.",
+      "expected_skill": "tenant-isolation-reviewer",
+      "should_not_trigger": ["tenant-modeler", "multi-tenant-data-architect"],
+      "reason": "An existing system is being audited for cross-tenant leakage; semantics and schema are not in question."
+    },
+    {
+      "id": "storage-goes-to-data-architect",
+      "prompt": "Decide how we scope tenant data in Postgres — shared tables with a tenant_id, schema per tenant, or separate databases — and how the tenant id flows from request to query.",
+      "expected_skill": "multi-tenant-data-architect",
+      "should_not_trigger": ["tenant-modeler", "tenant-isolation-reviewer"],
+      "reason": "Scoping strategy and tenant-context propagation are data-layer design, downstream of settled tenant semantics."
+    }
+  ]
+}

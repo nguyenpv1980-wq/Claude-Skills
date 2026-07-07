@@ -1,0 +1,28 @@
+{
+  "skill": "api-event-architect",
+  "description": "Trigger discrimination for the Phase 3 access & events cluster. Pins external API/event contracts apart from the internal audit record and authorization design.",
+  "overlaps_with": ["audit-log-architect", "authorization-matrix-designer"],
+  "cases": [
+    {
+      "id": "contracts-win-here",
+      "prompt": "Design the webhook events and payload schemas integrations subscribe to when workspace records change, including retries and signing.",
+      "expected_skill": "api-event-architect",
+      "should_not_trigger": ["audit-log-architect", "authorization-matrix-designer"],
+      "reason": "Externally consumed event contracts with delivery semantics — the integration surface."
+    },
+    {
+      "id": "internal-record-goes-to-audit",
+      "prompt": "Keep an append-only, tenant-scoped history of every permission change and data export that auditors can rely on.",
+      "expected_skill": "audit-log-architect",
+      "should_not_trigger": ["api-event-architect"],
+      "reason": "Durable internal record with integrity guarantees — audit, not a notification feed."
+    },
+    {
+      "id": "scope-rules-go-to-authz",
+      "prompt": "Decide which permissions exist and which roles hold them — including what a read-only role can touch.",
+      "expected_skill": "authorization-matrix-designer",
+      "should_not_trigger": ["api-event-architect"],
+      "reason": "The permission matrix itself; the API skill only binds an existing matrix into token scopes."
+    }
+  ]
+}

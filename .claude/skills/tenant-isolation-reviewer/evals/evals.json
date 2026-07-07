@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "tenant-isolation-reviewer",
+  "description": "Trigger and behavior cases for tenant isolation review: surface inventory before findings, evidence-backed leak scenarios, negative tests, and an honest not-inspected list.",
+  "cases": [
+    {
+      "id": "positive-pre-onboarding-audit",
+      "type": "should_trigger",
+      "prompt": "We're about to onboard a bank as a customer. Audit our app for tenant isolation — they will pen-test us.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Completes the fifteen-surface inventory (identity, data, API, storage, logs, analytics, support, exports, imports, jobs, search, AI retrieval, billing, flags, audit) before filing any finding.",
+          "Every finding carries file:line evidence and a concrete tenant-A-reaches-tenant-B scenario, with confirmed and suspected findings separated.",
+          "Delivers an isolation test matrix and negative tests including the privileged support and background-job paths.",
+          "Reports a not-inspected list and claims soundness only for surfaces actually inspected."
+        ]
+      }
+    },
+    {
+      "id": "edge-ai-retrieval-surface",
+      "type": "should_trigger",
+      "prompt": "We just shipped AI chat that answers questions over customer documents using a shared vector store. Is the retrieval tenant-safe?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inspects how the embedding store is partitioned or filtered by tenant and under whose scope retrieval executes.",
+          "Checks the ingestion/indexing job for tenant-blind corpus building, not just the query path.",
+          "Specifies a canary-document negative test: tenant A's query must return zero chunks from tenant B's documents."
+        ]
+      }
+    },
+    {
+      "id": "negative-data-layer-design",
+      "type": "should_not_trigger",
+      "prompt": "Design our tenant data layer — should we use shared tables with tenant_id or a schema per tenant?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Scoping-strategy design is multi-tenant-data-architect's job; there is no existing system being audited for leaks."
+        ]
+      }
+    },
+    {
+      "id": "stop-no-artifact",
+      "type": "should_trigger",
+      "prompt": "I can't give you the code, but based on how I've described our architecture in this chat, certify that our tenant isolation is solid.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to certify isolation from a verbal description — no code, schema, or concrete design artifact means no review.",
+          "Offers the surface checklist and negative-test plan as what WOULD be verified once an artifact is available, without issuing a verdict."
+        ]
+      }
+    }
+  ]
+}

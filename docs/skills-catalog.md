@@ -7,9 +7,10 @@ and the **category backlogs** under [`docs/skills/`](skills/). `scripts/validate
 checks that every *implemented* skill is listed here and in `README.md`.
 
 > **Status:** Phase 0 (foundation), Phase 1 (the 8-skill operating-discipline pack,
-> decision D4), and Phase 2 (the 10-skill core architecture & engineering pack) are
-> implemented. `_template` remains a reference template ignored by the validator.
-> Everything under "Backlog" is planned, not built.
+> decision D4), Phase 2 (the 10-skill core architecture & engineering pack), and
+> Phase 3 (the 9-skill SaaS & tenant isolation pack) are implemented. `_template`
+> remains a reference template ignored by the validator. Everything under "Backlog"
+> is planned, not built.
 
 ---
 
@@ -38,7 +39,7 @@ in the reconciliation doc §5.
 
 ---
 
-## Implemented (Phases 0–1)
+## Implemented (Phases 0–3)
 
 ### Foundation (Phase 0)
 
@@ -112,6 +113,35 @@ design (`domain-modeler`, `architecture-designer`, `adr-writer`), implementation
 > both a **subagent** (`.claude/agents/`, the review lens) and this **skill**
 > (`.claude/skills/`, the procedure). The agent composes the skill.
 
+### Skills (Phase 3 — SaaS & tenant isolation pack)
+
+All under `.claude/skills/<name>/`; every one ships `evals/evals.json` **and**
+`evals/trigger-evals.json` (all nine sit in one of three overlap clusters). None has
+side effects, so all are model-invocable. Per master-prompt §5: tenant isolation is
+treated as cross-cutting (identity, data, API, storage, logs, analytics, support,
+exports, imports, jobs, search, AI retrieval, billing, flags, audit), every skill
+carries migration + rollback considerations, and the security-related skills require
+negative tests.
+
+| Skill | Source (category doc) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `saas-platform-architect` | cat 02 (platform; #79/#84) | yes | Per-component pooled/siloed/bridge decisions with named isolation mechanisms; control-plane/data-plane split; capability inventory; rollout with per-step rollback. |
+| `tenant-modeler` | cat 02 #56 | yes | Tenant semantics: definition + hierarchy, membership-as-entity (roles on membership), invitations, ownership, lifecycle state machine with per-state access/data/billing/jobs posture. |
+| `tenant-isolation-reviewer` | cat 03 (isolation review) | yes | Reviews REAL systems for cross-tenant leakage across all 15 surfaces; evidence-cited findings, isolation test matrix, negative tests, honest not-inspected list. |
+| `multi-tenant-data-architect` | cat 02 #74/#77/#78 + cat 04 | yes | Per-store scoping decisions (incl. caches/search/vector stores), server-derived tenant-context propagation contract, ownership map, expand→contract migration with verification + rollback. |
+| `authorization-matrix-designer` | cat 02 #59 | yes | Deny-by-default roles × permissions × resources matrix, object-level rules (anti-IDOR), enforcement-point map, brokered support access, negative-test plan, additive role migration. |
+| `plan-entitlement-architect` | cat 02 #60/#64 | yes | Plan × entitlement matrix with one resolution point, uniform enforcement everywhere, metering hooks, plan-transition table (no silent data loss on downgrade), grandfathering + rollback. |
+| `audit-log-architect` | cat 02 #70 | yes | Audit event taxonomy + versioned record schema, append-only integrity, explicit write-failure policy per category, retention/redaction, tenant-scoped access, negative tests. |
+| `saas-cost-architect` | cat 02 #89 | yes | Bill-grounded cost drivers, attribution-or-admission per driver, distribution-based unit economics vs revenue, exposure math, guardrails with observe-first rollout + rollback. |
+| `api-event-architect` | cat 04 (API/event contracts) | yes | Credential-derived tenant context, idempotency, per-tenant/plan rate limits, versioning + deprecation with dual-run, tenant-scoped signed webhooks, contract migration + rollback. |
+
+Trigger-overlap coverage (`evals/trigger-evals.json`) ships for the three Phase 3 clusters:
+tenant (`tenant-modeler`, `tenant-isolation-reviewer`, `multi-tenant-data-architect`),
+platform/commercial (`saas-platform-architect`, `plan-entitlement-architect`,
+`saas-cost-architect`), and access & events (`authorization-matrix-designer`,
+`audit-log-architect`, `api-event-architect`) — plus cross-cluster discrimination for
+the authorization-vs-entitlement axis ("can this ROLE do X" vs "does this PLAN include X").
+
 ---
 
 ## Backlog by phase (reconciled)
@@ -135,10 +165,14 @@ The Phase 2 **expansion backlog** (reconciliation §3: `api-contract-designer`,
 Phase 8 batches.
 
 ### Phase 3 — SaaS & tenant isolation (P0/P1)
-`saas-platform-architect`, `tenant-modeler`, `tenant-isolation-reviewer`,
-`multi-tenant-data-architect`, `authorization-matrix-designer`, `plan-entitlement-architect`,
-`audit-log-architect`, `saas-cost-architect`, `api-event-architect`.
+✅ **Implemented** — all 9 first-pass skills moved to
+[Implemented → Skills (Phase 3)](#skills-phase-3--saas--tenant-isolation-pack) above.
 Source: [`docs/skills/02-saas-platform-architecture.md`](skills/02-saas-platform-architecture.md).
+Reconciliation §3 merges: `rls-policy-author` / `rls-negative-test-designer` are
+**deferred to Phase 4** (merged into `rls-policy-auditor`); the Phase 3 **expansion
+backlog** (`tenant-provisioning-designer`, `membership-invitation-designer`,
+`role-permission-architect`, `security-impact-note-author`) remains backlog, built in
+Phase 8 batches.
 
 ### Phase 4 — Security, RLS & supply chain (P0/P1)
 `threat-modeler`, `appsec-implementer`, `multi-tenant-security-tester`, `rls-policy-auditor`,

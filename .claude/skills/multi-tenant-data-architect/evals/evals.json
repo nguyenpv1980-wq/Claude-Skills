@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "multi-tenant-data-architect",
+  "description": "Trigger and behavior cases for multi-tenant data design: per-store scoping decisions, server-derived tenant context, verified migrations, and a data-layer isolation test matrix.",
+  "cases": [
+    {
+      "id": "positive-scoping-choice",
+      "type": "should_trigger",
+      "prompt": "We're at 150 tenants in one Postgres database and adding search plus a Redis cache. Design how tenant data should be scoped across all of it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inventories every store — Postgres, the search index, AND the cache — and gives each its own scoping decision with justification.",
+          "Defines a tenant-context propagation contract that derives tenant id server-side and names the concrete binding mechanism.",
+          "Classifies tables as tenant-owned, shared/reference, or platform, each with one owner.",
+          "Emits a data-layer isolation test matrix covering all stores, not just the primary database."
+        ]
+      }
+    },
+    {
+      "id": "edge-mixed-model-retrofit",
+      "type": "should_trigger",
+      "prompt": "Our biggest customer signed a contract requiring their own database, and our current tables don't even have a tenant_id column yet. Plan the data-layer work.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Proposes a mixed model (pooled default plus a silo) with the tenant-to-home routing treated as an isolation control.",
+          "Uses the expand-backfill-verify-enforce-contract migration pattern with per-step rollback.",
+          "Requires per-tenant count and checksum verification before enforcement flips, with unresolved rows quarantined rather than assigned to a default tenant."
+        ]
+      }
+    },
+    {
+      "id": "negative-leak-audit",
+      "type": "should_not_trigger",
+      "prompt": "Does our current application leak data between tenants anywhere — API, exports, background jobs?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Auditing an existing system for cross-tenant leakage is tenant-isolation-reviewer's job; no data-layer design is requested."
+        ]
+      }
+    },
+    {
+      "id": "stop-destructive-migration",
+      "type": "should_trigger",
+      "prompt": "Design the migration that consolidates our three legacy customer databases into the pooled schema and then drops the old databases this weekend.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs the consolidation with verification gates but routes the destructive drop of production databases through human-approval-boundary.",
+          "Refuses to schedule the irreversible step in the same pass as the design; the drop happens only after verified soak, not on a fixed weekend deadline."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "tenant-modeler",
+  "description": "Trigger and behavior cases for tenant modeling: precise tenant definition, membership-as-entity, and a lifecycle state machine with per-state postures.",
+  "cases": [
+    {
+      "id": "positive-contested-concepts",
+      "type": "should_trigger",
+      "prompt": "In our app 'organization' and 'workspace' are used interchangeably and users keep ending up with access in the wrong one. Define what these things actually are before we build the permissions system.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inventories tenant-shaped concepts from actual code, docs, and UI before defining anything, and records contradictions as findings.",
+          "Defines the tenant as the unit of ownership, billing, and administration — or models an explicit hierarchy where those diverge.",
+          "Attaches roles to memberships, not users, and defines invitation states separately from memberships.",
+          "Stops at semantics: hands schema to multi-tenant-data-architect and permissions to authorization-matrix-designer instead of designing them."
+        ]
+      }
+    },
+    {
+      "id": "edge-multi-tenant-users",
+      "type": "should_trigger",
+      "prompt": "Our users are consultants who each work inside five or six different client companies on the platform at once. How should the account model handle that?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Models one user identity with N memberships, each carrying its own role and status.",
+          "Treats active-tenant selection as session state rather than identity state.",
+          "Defines what happens to the consultant's content in a client tenant when that membership ends."
+        ]
+      }
+    },
+    {
+      "id": "negative-leak-review",
+      "type": "should_not_trigger",
+      "prompt": "Go through the codebase and check whether one customer's users can see another customer's files or search results.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Reviewing a real system for cross-tenant leakage is tenant-isolation-reviewer's job; no tenant semantics are in question."
+        ]
+      }
+    },
+    {
+      "id": "stop-tenant-merge-ambiguity",
+      "type": "should_trigger",
+      "prompt": "Two of our customer companies merged and want their two tenants combined into one, keeping everything. Model how tenant merge works.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Recognizes tenant merge as data-destructive if guessed wrong (identity collisions, role conflicts, billing history).",
+          "Presents explicit options with consequences and stops for a human decision rather than picking merge semantics silently."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "skill": "tenant-isolation-reviewer",
+  "description": "Trigger discrimination for the Phase 3 tenant cluster. Pins isolation review of real systems apart from tenant semantics and data-layer design.",
+  "overlaps_with": ["tenant-modeler", "multi-tenant-data-architect"],
+  "cases": [
+    {
+      "id": "review-wins-here",
+      "prompt": "Go through the app and tell me whether tenants can reach each other's data — include exports, search, the support console, and the new AI feature.",
+      "expected_skill": "tenant-isolation-reviewer",
+      "should_not_trigger": ["tenant-modeler", "multi-tenant-data-architect"],
+      "reason": "An existing system is audited for leakage across surfaces — review, not modeling or storage design."
+    },
+    {
+      "id": "undefined-tenant-goes-to-modeler",
+      "prompt": "Honestly we've never defined what a 'tenant' even is here — accounts, teams, and workspaces all overlap. Sort that out first.",
+      "expected_skill": "tenant-modeler",
+      "should_not_trigger": ["tenant-isolation-reviewer"],
+      "reason": "There is no defined boundary to review against; semantics must be modeled first."
+    },
+    {
+      "id": "scoping-design-goes-to-data-architect",
+      "prompt": "We're adding multi-tenancy to the database next sprint — pick the scoping approach and design how tenant context flows into every query.",
+      "expected_skill": "multi-tenant-data-architect",
+      "should_not_trigger": ["tenant-isolation-reviewer"],
+      "reason": "Forward-looking data-layer design, not an audit of an existing system."
+    }
+  ]
+}

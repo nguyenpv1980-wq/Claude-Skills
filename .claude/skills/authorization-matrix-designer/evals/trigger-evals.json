@@ -1,0 +1,35 @@
+{
+  "skill": "authorization-matrix-designer",
+  "description": "Trigger discrimination for the Phase 3 access & events cluster, plus the authorization-vs-entitlement axis.",
+  "overlaps_with": ["audit-log-architect", "api-event-architect", "plan-entitlement-architect"],
+  "cases": [
+    {
+      "id": "authz-wins-here",
+      "prompt": "Design roles and permissions so members can't export data, admins can't touch billing, and support can't see tenant data without an approved, expiring grant.",
+      "expected_skill": "authorization-matrix-designer",
+      "should_not_trigger": ["audit-log-architect", "api-event-architect", "plan-entitlement-architect"],
+      "reason": "Who CAN do what, per role, with brokered support access — the authorization matrix."
+    },
+    {
+      "id": "record-of-actions-goes-to-audit",
+      "prompt": "We need a tamper-evident record of every admin action, permission change, and data export for SOC 2.",
+      "expected_skill": "audit-log-architect",
+      "should_not_trigger": ["authorization-matrix-designer"],
+      "reason": "Recording what happened is the audit trail; no permission rules are being designed."
+    },
+    {
+      "id": "integration-contracts-go-to-api-event",
+      "prompt": "Define the webhook events and payload schemas partner integrations subscribe to when records change.",
+      "expected_skill": "api-event-architect",
+      "should_not_trigger": ["authorization-matrix-designer", "audit-log-architect"],
+      "reason": "External event contracts for integrations, not internal audit records and not permission design."
+    },
+    {
+      "id": "plan-inclusion-goes-to-entitlement",
+      "prompt": "Decide whether API access is included in the Pro plan and how the limit differs on Enterprise.",
+      "expected_skill": "plan-entitlement-architect",
+      "should_not_trigger": ["authorization-matrix-designer"],
+      "reason": "\"Does this plan include X\" is the entitlement axis; \"can this role do X\" is the authorization axis."
+    }
+  ]
+}

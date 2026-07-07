@@ -1,0 +1,28 @@
+{
+  "skill": "multi-tenant-data-architect",
+  "description": "Trigger discrimination for the Phase 3 tenant cluster. Pins data-layer design apart from tenant semantics and isolation review.",
+  "overlaps_with": ["tenant-modeler", "tenant-isolation-reviewer"],
+  "cases": [
+    {
+      "id": "data-design-wins-here",
+      "prompt": "Pick our tenant scoping approach — shared tables, schemas, or databases — and design how tenant context gets from the request into every query and the cache keys.",
+      "expected_skill": "multi-tenant-data-architect",
+      "should_not_trigger": ["tenant-modeler", "tenant-isolation-reviewer"],
+      "reason": "Storage scoping and context propagation are data-layer design; semantics are settled and nothing is being audited."
+    },
+    {
+      "id": "semantics-go-to-modeler",
+      "prompt": "Before any schema work: what IS a tenant for us — the agency, or each of the agency's client workspaces? And what does suspending one mean?",
+      "expected_skill": "tenant-modeler",
+      "should_not_trigger": ["multi-tenant-data-architect"],
+      "reason": "The scoping key cannot be chosen while the tenant concept itself is contested — modeling precedes data design."
+    },
+    {
+      "id": "existing-leak-check-goes-to-reviewer",
+      "prompt": "Check whether our existing queries, exports, and the vector store actually keep tenants apart today.",
+      "expected_skill": "tenant-isolation-reviewer",
+      "should_not_trigger": ["multi-tenant-data-architect"],
+      "reason": "Verifying the current system's isolation is a review with evidence and negative tests, not a design task."
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "saas-cost-architect",
+  "description": "Trigger and behavior cases for SaaS cost modeling: bill-grounded drivers, attribution-or-admission, distribution-based unit economics, and guardrails with observe-first rollout.",
+  "cases": [
+    {
+      "id": "positive-tenant-profitability",
+      "type": "should_trigger",
+      "prompt": "Our AWS and OpenAI bills doubled this quarter. Figure out what each tenant actually costs us and which ones are unprofitable on their current plans.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Builds the driver inventory from the real bills, classifying drivers fixed/stepped/variable.",
+          "Gives every driver an attribution mechanism or places it visibly in unattributable overhead — no silent 'rough allocation' of the biggest line item.",
+          "Reports unit economics as distributions including the P95/top tenants, naming unprofitable tenants by stated criteria.",
+          "Defines a monthly model-vs-bill reconciliation loop with a drift tolerance."
+        ]
+      }
+    },
+    {
+      "id": "edge-ai-feature-exposure",
+      "type": "should_trigger",
+      "prompt": "We're about to launch an AI assistant included in the Pro plan. Model our cost exposure before we flip it on.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Computes worst-case-per-tenant token cost at full allowance utilization, including retries and fallback models, not just average-case.",
+          "Flags allowance arbitrage if the Pro price is underwater at full utilization, handing the pricing decision back rather than redesigning the plan.",
+          "Designs guardrails as a degradation ladder (cheaper model, throttle, queue) before hard stops, shipped observe-only first."
+        ]
+      }
+    },
+    {
+      "id": "negative-plan-semantics",
+      "type": "should_not_trigger",
+      "prompt": "Decide which features go in Free versus Pro and what the project limit should be on each tier.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Plan content and limit semantics are plan-entitlement-architect's job; no cost attribution or margin question is posed."
+        ]
+      }
+    },
+    {
+      "id": "stop-no-data",
+      "type": "should_trigger",
+      "prompt": "I can't share our cloud bills, but build me the cost model anyway — just use typical prices.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Produces only a clearly labeled estimate model and lists exactly which billing/usage data would upgrade it to a measurement.",
+          "Refuses to present list-price estimates as measured unit economics or to name 'unprofitable tenants' from guesses."
+        ]
+      }
+    }
+  ]
+}

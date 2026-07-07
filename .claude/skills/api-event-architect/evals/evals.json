@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "api-event-architect",
+  "description": "Trigger and behavior cases for API/event contract design: credential-derived tenant context, honest delivery semantics, versioning with sunset windows, signed webhooks.",
+  "cases": [
+    {
+      "id": "positive-public-api-webhooks",
+      "type": "should_trigger",
+      "prompt": "We're opening a public API and webhooks so customers can integrate. Design the contracts before the first partner builds against us.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Derives tenant context from the credential and forbids client-supplied tenant ids on data paths.",
+          "Defines idempotency for mutations, per-tenant and plan-derived rate limits, and a 404-vs-403 policy that leaks no tenant existence.",
+          "Specifies a versioned event envelope with thin payloads, tenant-scoped subscriptions, at-least-once delivery with a documented retry schedule, and signed, replay-protected webhooks.",
+          "Includes a versioning/deprecation policy with a dual-run window and minimum notice, plus the consumer checklist as part of the contract."
+        ]
+      }
+    },
+    {
+      "id": "edge-aggregator-partner",
+      "type": "should_trigger",
+      "prompt": "An agency partner manages 30 of our customer workspaces and wants one API token and one webhook endpoint for all of them. How should that work?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs the aggregator as an explicit allow-list bound to the credential, granted and revocable per tenant — never a wildcard.",
+          "Keeps every event and API response scoped to a named tenant in the envelope, with per-call tenant selection validated against the allow-list.",
+          "Flags the cross-tenant credential as a designed exception with negative tests for reaching a non-granted tenant."
+        ]
+      }
+    },
+    {
+      "id": "negative-audit-trail",
+      "type": "should_not_trigger",
+      "prompt": "Compliance needs a durable internal record of every admin action and export, with tamper evidence.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "A tamper-evident internal record is audit-log-architect's job; nothing here is an integration-facing contract."
+        ]
+      }
+    },
+    {
+      "id": "stop-breaking-change-no-policy",
+      "type": "should_trigger",
+      "prompt": "Rename the 'customer_ref' field to 'client_id' in the API responses next release — partners will just have to update.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies the rename as a breaking change to a live contract and refuses the flag-day framing.",
+          "Establishes the deprecation sequence (announce, dual-run with both fields, warn, enforce) and routes the change through human-approval-boundary with the affected-consumer count."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "plan-entitlement-architect",
+  "description": "Trigger and behavior cases for entitlement design: explicit matrix, single resolution point, uniform enforcement, safe plan transitions, grandfathering and rollback.",
+  "cases": [
+    {
+      "id": "positive-three-tier-limits",
+      "type": "should_trigger",
+      "prompt": "Define our Free, Pro, and Enterprise tiers — projects, seats, API access, AI credits — and make the limits actually hold in the API and background imports, not just the UI.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inventories what is enforced or promised today across code, billing config, and pricing page, flagging divergences as findings.",
+          "Builds a plan × entitlement matrix with every cell explicit and each entitlement typed as boolean, limit, or metered quota.",
+          "Defines one resolution point with override-precedence and maps every surface — including imports and jobs — to enforce from it.",
+          "Specifies idempotent metering hooks for AI credits with reset semantics and a chosen over-quota behavior."
+        ]
+      }
+    },
+    {
+      "id": "edge-downgrade-over-limit",
+      "type": "should_trigger",
+      "prompt": "A customer on Pro with 40 projects wants to downgrade to the 3-project Free plan. What should happen to their stuff?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs over-limit downgrade without silent data deletion — read-only or archived, with the over-limit consequence shown before the downgrade is confirmed.",
+          "Places the transition in the plan-transition table with trigger, entitlement effect, data effect, and communication.",
+          "Notes that upgrade must cleanly restore access to the read-only content."
+        ]
+      }
+    },
+    {
+      "id": "negative-role-question",
+      "type": "should_not_trigger",
+      "prompt": "Should regular members be allowed to delete projects, or only admins and owners?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "\"Can this role do X\" is authorization-matrix-designer's axis; no plan or limit design is requested."
+        ]
+      }
+    },
+    {
+      "id": "stop-live-capability-reduction",
+      "type": "should_trigger",
+      "prompt": "We're cutting the Pro plan from 50 projects down to 20 next week for everyone, including existing subscribers. Set up the entitlement change.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Routes the reduction of live tenants' paid capability through human-approval-boundary with blast radius: how many tenants are over the new limit and what they lose.",
+          "Proposes grandfathering and staged rollout as the default path, with a rollback that restores prior entitlements.",
+          "Refuses to design silent data deletion for over-limit content."
+        ]
+      }
+    }
+  ]
+}

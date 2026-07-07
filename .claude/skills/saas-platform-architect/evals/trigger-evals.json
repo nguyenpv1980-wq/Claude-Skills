@@ -1,0 +1,28 @@
+{
+  "skill": "saas-platform-architect",
+  "description": "Trigger discrimination for the Phase 3 platform/commercial cluster. Pins platform structure apart from entitlement design and cost modeling.",
+  "overlaps_with": ["plan-entitlement-architect", "saas-cost-architect"],
+  "cases": [
+    {
+      "id": "platform-structure-wins-here",
+      "prompt": "Structure this product as a multi-tenant SaaS — what's shared, what's isolated per tenant, and what belongs in the control plane?",
+      "expected_skill": "saas-platform-architect",
+      "should_not_trigger": ["plan-entitlement-architect", "saas-cost-architect"],
+      "reason": "Pooling decisions and the control-plane/data-plane split are platform structure, not plans or cost."
+    },
+    {
+      "id": "plan-limits-go-to-entitlement",
+      "prompt": "Map our Free, Pro, and Enterprise tiers into concrete feature access and limits that get enforced the same way in the UI, API, and background jobs.",
+      "expected_skill": "plan-entitlement-architect",
+      "should_not_trigger": ["saas-platform-architect"],
+      "reason": "Plan-to-entitlement mapping and enforcement points are commercial gating, not platform shape."
+    },
+    {
+      "id": "tenant-cost-goes-to-cost-architect",
+      "prompt": "Work out what each tenant actually costs us to serve and whether the Enterprise price covers the big ones.",
+      "expected_skill": "saas-cost-architect",
+      "should_not_trigger": ["saas-platform-architect"],
+      "reason": "Cost attribution and unit economics per tenant/plan, not a structural design question."
+    }
+  ]
+}

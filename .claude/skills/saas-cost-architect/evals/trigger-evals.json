@@ -1,0 +1,28 @@
+{
+  "skill": "saas-cost-architect",
+  "description": "Trigger discrimination for the Phase 3 platform/commercial cluster. Pins cost modeling apart from platform structure and entitlement design.",
+  "overlaps_with": ["saas-platform-architect", "plan-entitlement-architect"],
+  "cases": [
+    {
+      "id": "cost-wins-here",
+      "prompt": "Work out what each tenant costs us to serve — compute, storage, AI usage — and whether Enterprise pricing actually covers our five biggest customers.",
+      "expected_skill": "saas-cost-architect",
+      "should_not_trigger": ["saas-platform-architect", "plan-entitlement-architect"],
+      "reason": "Attribution and unit economics against revenue — the cost axis, not structure or plan content."
+    },
+    {
+      "id": "structure-goes-to-platform-architect",
+      "prompt": "Should our biggest customers get dedicated infrastructure while everyone else stays pooled, and how do we split the control plane?",
+      "expected_skill": "saas-platform-architect",
+      "should_not_trigger": ["saas-cost-architect"],
+      "reason": "A deployment-model and control-plane question; cost is one input, but the deliverable is platform structure."
+    },
+    {
+      "id": "limits-go-to-entitlement",
+      "prompt": "Set the monthly AI credit allowances per tier and define what happens when a workspace runs out mid-month.",
+      "expected_skill": "plan-entitlement-architect",
+      "should_not_trigger": ["saas-cost-architect"],
+      "reason": "Allowance semantics and over-quota behavior are entitlement design; pricing the allowance would be the cost skill."
+    }
+  ]
+}

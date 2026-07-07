@@ -1,0 +1,35 @@
+{
+  "skill": "plan-entitlement-architect",
+  "description": "Trigger discrimination for the Phase 3 platform/commercial cluster, plus the entitlement-vs-authorization axis.",
+  "overlaps_with": ["saas-platform-architect", "saas-cost-architect", "authorization-matrix-designer"],
+  "cases": [
+    {
+      "id": "entitlement-wins-here",
+      "prompt": "Map Free, Pro, and Enterprise into concrete features and limits, enforced the same way in the UI, the API, and background jobs, with sane trial and downgrade behavior.",
+      "expected_skill": "plan-entitlement-architect",
+      "should_not_trigger": ["saas-platform-architect", "saas-cost-architect", "authorization-matrix-designer"],
+      "reason": "Plan-to-entitlement mapping, uniform enforcement, and plan transitions — the commercial gating axis."
+    },
+    {
+      "id": "platform-shape-goes-to-platform-architect",
+      "prompt": "Decide what's pooled versus per-tenant in our deployment and what belongs in the control plane as we go multi-tenant.",
+      "expected_skill": "saas-platform-architect",
+      "should_not_trigger": ["plan-entitlement-architect"],
+      "reason": "Deployment model and control-plane split are platform structure, not plan gating."
+    },
+    {
+      "id": "margin-question-goes-to-cost-architect",
+      "prompt": "Our Pro plan includes 500 AI credits — figure out whether that allowance is profitable at current token prices and usage patterns.",
+      "expected_skill": "saas-cost-architect",
+      "should_not_trigger": ["plan-entitlement-architect"],
+      "reason": "The allowance exists; the question is cost and margin — unit economics, not entitlement design."
+    },
+    {
+      "id": "role-capability-goes-to-authz",
+      "prompt": "Within a workspace, decide which roles may invite members and which may export data.",
+      "expected_skill": "authorization-matrix-designer",
+      "should_not_trigger": ["plan-entitlement-architect"],
+      "reason": "Role capability inside a tenant is authorization; no plan tier is involved."
+    }
+  ]
+}

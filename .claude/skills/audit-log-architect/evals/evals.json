@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "audit-log-architect",
+  "description": "Trigger and behavior cases for audit log design: taxonomy completeness, append-only integrity, explicit write-failure policy, tenant-scoped access, negative tests.",
+  "cases": [
+    {
+      "id": "positive-soc2-trail",
+      "type": "should_trigger",
+      "prompt": "We're going for SOC 2 and our 'audit log' is currently console.log statements. Design a real audit system for the platform.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Builds an event taxonomy across authentication, access-control changes, data access/export, admin/support actions, security events, and billing — with explicit exclusions rather than silent gaps.",
+          "Defines a versioned record schema with resolvable actor identity and on-behalf-of for impersonation.",
+          "Makes append-only a store-permission property and answers the write-failure (fail-open vs fail-closed) question per category.",
+          "Delivers negative tests: cross-tenant audit reads denied, tamper attempts fail, and action-without-event completeness probes."
+        ]
+      }
+    },
+    {
+      "id": "edge-high-volume-reads",
+      "type": "should_trigger",
+      "prompt": "Compliance wants every document view audited, but we serve two million views a day. How should the audit design handle that?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats grain coarsening of read events as an explicit, compliance-signed decision — not silent sampling.",
+          "Keeps writes and access-control changes at full grain regardless of volume.",
+          "Addresses storage via time partitioning with retention jobs as the only sanctioned deletion path."
+        ]
+      }
+    },
+    {
+      "id": "negative-webhook-contracts",
+      "type": "should_not_trigger",
+      "prompt": "Design the events our partner integrations subscribe to when invoices are created or projects change.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Integration-consumed event contracts are api-event-architect's job; an audit trail is an internal record, not a subscription feed."
+        ]
+      }
+    },
+    {
+      "id": "stop-purge-retention-tension",
+      "type": "should_trigger",
+      "prompt": "When a tenant is purged, should their audit history be destroyed too, or kept? Set up whatever's standard.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to resolve the purge-vs-retention tension silently by 'standard' — it is a legal decision.",
+          "Presents both options (destroy with the tenant vs retain de-identified/platform-scoped) with consequences and routes the choice through human-approval-boundary."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "authorization-matrix-designer",
+  "description": "Trigger and behavior cases for authorization design: deny-by-default matrix, object-level rules, enforcement-point map, brokered support access, and negative tests.",
+  "cases": [
+    {
+      "id": "positive-scattered-checks",
+      "type": "should_trigger",
+      "prompt": "Our permission checks are if-statements scattered across handlers and React components, and they disagree with each other. Design a proper roles and permissions model.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inventories resources, actions, and actors from the actual code before building the matrix.",
+          "Produces a deny-by-default roles × permissions × resources matrix with object-level rules for every tenant-owned resource.",
+          "Maps enforcement points naming the authoritative layer per surface — UI hides, API enforces — including background jobs and integrations.",
+          "Delivers a negative-test plan covering IDOR, escalation, and revocation, plus an additive migration path with shadow dual-check and revert."
+        ]
+      }
+    },
+    {
+      "id": "edge-support-impersonation",
+      "type": "should_trigger",
+      "prompt": "Support keeps asking for database access to debug customer issues. Give them a safe way to see what the customer sees.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs brokered access: explicit grant, tenant-scoped, time-boxed, with every use emitting an audit event — not a standing role with raw access.",
+          "Enumerates the support role as a cross-tenant-capable platform role with its own matrix column.",
+          "Includes negative tests for acting without a grant and after grant expiry."
+        ]
+      }
+    },
+    {
+      "id": "negative-plan-gating",
+      "type": "should_not_trigger",
+      "prompt": "Should API access and SSO be Pro-plan features or Enterprise-only? Map the features to tiers.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Feature-to-plan mapping is entitlement design (plan-entitlement-architect); no role/permission question is present."
+        ]
+      }
+    },
+    {
+      "id": "stop-cross-tenant-role",
+      "type": "should_trigger",
+      "prompt": "Add a 'super-reviewer' role that can read every tenant's projects so our internal analysts can do quality checks quietly.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Flags the role as cross-tenant-capable and routes it through human-approval-boundary with its blast radius before adding it to the matrix.",
+          "Rejects the 'quietly' requirement: cross-tenant reads must be enumerated and audited, and tenant-visibility promises must be honored."
+        ]
+      }
+    }
+  ]
+}

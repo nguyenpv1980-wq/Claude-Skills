@@ -12,8 +12,9 @@ The repo is built in **phases**. **Phase 0** established the foundation — auth
 standard, templates, eval convention, validator, catalog, the seven read-only reviewer
 subagents, and the Step 0 reconciliation of the two earlier planning tracks. **Phase 1**
 shipped the first real skills: the 8-skill AI engineering **operating-discipline pack**
-(reconciled decision D4). **Phase 2** ships the 10-skill **core architecture &
-engineering pack** — see [Skills (shipped)](#skills-shipped) below.
+(reconciled decision D4). **Phase 2** shipped the 10-skill **core architecture &
+engineering pack**. **Phase 3** ships the 9-skill **SaaS & tenant isolation pack** —
+see [Skills (shipped)](#skills-shipped) below.
 
 ## Start here (canonical reading order)
 
@@ -43,8 +44,8 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 |---:|---|---|---|
 | 0 | Foundation: standard, templates, eval convention, validator, catalog, README, 7 subagents, `_template` | P0 | ✅ merged |
 | 1 | AI engineering **operating-discipline** pack (8 skills) | P0 | ✅ merged |
-| 2 | Core architecture & engineering (10) | P0 | ✅ this branch |
-| 3 | SaaS & tenant isolation (9) | P0/P1 | backlog |
+| 2 | Core architecture & engineering (10) | P0 | ✅ merged |
+| 3 | SaaS & tenant isolation (9) | P0/P1 | ✅ this branch |
 | 4 | Security, RLS & supply chain (9) | P0/P1 | backlog |
 | 5 | QA, E2E, manual QA & evidence (13) | P0/P1 | backlog |
 | 6 | Cloud, DevOps, reliability & release (10) | P1 | backlog |
@@ -96,6 +97,20 @@ Phase 2 — core architecture & engineering pack:
 | `code-simplifier` | Behavior-preserving simplification with the suite green before and after every move; coverage gate; restraint ("not done" list) is a deliverable. | **manual only** |
 | `principal-code-analyst` | Subsystem-level strategic analysis laddering code findings to architecture, security, cost; risk register + small-step remediation with validation signals. | auto + manual |
 | `full-codebase-auditor` | Whole-repo audit with inventory-first coverage; findings filed as confirmed / likely / hypotheses / missing information. (Skill = procedure; same-named subagent composes it.) | auto + manual |
+
+Phase 3 — SaaS & tenant isolation pack:
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `saas-platform-architect` | Platform structure: per-component pooled/siloed/bridge decisions with named isolation mechanisms, control-plane/data-plane split, capability inventory, rollout plan with per-step rollback. | auto + manual |
+| `tenant-modeler` | Tenant semantics: definition, hierarchy, membership-as-entity (roles on membership), invitations, ownership, and a lifecycle state machine with per-state access/data/billing/jobs posture. | auto + manual |
+| `tenant-isolation-reviewer` | Reviews real systems for cross-tenant leakage across all 15 surfaces (identity → audit, incl. AI retrieval); evidence-cited findings, isolation test matrix, negative tests, honest not-inspected list. | auto + manual |
+| `multi-tenant-data-architect` | Per-store tenant scoping decisions (incl. caches, search, vector stores), server-derived tenant-context propagation, ownership map, expand→contract migration with verification and rollback. | auto + manual |
+| `authorization-matrix-designer` | Deny-by-default roles × permissions × resources matrix, object-level rules, enforcement-point map, brokered support access, negative tests, additive role migration. | auto + manual |
+| `plan-entitlement-architect` | Plan × entitlement matrix with one resolution point enforced uniformly on every surface; metering hooks; plan transitions with no silent data loss; grandfathering + rollback. | auto + manual |
+| `audit-log-architect` | Audit event taxonomy, versioned record schema, append-only integrity with explicit write-failure policy, retention/redaction, tenant-scoped access, negative tests. | auto + manual |
+| `saas-cost-architect` | Bill-grounded cost drivers, per-tenant attribution (or admitted overhead), distribution-based unit economics vs revenue, exposure math, guardrails with observe-first rollout. | auto + manual |
+| `api-event-architect` | External API/event contracts: credential-derived tenant context, idempotency, per-tenant/plan rate limits, versioning with dual-run deprecation, tenant-scoped signed webhooks. | auto + manual |
 
 ## Authoring a new skill
 

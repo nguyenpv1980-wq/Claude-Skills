@@ -1,0 +1,28 @@
+{
+  "skill": "audit-log-architect",
+  "description": "Trigger discrimination for the Phase 3 access & events cluster. Pins the internal audit record apart from authorization design and integration event contracts.",
+  "overlaps_with": ["authorization-matrix-designer", "api-event-architect"],
+  "cases": [
+    {
+      "id": "audit-wins-here",
+      "prompt": "We need a tamper-evident, tenant-scoped record of every admin action, permission change, and data export — auditors will ask for it.",
+      "expected_skill": "audit-log-architect",
+      "should_not_trigger": ["authorization-matrix-designer", "api-event-architect"],
+      "reason": "Recording what happened durably and provably is the audit trail; no permissions are being designed and no integration consumes this."
+    },
+    {
+      "id": "who-may-act-goes-to-authz",
+      "prompt": "Decide which roles can change billing, who can export data, and how support gets temporary access.",
+      "expected_skill": "authorization-matrix-designer",
+      "should_not_trigger": ["audit-log-architect"],
+      "reason": "This designs who CAN act; the audit trail records that they DID — different deliverable."
+    },
+    {
+      "id": "subscription-events-go-to-api-event",
+      "prompt": "Partners want to receive an event whenever a record changes in a workspace they integrate with — design that feed.",
+      "expected_skill": "api-event-architect",
+      "should_not_trigger": ["audit-log-architect"],
+      "reason": "Externally consumed event contracts with delivery semantics — an integration surface, not an internal record."
+    }
+  ]
+}
