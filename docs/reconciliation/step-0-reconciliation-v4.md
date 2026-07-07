@@ -215,7 +215,7 @@ that page). Rationale (D7): agentic risk builds on top of LLM risk (Phase 7, D6)
 pack runs immediately after Phase 7; it is too central to this repo's agentic workflows to
 defer into the generic Phase 8 backlog. Skills are **built at Phase 7.5, not now** — like
 the Phase 7 map above, this banks the coverage target only; today's shipped validator
-target (36 skills) is unchanged.
+target (52 skills) is unchanged.
 
 | OWASP Agentic Top 10 (2026) | Covering skill | Status |
 |---|---|---|
