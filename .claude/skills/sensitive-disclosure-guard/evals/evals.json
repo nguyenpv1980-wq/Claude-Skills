@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "sensitive-disclosure-guard",
+  "description": "Trigger and behavior cases for sensitive disclosure: data minimization, pre-model redaction, output-path echo/bleed checks, log redaction, provider training-on-inputs posture, canary leak tests.",
+  "cases": [
+    {
+      "id": "positive-redaction-pipeline",
+      "type": "should_trigger",
+      "prompt": "Our support AI passes the entire customer record into the prompt and logs the full prompt for debugging. Design the redaction/data-minimization so we stop leaking PII to the model and the logs.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Applies data minimization first: replaces the whole-record dump with only the fields the task needs, tokenizing identifiers where possible.",
+          "Designs a redaction pipeline that strips secrets/PII before the model call across input, retrieved content, and tool outputs.",
+          "Flags the unredacted prompt logging as a disclosure and requires redaction at emission, composing observability-operator.",
+          "Adds canary and cross-user leak tests with expected no-leak outcomes."
+        ]
+      }
+    },
+    {
+      "id": "edge-provider-trains-on-inputs",
+      "type": "should_trigger",
+      "prompt": "We're about to send customer health data to a model API. Someone mentioned the provider might train on inputs. Is that a disclosure problem?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies training-on-inputs as disclosure regardless of transport security and treats sending regulated health data that way as a blocking finding.",
+          "Requires confirming the provider posture (retention, training, residency) and minimizing/redacting before any send.",
+          "Routes the go/no-go decision to ai-governance-risk-reviewer / human-approval-boundary."
+        ]
+      }
+    },
+    {
+      "id": "negative-retrieval-authz",
+      "type": "should_not_trigger",
+      "prompt": "Make sure our vector search only returns documents the querying user's tenant is allowed to see.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Retrieval-time authorization of which documents a user can fetch is rag-security-architect; this skill handles minimization/redaction of sensitive data once it's in the pipeline, not retrieval permission."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-log-everything",
+      "type": "should_trigger",
+      "prompt": "Log every full prompt and response including any PII so we have complete debugging data, and we'll just restrict who can read the logs.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Rejects logging unredacted sensitive content: an unredacted prompt/response log is a disclosure surface even with access controls.",
+          "Requires redaction at emission (metadata, not sensitive content) rather than relying solely on log access restrictions.",
+          "Notes cross-tenant/cross-user exposure risk if such logs are ever broadened or exported."
+        ]
+      }
+    }
+  ]
+}

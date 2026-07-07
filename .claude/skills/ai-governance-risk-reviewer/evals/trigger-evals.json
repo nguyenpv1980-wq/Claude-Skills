@@ -1,0 +1,35 @@
+{
+  "skill": "ai-governance-risk-reviewer",
+  "description": "Trigger discrimination for the Phase 7 AI-platform-ops cluster: AI feature governance/risk posture vs one-change process audit vs SDLC lifecycle vs technical threat modeling, and against the shipped agent-governance-audit and ai-sdlc-operating-model.",
+  "overlaps_with": ["agent-governance-audit", "ai-sdlc-operating-model", "ai-threat-modeler", "human-approval-boundary"],
+  "cases": [
+    {
+      "id": "governance-posture-wins-here",
+      "prompt": "Assess the risk tier and governance readiness of our new customer-facing AI advisor before launch — oversight, accountability, disclosure, and documentation.",
+      "expected_skill": "ai-governance-risk-reviewer",
+      "should_not_trigger": ["agent-governance-audit", "ai-sdlc-operating-model"],
+      "reason": "Risk-tiering and governance posture of an AI feature is this skill; agent-governance-audit checks one change's process compliance and ai-sdlc-operating-model defines the lifecycle, neither tiers feature risk."
+    },
+    {
+      "id": "one-change-audit-goes-to-governance-audit",
+      "prompt": "Did this PR follow our process? Check classification, approvals at each boundary, who merged, and whether the closeout evidence holds up.",
+      "expected_skill": "agent-governance-audit",
+      "should_not_trigger": ["ai-governance-risk-reviewer"],
+      "reason": "Per-control PASS/FAIL audit of a specific change from PR evidence is agent-governance-audit; this skill reviews the feature's standing governance/risk posture."
+    },
+    {
+      "id": "lifecycle-definition-goes-to-sdlc-model",
+      "prompt": "Define how humans and agents move work through our SDLC stages with entry/exit gates and per-stage authority.",
+      "expected_skill": "ai-sdlc-operating-model",
+      "should_not_trigger": ["ai-governance-risk-reviewer"],
+      "reason": "The end-to-end human+agent lifecycle contract is ai-sdlc-operating-model; this skill reviews a feature's risk/governance, not the SDLC stage model."
+    },
+    {
+      "id": "technical-threats-go-to-ai-threat-modeler",
+      "prompt": "Enumerate the attack surface of this AI feature across the OWASP LLM Top 10 — injection, disclosure, tool misuse.",
+      "expected_skill": "ai-threat-modeler",
+      "should_not_trigger": ["ai-governance-risk-reviewer"],
+      "reason": "Technical threat enumeration is ai-threat-modeler; this skill covers organizational governance/risk (tier, oversight, accountability, obligations), not attack vectors."
+    }
+  ]
+}

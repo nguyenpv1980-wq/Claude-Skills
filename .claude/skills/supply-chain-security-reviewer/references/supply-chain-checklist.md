@@ -62,14 +62,45 @@ below a "moderate" in a reachable parser.
 - Releases signed/attested (Sigstore/provenance) where the ecosystem supports
   it? Frame maturity with SLSA levels (source→build→provenance→hardened).
 
+## AI/ML supply chain (OWASP LLM03)
+
+Acquired AI artifacts are dependencies too — third-party base models,
+downloaded datasets, and fine-tuning adapters. Review them like any untrusted
+package. Scope: ACQUISITION. Integrity of data you curate or pipelines you run
+(training sets, feedback loops, RAG ingestion) is `model-poisoning-reviewer`.
+
+- **Serialization / format (code execution on load):** pickle-based formats —
+  `torch.load`, `pickle.load`, many `.bin`/`.pt`/`.ckpt` checkpoints, and
+  Python-code custom layers — execute arbitrary code when loaded. A downloaded
+  model in these formats is install-time RCE. Prefer **safetensors**; treat
+  pickle artifacts from untrusted sources as a critical finding unless scanned
+  and sandboxed.
+- **Pinning:** pin models/datasets to an immutable revision (commit hash /
+  content digest), never a mutable hub tag or `latest` — the remote can change
+  under you. An unpinned model reference is unpinned dependency risk.
+- **Provenance & source:** which registry/hub, which publisher, is it the
+  official upstream or a look-alike (model-name typosquatting on public hubs)?
+  Is there a model card, license, and documented training provenance?
+- **Integrity:** checksum/signature on the downloaded artifact; does the hub
+  support attestation? Vendored model weights checked in without a documented
+  source are unexplained artifacts.
+- **Transitive AI deps:** the ML framework, tokenizer, and model-loading libs
+  are ordinary package dependencies — review them in the dependency set above.
+
+Boundary: a backdoored/poisoned artifact you DOWNLOADED is this skill; poisoning
+of data you COLLECT or a model you TRAIN is `model-poisoning-reviewer`.
+
 ## HIGH-severity gate
 
 A HIGH/CRITICAL finding must state a compromise path: weakness → attacker
 action → **code execution or secret theft**. Reachable runtime exploit,
-install-time script execution, or an untrusted-CI-to-secret path qualifies. A
-latent unreachable CVE does not — rank it low and say why.
+install-time script execution, an untrusted-CI-to-secret path, or loading a
+pickle-serialized model from an untrusted source qualifies. A latent
+unreachable CVE does not — rank it low and say why.
 
 ## Handoffs
 
 - First-party SAST/CodeQL findings → `static-analysis-reviewer`.
+- Integrity of curated training data / feedback loops / RAG ingestion →
+  `model-poisoning-reviewer` (acquire-vs-ingest split).
 - Applying an upgrade/CI change → separate classified, approved change.

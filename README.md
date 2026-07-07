@@ -18,9 +18,10 @@ engineering pack**. **Phase 3** shipped the 9-skill **SaaS & tenant isolation pa
 shipped the 16-skill **QA, E2E, manual QA & evidence pack** (the 13 canonical Phase 5
 skills plus 3 pulled forward from the QA backlog: roadmap #184/#185/#204). **Phase 1.5**
 shipped the 4-skill **AI-SDLC governance completion** (roadmap #261/#268/#279/#280),
-completing the category-08 governance layer Phase 1 started. **Phase 6** ships the
-10-skill **cloud, DevOps, reliability & release pack** — see
-[Skills (shipped)](#skills-shipped) below.
+completing the category-08 governance layer Phase 1 started. **Phase 6** shipped the
+10-skill **cloud, DevOps, reliability & release pack**. **Phase 7** ships the
+14-skill **AI security & LLM systems pack** (v4's 10 plus 4 OWASP LLM Top 10 gap
+additions, D6) — see [Skills (shipped)](#skills-shipped) below.
 
 ## Start here (canonical reading order)
 
@@ -55,8 +56,9 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | 3 | SaaS & tenant isolation (9) | P0/P1 | ✅ merged |
 | 4 | Security, RLS & supply chain (9) | P0/P1 | ✅ merged |
 | 5 | QA, E2E, manual QA & evidence (16 = 13 canonical + 3 pulled forward from the QA backlog: roadmap #184/#185/#204) | P0/P1 | ✅ merged |
-| 6 | Cloud, DevOps, reliability & release (10) | P1 | ✅ this branch |
-| 7 | AI security & LLM systems (14 = v4's 10 + 4 OWASP LLM Top 10 additions, D6) | P1 | backlog |
+| 6 | Cloud, DevOps, reliability & release (10) | P1 | ✅ merged |
+| 7 | AI security & LLM systems (14 = v4's 10 + 4 OWASP LLM Top 10 additions, D6) | P1 | ✅ this branch |
+| 7.5 | Agentic AI security (OWASP Agentic Top 10, D7: 6 new + 3 extensions) | P1 | backlog |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
 
 ## Subagents (read-only reviewers)
@@ -180,6 +182,31 @@ merged into `rollback-runbook-author` per reconciliation §3):
 | `observability-operator` | Hands-on observability: structured redacted instrumentation, truthful health checks, alerts with severity/owner/runbook-link/justified threshold, query-verified claims, silences only with owner+expiry. | **manual only** |
 | `slo-reliability-architect` | Journey-derived SLOs: symptom-based SLIs with measurement points, error budgets in user units, burn-rate paging with cause-alert demotion, budget policy with consequences, per-tenant reliability views. | auto + manual |
 | `incident-response-runbook` | Incident machinery: one-minute severity ladder, IC/comms/ops roles, triage to decision points, containment invoking the rollback artifact by reference, tenant-aware comms, blameless postmortem where every finding lands as a test/alert/fix or owned risk. | auto + manual |
+
+Phase 7 — AI security & LLM systems pack (14 = v4's 10 + 4 OWASP LLM Top 10 gap
+additions, D6). Anchored to the OWASP Top 10 for LLM Applications (2025); these
+skills **compose** the shipped tenant/security/cost/governance packs rather than
+re-deriving them. **LLM03** is extend-existing (the shipped
+`supply-chain-security-reviewer` was extended to models/datasets/adapters);
+**LLM10** DoS/denial-of-wallet is baked into `ai-cost-guardrail-designer`;
+`ai-evaluation-harness` absorbs the AI security test harness:
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `ai-threat-modeler` | AI-specific threat model: AI assets + trust boundaries (all untrusted content), per-boundary threats anchored to the OWASP LLM Top 10, abuse cases, exploit-path-gated severity, each mitigation mapped to an owning skill + red-team case; composes `threat-modeler` for the classic surface. | auto + manual |
+| `prompt-injection-defender` | Layered injection defense (LLM01): trust zones, the untrusted-content invariant, content/instruction separation, and the primary layer — deterministic action authorization OUTSIDE the model; direct + indirect payloads; red-team suite with SAFE-outcome assertions. | **manual only** |
+| `rag-security-architect` | RAG/vector-store security (LLM08): authorization AT RETRIEVAL TIME (never post-filter), per-tenant index scoping, document-ACL propagation, embedding risks (inversion/membership/poisoning/stale-permission); composes `tenant-isolation-reviewer` + `multi-tenant-data-architect`. | auto + manual |
+| `agent-tool-safety-guard` | Least-privilege tool access (LLM06): per-tool blast-radius matrix, calling-user authority (no service-account confused deputy), argument validation before execution, approval gates on irreversible actions, tool-chain abuse; composes `human-approval-boundary` + `agent-authorization-matrix`. | auto + manual |
+| `llm-output-safety-reviewer` | Output-handling review (LLM05): model output as untrusted data to render/execute/URL/tool/store sinks (XSS/RCE/SSRF/injection/second-order), context-correct encoding, generated-code sandboxing; exploit-flow-gated findings. | auto + manual |
+| `ai-evaluation-harness` | Versioned eval dataset (representative + adversarial/red-team + regression), per-dimension graders + thresholds (quality/schema/safety/grounding/injection/latency/cost), CI regression gate; absorbs the AI security test harness; honest real-run reporting. | **manual only** |
+| `ai-cost-guardrail-designer` | Consumption guardrails (LLM10 DoS/denial-of-wallet): per-request token caps, tenant-scoped budgets/rate limits, agent loop/recursion bounds, fail-safe degraded mode + kill switch, burn-rate alerts before exhaustion; composes `saas-cost-architect` + `observability-operator`. | auto + manual |
+| `ai-governance-risk-reviewer` | AI governance/risk posture: impact-based risk tiering, oversight-to-tier matching, accountable ownership, AI disclosure/consent, model/feature card, obligation→control mapping (EU AI Act tiers, NIST AI RMF) without asserting legal conclusions. | auto + manual |
+| `ai-router-architect` | Centralized model-routing layer: one interface, server-side-only credentials, task/cost routing, choke-point cost enforcement, per-call telemetry, resilient fallback + circuit breaker + no-deploy kill switch, idempotent retries; composes `secrets-identity-hardener` + `observability-operator`. | **manual only** |
+| `structured-output-validator` | Output-shape contract (LLM05 companion): schema (fields/types/enums/ranges), validate-before-use, semantic checks beyond shape (tenant-scoped ids), bounded failure handling; shape-is-not-safety handoffs to `llm-output-safety-reviewer` + `agent-tool-safety-guard`. | auto + manual |
+| `sensitive-disclosure-guard` | (NEW, LLM02) Disclosure defense: data-minimization + pre-model redaction of secrets/PII/other-tenant data, output-path echo/bleed checks, log redaction at emission, provider retention/training posture; composes `tenant-isolation-reviewer` + `secrets-identity-hardener`. | auto + manual |
+| `model-poisoning-reviewer` | (NEW, LLM04) Training/feedback/ingestion integrity: contributor-trust assessment, poisoning paths, feedback-loop Sybil defense, ingestion-as-truth integrity, provenance/holdout controls; acquire-vs-ingest boundary with `supply-chain-security-reviewer`. | auto + manual |
+| `system-prompt-leakage-reviewer` | (NEW, LLM07) Two axes: no secrets in the prompt AND no security dependence on prompt secrecy — **system prompts are NOT security controls**; enforcement is deterministic and lives OUTSIDE the LLM; extraction-is-harmless framing. | auto + manual |
+| `ai-misinformation-guard` | (NEW, LLM09) Grounding in retrieved sources (not memory), citation-to-claim verification, calibrated uncertainty/refusal, fact validation before action, package/API hallucination (slopsquatting) checks, overreliance-aware UX. | auto + manual |
 
 ## Authoring a new skill
 

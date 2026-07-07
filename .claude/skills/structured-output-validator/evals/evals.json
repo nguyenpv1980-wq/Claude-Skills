@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "structured-output-validator",
+  "description": "Trigger and behavior cases for structured output validation: explicit output contract, validate-before-use, semantic checks beyond shape (tenant-scoped ids), bounded failure handling, shape-is-not-safety handoffs.",
+  "cases": [
+    {
+      "id": "positive-json-contract",
+      "type": "should_trigger",
+      "prompt": "Our model returns JSON that we JSON.parse and use directly to update records. Make the output contract enforceable so a malformed response can't break or mislead the update.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Defines an explicit schema (required fields, types, enums, ranges) matching what the update code assumes and requires validation before any field is used.",
+          "Adds semantic checks beyond shape, including that any ids are tenant-scoped to the caller and exist.",
+          "Specifies fail-closed handling with bounded repair-retry, never silent coercion or partial use.",
+          "Hands sink/tool concerns to llm-output-safety-reviewer and agent-tool-safety-guard (shape is not safety)."
+        ]
+      }
+    },
+    {
+      "id": "edge-tool-arguments",
+      "type": "should_trigger",
+      "prompt": "The model's output becomes the arguments to our function-calling tools. How do we make sure the arguments are well-formed before we dispatch?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Makes schema validation the precondition to tool dispatch and rejects malformed arguments.",
+          "Explicitly states authorization remains agent-tool-safety-guard's job: valid shape with wrong permission/tenant is still blocked.",
+          "Includes a wrong-tenant-id semantic case in the validation tests."
+        ]
+      }
+    },
+    {
+      "id": "negative-xss-sink",
+      "type": "should_not_trigger",
+      "prompt": "The model's JSON is valid but one string field gets rendered as HTML and could contain a script tag. How do we stop the XSS?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Preventing XSS at a render sink is llm-output-safety-reviewer; shape validation confirms the field is a string but does not sanitize its contents."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-silent-coercion",
+      "type": "should_trigger",
+      "prompt": "If the model omits a required field or returns an out-of-range number, just default the field and clamp the number so we never error — keep it simple.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses silent coercion/defaulting: it produces confidently wrong behavior from invalid output.",
+          "Requires fail-closed rejection (or a bounded, explicit repair-retry) instead of quietly patching the response.",
+          "Notes unbounded repair-retry would risk a cost loop and must be capped, composing ai-cost-guardrail-designer."
+        ]
+      }
+    }
+  ]
+}

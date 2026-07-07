@@ -1,0 +1,42 @@
+{
+  "skill": "ai-misinformation-guard",
+  "description": "Trigger discrimination for the Phase 7 output & agency cluster: factual accuracy/grounding vs unsafe output handling vs output shape vs training-data integrity, and against the shipped supply-chain-security-reviewer.",
+  "overlaps_with": ["llm-output-safety-reviewer", "structured-output-validator", "model-poisoning-reviewer", "supply-chain-security-reviewer"],
+  "cases": [
+    {
+      "id": "accuracy-grounding-wins-here",
+      "prompt": "Make sure our assistant's answers are grounded in real sources and don't state confident falsehoods or fake citations.",
+      "expected_skill": "ai-misinformation-guard",
+      "should_not_trigger": ["llm-output-safety-reviewer", "structured-output-validator"],
+      "reason": "Truthfulness, grounding, and citations are this skill (LLM09); llm-output-safety-reviewer handles unsafe rendering/execution and structured-output-validator handles shape — both orthogonal to whether the content is true."
+    },
+    {
+      "id": "output-handling-goes-to-safety-reviewer",
+      "prompt": "The answer is inserted into the page as HTML and executed as SQL — is that safe from XSS and injection?",
+      "expected_skill": "llm-output-safety-reviewer",
+      "should_not_trigger": ["ai-misinformation-guard"],
+      "reason": "Unsafe output HANDLING at sinks is llm-output-safety-reviewer; this skill doesn't care about rendering safety, only factual accuracy."
+    },
+    {
+      "id": "shape-goes-to-structured-validator",
+      "prompt": "Guarantee the model returns valid JSON matching our schema before we use it.",
+      "expected_skill": "structured-output-validator",
+      "should_not_trigger": ["ai-misinformation-guard"],
+      "reason": "Output shape/schema is structured-output-validator; valid JSON can still be entirely false, which is this skill's concern."
+    },
+    {
+      "id": "training-integrity-goes-to-model-poisoning",
+      "prompt": "Could attackers poison our training data or feedback loop so the model learns to recommend a scam?",
+      "expected_skill": "model-poisoning-reviewer",
+      "should_not_trigger": ["ai-misinformation-guard"],
+      "reason": "Corruption of training/feedback data is model-poisoning-reviewer (LLM04); this skill mitigates misinformation at output/answer time regardless of cause."
+    },
+    {
+      "id": "install-trust-goes-to-supply-chain",
+      "prompt": "Audit whether the dependencies we actually install are safe — provenance, pinning, install scripts.",
+      "expected_skill": "supply-chain-security-reviewer",
+      "should_not_trigger": ["ai-misinformation-guard"],
+      "reason": "Dependency install-time trust is supply-chain-security-reviewer; this skill only ensures a RECOMMENDED package actually exists before it's surfaced, then routes install trust there."
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "llm-output-safety-reviewer",
+  "description": "Trigger and behavior cases for LLM output handling: untrusted output to render/execute/URL/tool/store sinks, context-correct encoding, generated-code sandboxing, second-order injection, exploit-flow-gated severity.",
+  "cases": [
+    {
+      "id": "positive-render-and-exec-sinks",
+      "type": "should_trigger",
+      "prompt": "Review our AI feature's output handling: the model's answer is rendered as markdown in the dashboard, and a separate 'run this query' mode executes the SQL it generates.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats model output as untrusted and enumerates the render (markdown) and execute (SQL) sinks.",
+          "Flags raw-HTML-in-markdown as XSS unless sanitized with an allowlist, and requires parameterization/allowlisting for the generated SQL.",
+          "Names the output→sink→impact flow per finding and gates severity on a concrete exploit.",
+          "Recommends CSP/defense-in-depth without treating it as a substitute for encoding."
+        ]
+      }
+    },
+    {
+      "id": "edge-generated-code-execution",
+      "type": "should_trigger",
+      "prompt": "Our data agent writes Python and we exec() it on the server to compute the answer. It has the DB credentials in the environment. Is this safe?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies unsandboxed generated-code execution as RCE-class and a blocking finding.",
+          "Requires a real sandbox: isolation, no ambient credentials, network denied/allowlisted, resource limits — not prompt-level 'write safe code' assurances.",
+          "Routes remediation of the credential-exposed exec path through human-approval-boundary."
+        ]
+      }
+    },
+    {
+      "id": "negative-schema-shape-only",
+      "type": "should_not_trigger",
+      "prompt": "Define the JSON schema our model must return and reject responses that don't match the required fields and types.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Schema-shape validation of structured output is structured-output-validator; this skill reviews injection/execution sinks, and shape-valid output can still be an unsafe value."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-trust-internal-output",
+      "type": "should_trigger",
+      "prompt": "We store the model's output as internal data, so when the admin console later renders it we skip escaping since it's from our own system. Confirm that's fine.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Rejects the assumption: stored model output is untrusted again on read (second-order), and the admin console rendering it raw is an XSS sink.",
+          "Requires context-correct encoding at the sink that uses the data, not a trust assumption because it's 'internal'.",
+          "Explains that model output is attacker-influenced whenever untrusted content was in context."
+        ]
+      }
+    }
+  ]
+}

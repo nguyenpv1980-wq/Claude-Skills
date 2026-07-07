@@ -1,0 +1,35 @@
+{
+  "skill": "model-poisoning-reviewer",
+  "description": "Trigger discrimination for the Phase 7 data & retrieval cluster: ingestion/training integrity (poisoning) vs retrieval authorization vs third-party artifact acquisition vs inference-time injection, and against the shipped supply-chain-security-reviewer.",
+  "overlaps_with": ["rag-security-architect", "supply-chain-security-reviewer", "prompt-injection-defender"],
+  "cases": [
+    {
+      "id": "poisoning-integrity-wins-here",
+      "prompt": "Can an attacker corrupt what our model learns by getting crafted data into our fine-tuning set or our feedback loop?",
+      "expected_skill": "model-poisoning-reviewer",
+      "should_not_trigger": ["rag-security-architect", "supply-chain-security-reviewer"],
+      "reason": "Integrity of training/feedback data you run is this skill (LLM04); rag-security-architect handles retrieval permission and supply-chain-security-reviewer handles acquired artifacts."
+    },
+    {
+      "id": "retrieval-authz-goes-to-rag-security",
+      "prompt": "Make sure tenant A can't retrieve tenant B's documents from our shared vector index.",
+      "expected_skill": "rag-security-architect",
+      "should_not_trigger": ["model-poisoning-reviewer"],
+      "reason": "Who can retrieve which vectors is rag-security-architect (LLM08); this skill covers whether the ingested content itself is trustworthy, not query-time access."
+    },
+    {
+      "id": "acquired-artifact-goes-to-supply-chain",
+      "prompt": "Audit the third-party base model and public dataset we downloaded for provenance and unsafe serialization before we use them.",
+      "expected_skill": "supply-chain-security-reviewer",
+      "should_not_trigger": ["model-poisoning-reviewer"],
+      "reason": "Acquired models/datasets/adapters and their provenance/serialization are supply-chain-security-reviewer (LLM03, extended per D6); this skill owns data you ingest and pipelines you run."
+    },
+    {
+      "id": "inference-injection-goes-to-injection-defender",
+      "prompt": "A retrieved document contains instructions that hijacked our agent at answer time — stop that.",
+      "expected_skill": "prompt-injection-defender",
+      "should_not_trigger": ["model-poisoning-reviewer"],
+      "reason": "Content acting as instructions at inference is prompt-injection-defender (LLM01); this skill covers content being indexed/trained as ground truth (integrity), not the injection vector."
+    }
+  ]
+}

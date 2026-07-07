@@ -1,0 +1,42 @@
+{
+  "skill": "prompt-injection-defender",
+  "description": "Trigger discrimination for the Phase 7 threat & injection cluster: injection defense design vs whole-system threat modeling vs prompt-secrecy vs retrieval authz vs tool scope, and against the shipped security-pr-reviewer and the ai-security-red-team-reviewer subagent.",
+  "overlaps_with": ["ai-threat-modeler", "system-prompt-leakage-reviewer", "rag-security-architect", "agent-tool-safety-guard", "security-pr-reviewer", "ai-security-red-team-reviewer (subagent)"],
+  "cases": [
+    {
+      "id": "injection-defense-wins-here",
+      "prompt": "Design the layered defense so our agent can't be hijacked by instructions hidden in the documents it reads.",
+      "expected_skill": "prompt-injection-defender",
+      "should_not_trigger": ["ai-threat-modeler", "rag-security-architect"],
+      "reason": "Designing the injection defense-in-depth is this skill's core case; ai-threat-modeler enumerates the risk, rag-security-architect handles retrieval authorization, not the untrusted-content-in-context invariant."
+    },
+    {
+      "id": "whole-model-goes-to-ai-threat-modeler",
+      "prompt": "Give me the full AI risk picture for this agent across all the OWASP LLM categories before we pick which defenses to build.",
+      "expected_skill": "ai-threat-modeler",
+      "should_not_trigger": ["prompt-injection-defender"],
+      "reason": "A cross-category risk enumeration is the threat modeler; this skill builds one named defense once injection is chosen as a risk to close."
+    },
+    {
+      "id": "prompt-secrecy-goes-to-leakage-reviewer",
+      "prompt": "Can an attacker extract our system prompt, and are we wrongly relying on it staying secret?",
+      "expected_skill": "system-prompt-leakage-reviewer",
+      "should_not_trigger": ["prompt-injection-defender"],
+      "reason": "System-prompt extraction and the prompt-as-control anti-pattern are LLM07 (system-prompt-leakage-reviewer); this skill treats the prompt as non-secret and defends the action boundary."
+    },
+    {
+      "id": "tool-scope-goes-to-tool-safety-guard",
+      "prompt": "Define least-privilege scopes and argument validation for each tool our agent can call.",
+      "expected_skill": "agent-tool-safety-guard",
+      "should_not_trigger": ["prompt-injection-defender"],
+      "reason": "Per-tool authorization and argument validation is agent-tool-safety-guard; this skill composes that boundary but doesn't design the tool scopes."
+    },
+    {
+      "id": "live-probing-goes-to-red-team-subagent",
+      "prompt": "Actually try to jailbreak our deployed assistant and tell me which injection payloads succeed.",
+      "expected_skill": "ai-security-red-team-reviewer (subagent)",
+      "should_not_trigger": ["prompt-injection-defender"],
+      "reason": "Hands-on adversarial probing of a live system is the red-team subagent; this skill designs the defense and the suite, it doesn't execute the attack."
+    }
+  ]
+}

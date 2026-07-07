@@ -1,0 +1,42 @@
+{
+  "skill": "ai-evaluation-harness",
+  "description": "Trigger discrimination for the Phase 7 AI-platform-ops cluster: model-behavior eval harness vs code-test curation vs threat modeling vs live monitoring, and against the shipped regression-suite-curator, qa-automation-architect, api-contract-test-designer, and the ai-security-red-team-reviewer subagent.",
+  "overlaps_with": ["regression-suite-curator", "qa-automation-architect", "api-contract-test-designer", "ai-threat-modeler", "observability-operator", "ai-security-red-team-reviewer (subagent)"],
+  "cases": [
+    {
+      "id": "eval-harness-wins-here",
+      "prompt": "Create a golden dataset and graders to measure our chatbot's quality, safety, and hallucination rate, and block regressions on model upgrades.",
+      "expected_skill": "ai-evaluation-harness",
+      "should_not_trigger": ["regression-suite-curator", "qa-automation-architect"],
+      "reason": "Evaluating model behavior across quality/safety dimensions with a dataset and graders is this skill; the QA skills curate and structure CODE tests, not model-output evals."
+    },
+    {
+      "id": "code-regression-curation-goes-to-suite-curator",
+      "prompt": "Decide which of our existing automated tests belong in the smoke tier and which to retire, against our runtime budget.",
+      "expected_skill": "regression-suite-curator",
+      "should_not_trigger": ["ai-evaluation-harness"],
+      "reason": "Promote/retain/retire decisions over the code regression suite are regression-suite-curator; this skill curates the model-eval dataset, a different artifact."
+    },
+    {
+      "id": "threat-model-goes-to-ai-threat-modeler",
+      "prompt": "Figure out what attacks our AI feature is exposed to across the OWASP LLM Top 10 before we test anything.",
+      "expected_skill": "ai-threat-modeler",
+      "should_not_trigger": ["ai-evaluation-harness"],
+      "reason": "Enumerating the threats is ai-threat-modeler; this skill encodes and runs the resulting red-team cases, it doesn't produce the threat model."
+    },
+    {
+      "id": "live-monitoring-goes-to-observability-operator",
+      "prompt": "Instrument our production AI endpoint with alerts on error rate, latency, and cost spikes.",
+      "expected_skill": "observability-operator",
+      "should_not_trigger": ["ai-evaluation-harness"],
+      "reason": "Live production instrumentation and alerting is observability-operator; this skill evaluates behavior pre-merge against a dataset, not live traffic."
+    },
+    {
+      "id": "contract-verification-goes-to-api-contract-tester",
+      "prompt": "Verify our provider's API responses still match the schema our consumers depend on and gate breaking changes.",
+      "expected_skill": "api-contract-test-designer",
+      "should_not_trigger": ["ai-evaluation-harness"],
+      "reason": "API request/response contract verification is api-contract-test-designer; this skill validates model output quality/safety, not API-shape compatibility between services."
+    }
+  ]
+}

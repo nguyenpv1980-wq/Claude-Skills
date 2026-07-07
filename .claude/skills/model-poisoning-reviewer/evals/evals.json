@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "model-poisoning-reviewer",
+  "description": "Trigger and behavior cases for data/model poisoning: contributor-trust assessment, poisoning paths, feedback-loop Sybil defense, ingestion-as-truth integrity, provenance/holdout controls, boundary with supply chain.",
+  "cases": [
+    {
+      "id": "positive-feedback-retraining",
+      "type": "should_trigger",
+      "prompt": "We retrain our model weekly on the conversations that users rated thumbs-up. Review this for poisoning risk.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies the open feedback loop as attacker-reachable and traces a poisoning path (coordinated thumbs-up steers the next update).",
+          "Requires identity/rate controls on feedback, anomaly detection, and human review before feedback becomes training data.",
+          "Requires a holdout/canary and adversarial-trigger evaluation that would catch a behavior shift before shipping, noting aggregate accuracy won't reveal a targeted backdoor."
+        ]
+      }
+    },
+    {
+      "id": "edge-web-ingestion-as-truth",
+      "type": "should_trigger",
+      "prompt": "Our knowledge base ingests public web pages and the assistant answers from them as authoritative. Any poisoning concern?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats indexing external content as ground truth as a poisoning vector: an attacker who gets a document indexed can steer answers for a target query.",
+          "Requires source trust classification, validation before indexing, and the ability to purge AND roll back poisoned content.",
+          "Distinguishes this integrity concern from retrieval authorization (rag-security-architect) and hands any injection payload to prompt-injection-defender."
+        ]
+      }
+    },
+    {
+      "id": "negative-downloaded-adapter",
+      "type": "should_not_trigger",
+      "prompt": "We're about to download a community fine-tuning adapter for our base model from a public hub. Is it safe to use?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Assessing an acquired third-party model/dataset/adapter is supply-chain-security-reviewer (LLM03, extended); this skill covers data you ingest and pipelines you run, not artifacts you download."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-autotrain-open-feedback",
+      "type": "should_trigger",
+      "prompt": "To move fast, just automatically fold all user corrections straight into the next fine-tune with no review — trust the users.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses auto-training on raw open feedback: it lets a coordinated group vote bias or a backdoor into the model.",
+          "Requires human review, identity/rate limits, and anomaly detection before feedback shapes behavior.",
+          "Notes remediation of any resulting corruption (retrain/purge/rollback) is a classified, approved step via human-approval-boundary."
+        ]
+      }
+    }
+  ]
+}

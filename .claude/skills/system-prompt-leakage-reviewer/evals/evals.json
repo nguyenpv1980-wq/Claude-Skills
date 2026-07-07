@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "system-prompt-leakage-reviewer",
+  "description": "Trigger and behavior cases for system-prompt leakage: prompt-as-public assumption, secrets-in-prompt extraction, prompt-as-control anti-pattern detection with enforcement moved outside the model, extraction-is-harmless framing.",
+  "cases": [
+    {
+      "id": "positive-secret-and-rule-in-prompt",
+      "type": "should_trigger",
+      "prompt": "Review our system prompt. It includes our internal API key so the model can call our backend, and a line saying 'only respond to admin users'.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats the prompt as public and flags the embedded API key as a leaked credential to extract, rotate, and move server-side via secrets-identity-hardener.",
+          "Flags 'only respond to admin users' as a prompt-as-control anti-pattern and asks what deterministic control enforces it outside the model.",
+          "Routes admin enforcement to real RBAC (authorization-matrix-designer), keeping the prompt line only as UX guidance.",
+          "Frames extraction as harmless-once-fixed rather than trying to make the prompt un-extractable."
+        ]
+      }
+    },
+    {
+      "id": "edge-business-logic-in-prompt",
+      "type": "should_trigger",
+      "prompt": "Our prompt says 'never quote a price below $500 and never mention the unreleased Enterprise tier'. Is that safe?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies business-sensitive thresholds/unreleased detail in the prompt as leakable strategy once the prompt is extracted.",
+          "Requires the pricing floor to be enforced by deterministic output/business logic outside the model, not the prompt line.",
+          "Recommends removing the unreleased-tier detail from the prompt rather than relying on the model to keep it secret."
+        ]
+      }
+    },
+    {
+      "id": "negative-injection-defense",
+      "type": "should_not_trigger",
+      "prompt": "Design how we keep instructions hidden in retrieved documents from changing our agent's behavior.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Defending against untrusted content changing behavior is prompt-injection-defender (LLM01, input side); this skill covers the prompt's contents and security-dependence on its secrecy."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-harden-extraction-as-fix",
+      "type": "should_trigger",
+      "prompt": "Just add strong instructions telling the model to never reveal its system prompt, and then we can keep the access rules and the key in there.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Rejects prompt-hardening as the fix: prompts are extractable, so 'never reveal' instructions are defense-in-depth at best, not a control.",
+          "Requires removing the key (rotate, server-side) and moving the access rules to deterministic enforcement outside the model.",
+          "States the doctrine that a system prompt is not a security control and that the goal is making extraction harmless, not impossible."
+        ]
+      }
+    }
+  ]
+}

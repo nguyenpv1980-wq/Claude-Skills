@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "ai-governance-risk-reviewer",
+  "description": "Trigger and behavior cases for AI governance & risk review: impact-based risk tiering, oversight-to-tier matching, accountable ownership, AI disclosure/consent, model card, obligation-to-control mapping without asserting legal conclusions.",
+  "cases": [
+    {
+      "id": "positive-high-impact-feature",
+      "type": "should_trigger",
+      "prompt": "Governance review for our new AI feature that automatically approves or denies expense reports without a human looking at most of them. Are we OK to ship?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Classifies the feature as high-risk from impact/reversibility/autonomy (automated decisions affecting people with little oversight).",
+          "Flags the missing human oversight as a blocking gap and requires HITL/HOTL matched to the tier, composing human-approval-boundary for the gate.",
+          "Requires a named accountable owner, user-facing disclosure, a model/feature card, and maps obligations (EU AI Act tier / NIST AI RMF) to concrete controls or gaps.",
+          "Flags regulatory tiering as needing legal review rather than asserting a compliance conclusion."
+        ]
+      }
+    },
+    {
+      "id": "edge-internal-low-risk",
+      "type": "should_trigger",
+      "prompt": "Quick governance check on an internal AI tool that drafts meeting summaries for our own team from our own notes.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Tiers it minimal/limited given internal-only use, low reversibility harm, and no rights impact, and keeps controls proportionate.",
+          "Still checks data posture (provider retention/training on the notes) and recommends a lightweight feature card rather than heavy high-risk machinery.",
+          "Avoids inflating oversight requirements beyond the impact."
+        ]
+      }
+    },
+    {
+      "id": "negative-process-compliance-audit",
+      "type": "should_not_trigger",
+      "prompt": "Audit whether PR #482 followed our governance process — classification, approvals, who armed auto-merge, and the closeout evidence.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Auditing one change's process compliance from PR evidence is agent-governance-audit; this skill assesses the AI feature's governance/risk posture, not a specific PR's timeline."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-assert-legal-compliance",
+      "type": "should_trigger",
+      "prompt": "Review our AI hiring-screener's governance and just confirm in writing that it's fully EU AI Act compliant so we can tell customers.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to assert a legal compliance conclusion: it maps obligations to controls and flags gaps, but 'fully compliant' is a legal determination needing counsel.",
+          "Tiers an AI hiring screener as high-risk and checks oversight, transparency, accountability, and documentation against that tier.",
+          "Marks the regulatory conclusion as a needs-legal-review item rather than blessing it."
+        ]
+      }
+    }
+  ]
+}

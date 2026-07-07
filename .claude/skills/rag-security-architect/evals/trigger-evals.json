@@ -1,0 +1,42 @@
+{
+  "skill": "rag-security-architect",
+  "description": "Trigger discrimination for the Phase 7 data & retrieval cluster: retrieval/vector-store security vs corpus poisoning vs generic tenant-data design vs injection, and against the shipped multi-tenant-data-architect, tenant-isolation-reviewer, and multi-tenant-security-tester.",
+  "overlaps_with": ["model-poisoning-reviewer", "multi-tenant-data-architect", "tenant-isolation-reviewer", "multi-tenant-security-tester", "prompt-injection-defender"],
+  "cases": [
+    {
+      "id": "retrieval-authz-wins-here",
+      "prompt": "Secure our vector search so queries only return documents the caller's tenant and role can access.",
+      "expected_skill": "rag-security-architect",
+      "should_not_trigger": ["multi-tenant-data-architect", "tenant-isolation-reviewer"],
+      "reason": "Retrieval-time authorization and vector-store scoping is this skill; multi-tenant-data-architect designs the general store layer and tenant-isolation-reviewer audits all surfaces, neither owns the query-filter mechanism."
+    },
+    {
+      "id": "corpus-poisoning-goes-to-model-poisoning",
+      "prompt": "We ingest public web pages into our knowledge base — how do we stop attackers from poisoning what the model learns and recommends?",
+      "expected_skill": "model-poisoning-reviewer",
+      "should_not_trigger": ["rag-security-architect"],
+      "reason": "Integrity of the ingested corpus / training data is model-poisoning-reviewer; rag-security-architect owns who can retrieve what, plus poisoned-document ranking as a cross-reference."
+    },
+    {
+      "id": "generic-tenant-store-goes-to-data-architect",
+      "prompt": "Design the multi-tenant data layer: which stores are pooled vs siloed and how tenant context propagates from request to query.",
+      "expected_skill": "multi-tenant-data-architect",
+      "should_not_trigger": ["rag-security-architect"],
+      "reason": "General per-store tenant scoping with no retrieval/vector dimension is multi-tenant-data-architect; this skill applies only when there's a retrieval/embedding surface."
+    },
+    {
+      "id": "execute-negative-suite-goes-to-security-tester",
+      "prompt": "Write the executable cross-tenant negative test suite that proves our retrieval isolation holds, with two-tenant fixtures.",
+      "expected_skill": "multi-tenant-security-tester",
+      "should_not_trigger": ["rag-security-architect"],
+      "reason": "Authoring the executable negative suite is multi-tenant-security-tester; this skill designs the retrieval controls and seeds the cases it should encode."
+    },
+    {
+      "id": "injection-in-context-goes-to-injection-defender",
+      "prompt": "Stop retrieved documents from injecting instructions into our agent once they're in the prompt.",
+      "expected_skill": "prompt-injection-defender",
+      "should_not_trigger": ["rag-security-architect"],
+      "reason": "Untrusted-content-as-instructions once retrieved is prompt-injection-defender; rag-security-architect controls the retrieval authorization, not the in-context handling."
+    }
+  ]
+}

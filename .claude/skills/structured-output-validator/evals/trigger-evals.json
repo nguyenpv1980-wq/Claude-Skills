@@ -1,0 +1,42 @@
+{
+  "skill": "structured-output-validator",
+  "description": "Trigger discrimination for the Phase 7 output & agency cluster: output SHAPE/schema validation vs injection/execution sink safety vs tool authorization vs factual accuracy, and against the shipped api-contract-test-designer.",
+  "overlaps_with": ["llm-output-safety-reviewer", "agent-tool-safety-guard", "ai-misinformation-guard", "api-contract-test-designer"],
+  "cases": [
+    {
+      "id": "shape-validation-wins-here",
+      "prompt": "Guarantee the model's response matches our required JSON schema — fields, types, enums — before any code reads it.",
+      "expected_skill": "structured-output-validator",
+      "should_not_trigger": ["llm-output-safety-reviewer", "agent-tool-safety-guard"],
+      "reason": "Defining and enforcing the output shape contract is this skill; llm-output-safety-reviewer handles what happens at sinks and agent-tool-safety-guard handles tool authorization, both after shape is guaranteed."
+    },
+    {
+      "id": "sink-safety-goes-to-output-safety-reviewer",
+      "prompt": "The validated output is rendered as HTML and used to build a SQL query — is that safe from XSS and injection?",
+      "expected_skill": "llm-output-safety-reviewer",
+      "should_not_trigger": ["structured-output-validator"],
+      "reason": "Sink safety (XSS/injection/RCE) is llm-output-safety-reviewer; shape-valid output can still carry an unsafe value, which this skill explicitly hands off."
+    },
+    {
+      "id": "tool-authz-goes-to-tool-safety-guard",
+      "prompt": "The arguments are well-formed, but should this agent even be allowed to call the delete tool with them?",
+      "expected_skill": "agent-tool-safety-guard",
+      "should_not_trigger": ["structured-output-validator"],
+      "reason": "Permission/identity for a tool call is agent-tool-safety-guard; this skill guarantees the arguments' shape, not the authority to use them."
+    },
+    {
+      "id": "factual-accuracy-goes-to-misinformation-guard",
+      "prompt": "The JSON is valid but the facts inside it are made up — how do we make the model's structured answers accurate and grounded?",
+      "expected_skill": "ai-misinformation-guard",
+      "should_not_trigger": ["structured-output-validator"],
+      "reason": "Groundedness/accuracy of the content is ai-misinformation-guard (LLM09); this skill validates structure, not truth."
+    },
+    {
+      "id": "service-contract-goes-to-api-contract-tester",
+      "prompt": "Verify our REST API's request/response contract between provider and consumer services and gate breaking schema changes in CI.",
+      "expected_skill": "api-contract-test-designer",
+      "should_not_trigger": ["structured-output-validator"],
+      "reason": "Service-to-service API contract verification is api-contract-test-designer; this skill validates a MODEL's output shape at the app boundary, not an inter-service API contract."
+    }
+  ]
+}

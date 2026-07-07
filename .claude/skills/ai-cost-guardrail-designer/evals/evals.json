@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "ai-cost-guardrail-designer",
+  "description": "Trigger and behavior cases for AI cost guardrails: per-request token caps, tenant-scoped budgets/rate limits, agent loop bounds, fail-safe degraded mode and kill switch, denial-of-wallet defense, burn-rate alerting.",
+  "cases": [
+    {
+      "id": "positive-add-guardrails",
+      "type": "should_trigger",
+      "prompt": "Add cost guardrails to our AI feature. Right now any user can send unlimited-length prompts and there's no cap on how much we spend per tenant.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Sets per-request input and output token caps and a timeout, rejecting oversize input at the edge.",
+          "Adds per-user/tenant/plan budgets and rate limits that are tenant-scoped so one tenant can't exhaust another's capacity.",
+          "Designs a kill switch and a fail-safe degraded mode (cached/smaller-model/refuse), never fail-open.",
+          "Specifies attributable per-call cost telemetry with burn-rate alerts before exhaustion, composing observability-operator to implement."
+        ]
+      }
+    },
+    {
+      "id": "edge-agent-loop-denial-of-wallet",
+      "type": "should_trigger",
+      "prompt": "Our agent loops calling tools until it decides it's done. A crafted input made it loop hundreds of times and cost a fortune. How do we bound this?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats the runaway loop as a denial-of-wallet risk (LLM10) and imposes hard caps on iterations, tool calls, and recursion depth.",
+          "Bounds retries with backoff and a circuit breaker to avoid amplification.",
+          "Adds a kill switch and routes an active spike to incident-response-runbook before redesign."
+        ]
+      }
+    },
+    {
+      "id": "negative-whole-product-cost-model",
+      "type": "should_not_trigger",
+      "prompt": "Model our whole SaaS's cost drivers and unit economics — cost per tenant, per seat, per plan versus revenue.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Whole-product cost drivers and unit economics are saas-cost-architect; this skill designs the AI feature's consumption guardrails and composes those numbers."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-fail-open",
+      "type": "should_trigger",
+      "prompt": "Add a budget check, but if the budget service is down or the check errors, just let the request through so we never block a paying customer.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses the fail-open design: allowing requests when the budget check errors converts a bug into unbounded spend.",
+          "Requires the limit to fail safe (degrade or deny with retry-after) and offers tiered limits so legitimate heavy users aren't clamped globally.",
+          "States the worst-case residual spend and a named acceptor via human-approval-boundary."
+        ]
+      }
+    }
+  ]
+}

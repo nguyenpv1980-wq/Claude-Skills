@@ -1,0 +1,42 @@
+{
+  "skill": "agent-tool-safety-guard",
+  "description": "Trigger discrimination for the Phase 7 output & agency cluster: tool/function least-privilege vs injection defense vs output execution vs structured validation, and against the shipped agent-authorization-matrix and human-approval-boundary.",
+  "overlaps_with": ["prompt-injection-defender", "llm-output-safety-reviewer", "structured-output-validator", "agent-authorization-matrix", "human-approval-boundary"],
+  "cases": [
+    {
+      "id": "tool-scope-wins-here",
+      "prompt": "Lock down what our agent's tools can do — least privilege, run-as-user, and approval on the destructive ones.",
+      "expected_skill": "agent-tool-safety-guard",
+      "should_not_trigger": ["prompt-injection-defender", "agent-authorization-matrix"],
+      "reason": "Scoping the agent's runtime tool/function surface is this skill; prompt-injection-defender guards the content boundary, and agent-authorization-matrix governs standing agent-vs-human authority (merge/deploy), not per-tool runtime scopes."
+    },
+    {
+      "id": "standing-authority-goes-to-authorization-matrix",
+      "prompt": "Define which actions our AI agents may take autonomously versus which always need a named human — merging to protected branches, deploys, arming auto-merge.",
+      "expected_skill": "agent-authorization-matrix",
+      "should_not_trigger": ["agent-tool-safety-guard"],
+      "reason": "Standing SDLC authority (what an agent may ever do autonomously, who merges) is agent-authorization-matrix; agent-tool-safety-guard scopes the runtime tools of a product agent."
+    },
+    {
+      "id": "code-execution-goes-to-output-safety",
+      "prompt": "Our agent writes and runs Python in a sandbox. Review the code-execution and sandbox boundaries.",
+      "expected_skill": "llm-output-safety-reviewer",
+      "should_not_trigger": ["agent-tool-safety-guard"],
+      "reason": "Executing agent-generated code and sandbox escape is llm-output-safety-reviewer's output-handling surface; agent-tool-safety-guard scopes named tools, not arbitrary code execution."
+    },
+    {
+      "id": "arg-schema-goes-to-structured-validator",
+      "prompt": "Define the JSON schema and validation for the model's tool-call output so malformed arguments are rejected before use.",
+      "expected_skill": "structured-output-validator",
+      "should_not_trigger": ["agent-tool-safety-guard"],
+      "reason": "The schema-validation mechanism for model output is structured-output-validator; agent-tool-safety-guard composes it as the argument-validation step but owns the permission/identity model, not the schema."
+    },
+    {
+      "id": "approval-mechanics-goes-to-human-approval-boundary",
+      "prompt": "Set up the general policy for when work must stop and get explicit human approval before crossing high-risk boundaries.",
+      "expected_skill": "human-approval-boundary",
+      "should_not_trigger": ["agent-tool-safety-guard"],
+      "reason": "The general approval-boundary policy is human-approval-boundary; this skill composes it to gate specific high-impact tools, not to define the approval mechanism itself."
+    }
+  ]
+}

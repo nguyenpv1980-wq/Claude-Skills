@@ -1,0 +1,42 @@
+{
+  "skill": "ai-threat-modeler",
+  "description": "Trigger discrimination for the Phase 7 threat & injection cluster: whole-AI-system threat modeling vs single-defense design vs prompt-secrecy review vs disclosure controls, and against the shipped threat-modeler, security-pr-reviewer, and the ai-security-red-team-reviewer subagent.",
+  "overlaps_with": ["threat-modeler", "prompt-injection-defender", "system-prompt-leakage-reviewer", "sensitive-disclosure-guard", "security-pr-reviewer", "ai-security-red-team-reviewer (subagent)"],
+  "cases": [
+    {
+      "id": "whole-ai-system-model-wins-here",
+      "prompt": "What could go wrong with our new LLM agent that reads wiki pages and files Jira tickets? Give me the full risk picture before we commit to the design.",
+      "expected_skill": "ai-threat-modeler",
+      "should_not_trigger": ["prompt-injection-defender", "threat-modeler"],
+      "reason": "A whole-system AI risk picture across all categories is this skill's core case; prompt-injection-defender designs one named defense, and threat-modeler lacks the AI-specific surface (the feature has an agent loop)."
+    },
+    {
+      "id": "no-ai-goes-to-threat-modeler",
+      "prompt": "Threat-model the new billing webhook endpoint — signature verification, replay, and idempotency concerns.",
+      "expected_skill": "threat-modeler",
+      "should_not_trigger": ["ai-threat-modeler"],
+      "reason": "No model call, retrieval, or agent loop anywhere — classic STRIDE surface belongs to threat-modeler."
+    },
+    {
+      "id": "single-defense-goes-to-injection-defender",
+      "prompt": "Design our defense against prompt injection for the doc-summarizer — trust zones, how untrusted content is delimited, and what gates tool calls.",
+      "expected_skill": "prompt-injection-defender",
+      "should_not_trigger": ["ai-threat-modeler"],
+      "reason": "Designing the injection defense architecture itself is prompt-injection-defender; the threat modeler enumerates and routes that work, it doesn't do it."
+    },
+    {
+      "id": "diff-review-goes-to-security-pr-reviewer",
+      "prompt": "Security-review this PR that adds the OpenAI call and the new /summarize endpoint.",
+      "expected_skill": "security-pr-reviewer",
+      "should_not_trigger": ["ai-threat-modeler"],
+      "reason": "An actual diff gets the diff-review lens; the AI threat model is a design-time artifact, not a PR gate."
+    },
+    {
+      "id": "red-team-execution-goes-to-subagent-or-harness",
+      "prompt": "Red-team our deployed chatbot: actually probe it for injection, jailbreaks, and data exfiltration and report what lands.",
+      "expected_skill": "ai-security-red-team-reviewer (subagent)",
+      "should_not_trigger": ["ai-threat-modeler"],
+      "reason": "Hands-on adversarial probing of a live feature is the red-team subagent (composing ai-evaluation-harness for suites); the threat modeler predicts and maps, it does not probe."
+    }
+  ]
+}

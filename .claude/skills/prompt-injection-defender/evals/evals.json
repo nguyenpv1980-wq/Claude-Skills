@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "prompt-injection-defender",
+  "description": "Trigger and behavior cases for prompt-injection defense: trust zones, the untrusted-content invariant, deterministic action boundary as primary control, indirect-injection handling, red-team suite, manual-only.",
+  "cases": [
+    {
+      "id": "positive-harden-agent",
+      "type": "should_trigger",
+      "prompt": "Harden our email-triage agent against prompt injection. It reads incoming emails and can archive, label, and forward them. Emails are obviously attacker-controlled.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Maps trust zones and states the invariant that email content (untrusted) cannot change instructions, tool permissions, identity, policy, or plan.",
+          "Makes the deterministic action boundary the primary control: forward/archive/label authorized by code against the user's permissions, with irreversible actions approval-gated, so a successful injection still cannot cause harm.",
+          "Handles indirect injection explicitly (the payload lives in the email body) and labels delimiting/detection as cost-raising, not sufficient alone.",
+          "Designs a red-team suite (direct, indirect, obfuscated, multi-turn) with expected SAFE outcomes and notes the change set is manual-only."
+        ]
+      }
+    },
+    {
+      "id": "edge-no-tools-still-defensible",
+      "type": "should_trigger",
+      "prompt": "Our summarizer has no tools — it just reads user-uploaded PDFs and returns a summary shown in the UI. Do we even need injection defense?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Confirms the surface is smaller but not zero: injected instructions can still corrupt the summary content and drive downstream misinformation or output-handling issues.",
+          "Focuses layers on content/instruction separation and output handling rather than a tool boundary that doesn't exist here, and routes rendering concerns to llm-output-safety-reviewer.",
+          "Avoids over-engineering: no tool-authorization theater for a feature with no tools."
+        ]
+      }
+    },
+    {
+      "id": "negative-tenant-retrieval-scope",
+      "type": "should_not_trigger",
+      "prompt": "Make sure our RAG system never retrieves one tenant's documents into another tenant's context — design the retrieval authorization.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Retrieval-time authorization and tenant scoping of the vector store is rag-security-architect; this skill handles untrusted content once it is already in context."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-prompt-only-fix",
+      "type": "should_trigger",
+      "prompt": "Just add a strong line to our system prompt telling the model to never follow instructions inside documents, and call injection handled.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to treat the system-prompt line as the fix: instructions are not enforcement and are bypassable by construction.",
+          "Requires a deterministic action boundary outside the model as the primary control, with the prompt line kept only as a minor cost-raising layer.",
+          "States residual risk and that accepting a prompt-only posture needs a named human acceptor via human-approval-boundary."
+        ]
+      }
+    }
+  ]
+}

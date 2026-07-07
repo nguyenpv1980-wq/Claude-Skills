@@ -1,0 +1,42 @@
+{
+  "skill": "ai-router-architect",
+  "description": "Trigger discrimination for the Phase 7 AI-platform-ops cluster: model-routing/gateway layer vs cost policy vs telemetry implementation vs credential custody vs output schema, and against the shipped observability-operator and secrets-identity-hardener.",
+  "overlaps_with": ["ai-cost-guardrail-designer", "observability-operator", "secrets-identity-hardener", "structured-output-validator"],
+  "cases": [
+    {
+      "id": "router-layer-wins-here",
+      "prompt": "Design the gateway all our model calls go through — provider selection, fallback when one is down, and one place to hold the keys.",
+      "expected_skill": "ai-router-architect",
+      "should_not_trigger": ["ai-cost-guardrail-designer", "observability-operator"],
+      "reason": "The routing/gateway layer (selection, fallback, custody, choke point) is this skill; ai-cost-guardrail-designer sets the budget policy it enforces and observability-operator implements the telemetry it emits."
+    },
+    {
+      "id": "cost-policy-goes-to-guardrail-designer",
+      "prompt": "Set the token caps, per-tenant budgets, and rate limits for our AI feature and defend against token-drain.",
+      "expected_skill": "ai-cost-guardrail-designer",
+      "should_not_trigger": ["ai-router-architect"],
+      "reason": "The consumption/cost policy is ai-cost-guardrail-designer; the router enforces those limits but doesn't decide them."
+    },
+    {
+      "id": "telemetry-impl-goes-to-observability-operator",
+      "prompt": "Implement the dashboards and alerts for our AI call latency, error rate, and cost.",
+      "expected_skill": "observability-operator",
+      "should_not_trigger": ["ai-router-architect"],
+      "reason": "Hands-on dashboard/alert implementation is observability-operator; the router defines the per-call telemetry contract and emits it, but doesn't build the dashboards."
+    },
+    {
+      "id": "key-custody-goes-to-secrets-hardener",
+      "prompt": "Our provider API key leaked into the client bundle via a VITE_ variable — move it server-side and rotate it.",
+      "expected_skill": "secrets-identity-hardener",
+      "should_not_trigger": ["ai-router-architect"],
+      "reason": "Moving/rotating a leaked secret with a bundle-absence proof is secrets-identity-hardener; the router composes it for custody but the remediation itself is that skill's."
+    },
+    {
+      "id": "output-schema-goes-to-structured-validator",
+      "prompt": "Define and enforce the JSON schema the model must return so downstream code can rely on the shape.",
+      "expected_skill": "structured-output-validator",
+      "should_not_trigger": ["ai-router-architect"],
+      "reason": "Output shape/schema validation is structured-output-validator; the router moves requests/responses but doesn't own the output contract."
+    }
+  ]
+}

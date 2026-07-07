@@ -1,0 +1,42 @@
+{
+  "skill": "sensitive-disclosure-guard",
+  "description": "Trigger discrimination for the Phase 7 threat & injection cluster: sensitive-data disclosure/redaction vs retrieval authorization vs credential custody vs tenant surface audit, and against the shipped secrets-identity-hardener and tenant-isolation-reviewer.",
+  "overlaps_with": ["rag-security-architect", "secrets-identity-hardener", "tenant-isolation-reviewer", "system-prompt-leakage-reviewer", "ai-governance-risk-reviewer"],
+  "cases": [
+    {
+      "id": "disclosure-redaction-wins-here",
+      "prompt": "Strip PII and secrets out of what we send to the model and make sure the model can't read sensitive input back to the user.",
+      "expected_skill": "sensitive-disclosure-guard",
+      "should_not_trigger": ["rag-security-architect", "secrets-identity-hardener"],
+      "reason": "Data minimization/redaction of what enters context and leaks in output is this skill; rag-security-architect controls retrieval permission and secrets-identity-hardener owns credential custody in the codebase."
+    },
+    {
+      "id": "retrieval-permission-goes-to-rag-security",
+      "prompt": "Ensure a user only retrieves vector-store documents their tenant and role are authorized to access.",
+      "expected_skill": "rag-security-architect",
+      "should_not_trigger": ["sensitive-disclosure-guard"],
+      "reason": "Who can retrieve which documents is rag-security-architect (LLM08); this skill redacts/minimizes sensitive data regardless of retrieval permission."
+    },
+    {
+      "id": "credential-custody-goes-to-secrets-hardener",
+      "prompt": "We have API keys and DB credentials scattered in env vars and one leaked into the client bundle — harden secret custody and rotate.",
+      "expected_skill": "secrets-identity-hardener",
+      "should_not_trigger": ["sensitive-disclosure-guard"],
+      "reason": "Secret custody, env classification, and rotation is secrets-identity-hardener; this skill composes it but focuses on sensitive data reaching the model/output/logs."
+    },
+    {
+      "id": "prompt-secret-goes-to-leakage-reviewer",
+      "prompt": "Our system prompt contains an internal API key so the model can call our API — can an attacker extract it?",
+      "expected_skill": "system-prompt-leakage-reviewer",
+      "should_not_trigger": ["sensitive-disclosure-guard"],
+      "reason": "Secrets in the system prompt and their extraction is system-prompt-leakage-reviewer (LLM07); this skill covers sensitive data in the user/context/output/log flow, not the prompt itself."
+    },
+    {
+      "id": "tenant-surface-audit-goes-to-isolation-reviewer",
+      "prompt": "Audit our whole multi-tenant system for cross-tenant leakage across all surfaces — storage, logs, search, jobs, exports.",
+      "expected_skill": "tenant-isolation-reviewer",
+      "should_not_trigger": ["sensitive-disclosure-guard"],
+      "reason": "A whole-system multi-surface tenant-isolation audit is tenant-isolation-reviewer; this skill composes it for the AI-disclosure surface specifically, not the full estate."
+    }
+  ]
+}

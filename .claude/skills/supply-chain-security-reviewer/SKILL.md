@@ -1,6 +1,6 @@
 ---
 name: supply-chain-security-reviewer
-description: Review software supply-chain risk with SLSA-style provenance thinking — dependencies (known CVEs triaged by reachability, not just presence), lockfile integrity and pinning, transitive/typosquat/confusion risk, install and build scripts, CI/CD workflows (untrusted PR triggers, secret exposure, over-broad token scopes, unpinned third-party Actions), artifact provenance, and postinstall/hook execution. Produces severity-ranked findings each with a compromise path, an exploitability verdict, and concrete remediation (pin, upgrade, remove, isolate). Use when reviewing dependencies, lockfiles, CI workflows, a build pipeline, or a dependency bump for supply-chain risk. Do NOT use to triage SAST/CodeQL findings in first-party code (static-analysis-reviewer), review app logic in a diff (security-pr-reviewer), or model feature threats (threat-modeler).
+description: Review software supply-chain risk with SLSA-style provenance thinking — dependencies (known CVEs triaged by reachability, not just presence), lockfile integrity and pinning, transitive/typosquat/confusion risk, install and build scripts, CI/CD workflows (untrusted PR triggers, secret exposure, over-broad token scopes, unpinned third-party Actions), artifact provenance, and postinstall/hook execution. Extends to the AI/ML supply chain (LLM03): third-party models, datasets, and fine-tuning adapters. Produces severity-ranked findings each with a compromise path, an exploitability verdict, and concrete remediation (pin, upgrade, remove, isolate). Use when reviewing dependencies, lockfiles, CI workflows, a build pipeline, a dependency bump, or an acquired model/dataset/adapter for supply-chain risk. Do NOT use to triage SAST/CodeQL findings in first-party code (static-analysis-reviewer), review app logic in a diff (security-pr-reviewer), or model feature threats (threat-modeler).
 ---
 
 # Supply-Chain Security Reviewer
@@ -29,6 +29,12 @@ is a finding whether or not a scanner flagged it.
   need a trust review.
 - Use when: a scanner (Dependabot, `npm audit`, Snyk, Trivy) produced output
   that needs triage into what actually matters.
+- Use when: acquiring an AI/ML artifact — a third-party base model, a
+  downloaded dataset, or a fine-tuning adapter — and its provenance, format
+  safety, and pinning need a supply-chain review (OWASP LLM03).
+- Do NOT use when: reviewing the integrity of training data YOU collect or
+  pipelines YOU run (feedback loops, RAG ingestion) — that is
+  `model-poisoning-reviewer` (acquire-vs-ingest is the split).
 - Do NOT use when: triaging SAST/CodeQL findings in FIRST-PARTY code — that is
   `static-analysis-reviewer` (dependency-vs-own-code is the split).
 - Do NOT use when: reviewing application logic in a diff —
@@ -52,6 +58,12 @@ is a finding whether or not a scanner flagged it.
    maintainer changes, typosquat/confusion candidates, direct vs transitive.
 6. Artifact/provenance signals: are builds reproducible, signed, attested;
    are vendored binaries checked in without provenance.
+7. AI/ML artifacts if any (LLM03): third-party base models, downloaded
+   datasets, and fine-tuning adapters — their source/registry, revision
+   pinning (a mutable tag/`latest` is not pinned), serialization format
+   (pickle/`torch.load` execute code on load; prefer safetensors), and
+   license/provenance. Acquisition only — integrity of data you curate or
+   pipelines you run is `model-poisoning-reviewer`.
 
 ## Workflow
 
@@ -77,6 +89,13 @@ is a finding whether or not a scanner flagged it.
 6. **Check integrity and provenance:** lockfile committed and pinned; hashes/
    integrity present; vendored artifacts have a documented source; releases
    signed/attested where the ecosystem supports it (SLSA levels as a frame).
+   For **AI/ML artifacts (LLM03)** — third-party models, datasets, adapters —
+   see [references/supply-chain-checklist.md](references/supply-chain-checklist.md):
+   pin to an immutable revision/digest (not a mutable tag or `latest`), prefer
+   safetensors over pickle/`torch.load` formats that execute code on load,
+   confirm the source registry and license, and treat a downloaded artifact as
+   untrusted until its provenance checks out. Integrity of data you curate or
+   pipelines you run stays with `model-poisoning-reviewer`.
 7. **Rank findings** with a compromise path and exploitability verdict.
    High severity REQUIRES a path from the weakness to code execution/secret
    theft; a reachable exploit or a plausible install-time execution qualifies,
@@ -115,6 +134,9 @@ Not reviewed: <areas + why>
 - [ ] Typosquat/confusion/abandonment risk considered for notable deps.
 - [ ] Every HIGH+ finding has a compromise path AND an exploitability verdict.
 - [ ] Remediations are concrete (pin/upgrade/remove/isolate), not "update deps".
+- [ ] AI/ML artifacts (if any) reviewed for revision pinning, safe
+      serialization (safetensors vs pickle/`torch.load`), source, and license;
+      curated-data/pipeline integrity routed to `model-poisoning-reviewer`.
 - [ ] Accepted risk carries written rationale; not-reviewed list present.
 
 ## Security Rules
@@ -148,6 +170,12 @@ Not reviewed: <areas + why>
   scope, or unpinned actions — those are not "vulnerabilities" it scans for.
 - Bumping a dependency to clear a CVE can pull a new maintainer's compromised
   release — review the upgrade target, don't just accept "latest".
+- AI model formats execute code: loading a pickle-based checkpoint (`torch.load`,
+  `pickle.load`, some `.bin`/`.pt`/`.ckpt`) runs arbitrary code on load — a
+  "downloaded model" is a "run this file". Prefer safetensors; treat pickle
+  artifacts from untrusted sources as install-time RCE.
+- A model/dataset pinned to a mutable hub tag or `latest` is not pinned — the
+  remote can change under you; pin to an immutable revision/commit/digest.
 
 ## Stop Conditions
 

@@ -1,0 +1,42 @@
+{
+  "skill": "ai-cost-guardrail-designer",
+  "description": "Trigger discrimination for the Phase 7 AI-platform-ops cluster: AI consumption guardrails vs whole-product cost modeling vs plan gating vs alert implementation vs router logic, and against the shipped saas-cost-architect and observability-operator.",
+  "overlaps_with": ["saas-cost-architect", "plan-entitlement-architect", "observability-operator", "ai-router-architect"],
+  "cases": [
+    {
+      "id": "ai-guardrails-win-here",
+      "prompt": "Cap token usage per request and per tenant on our LLM endpoint and defend against token-drain abuse.",
+      "expected_skill": "ai-cost-guardrail-designer",
+      "should_not_trigger": ["saas-cost-architect", "plan-entitlement-architect"],
+      "reason": "Per-request/per-tenant AI consumption limits and denial-of-wallet defense are this skill; saas-cost-architect models unit economics and plan-entitlement-architect gates plan features, neither owns the token caps."
+    },
+    {
+      "id": "unit-economics-goes-to-saas-cost-architect",
+      "prompt": "Work out our cost per tenant and per plan tier versus revenue, and where our margins are exposed across compute, storage, and AI.",
+      "expected_skill": "saas-cost-architect",
+      "should_not_trigger": ["ai-cost-guardrail-designer"],
+      "reason": "Whole-product cost drivers, attribution, and unit economics are saas-cost-architect; this skill consumes those numbers to size AI guardrails."
+    },
+    {
+      "id": "plan-gating-goes-to-entitlement-architect",
+      "prompt": "Define which plan tiers get the AI feature and what monthly usage each tier includes, enforced uniformly across UI and API.",
+      "expected_skill": "plan-entitlement-architect",
+      "should_not_trigger": ["ai-cost-guardrail-designer"],
+      "reason": "Plan × feature × limit entitlement design is plan-entitlement-architect; this skill composes the plan dimension into runtime consumption caps but doesn't design the entitlement matrix."
+    },
+    {
+      "id": "alert-implementation-goes-to-observability-operator",
+      "prompt": "Implement the actual burn-rate alert rules and the cost dashboard for our AI spend in Grafana.",
+      "expected_skill": "observability-operator",
+      "should_not_trigger": ["ai-cost-guardrail-designer"],
+      "reason": "Hands-on alert/dashboard implementation is observability-operator; this skill specifies what to meter and alert on, and hands the spec over."
+    },
+    {
+      "id": "routing-logic-goes-to-router-architect",
+      "prompt": "Design the model routing and provider fallback logic — which model handles which request and what happens when a provider is down.",
+      "expected_skill": "ai-router-architect",
+      "should_not_trigger": ["ai-cost-guardrail-designer"],
+      "reason": "Routing/fallback provider logic is ai-router-architect; this skill sets the budget and model-tier intent the router enforces, not the routing implementation."
+    }
+  ]
+}

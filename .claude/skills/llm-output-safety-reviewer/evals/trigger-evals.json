@@ -1,0 +1,42 @@
+{
+  "skill": "llm-output-safety-reviewer",
+  "description": "Trigger discrimination for the Phase 7 output & agency cluster: output-sink injection/exec review vs schema-shape validation vs the injection source vs tool scope, and against the shipped security-pr-reviewer.",
+  "overlaps_with": ["structured-output-validator", "prompt-injection-defender", "agent-tool-safety-guard", "ai-misinformation-guard", "security-pr-reviewer"],
+  "cases": [
+    {
+      "id": "output-sink-review-wins-here",
+      "prompt": "Is it safe that we render the model's answer as HTML and use its generated filename to read a file from disk?",
+      "expected_skill": "llm-output-safety-reviewer",
+      "should_not_trigger": ["structured-output-validator", "prompt-injection-defender"],
+      "reason": "Reviewing how output flows to render/path sinks (XSS, traversal) is this skill; structured-output-validator checks shape, prompt-injection-defender guards the input side."
+    },
+    {
+      "id": "shape-validation-goes-to-structured-validator",
+      "prompt": "Enforce that the model returns valid JSON matching our schema, with required fields and correct types, and reject anything malformed.",
+      "expected_skill": "structured-output-validator",
+      "should_not_trigger": ["llm-output-safety-reviewer"],
+      "reason": "Schema/type conformance of the output is structured-output-validator; this skill reviews what happens when shape-valid output hits an injection/execution sink."
+    },
+    {
+      "id": "injection-source-goes-to-injection-defender",
+      "prompt": "Stop attackers from manipulating what our model produces by hiding instructions in the documents it reads.",
+      "expected_skill": "prompt-injection-defender",
+      "should_not_trigger": ["llm-output-safety-reviewer"],
+      "reason": "Preventing the manipulation of the model is prompt-injection-defender (input side); this skill assumes output may be adversarial and secures the consuming sinks."
+    },
+    {
+      "id": "factual-accuracy-goes-to-misinformation-guard",
+      "prompt": "Make sure the model's answers are grounded and don't state fabricated facts or fake citations to users.",
+      "expected_skill": "ai-misinformation-guard",
+      "should_not_trigger": ["llm-output-safety-reviewer"],
+      "reason": "Grounding, citations, and hallucination are ai-misinformation-guard (LLM09); this skill is about unsafe HANDLING of output regardless of whether it's true."
+    },
+    {
+      "id": "generic-diff-goes-to-security-pr-reviewer",
+      "prompt": "Security-review this whole PR — it touches auth middleware, a file upload, and also adds an AI summary render.",
+      "expected_skill": "security-pr-reviewer",
+      "should_not_trigger": ["llm-output-safety-reviewer"],
+      "reason": "A broad multi-surface diff review is security-pr-reviewer; this skill is the focused output-handling lens invoked for the AI-output sink specifically."
+    }
+  ]
+}

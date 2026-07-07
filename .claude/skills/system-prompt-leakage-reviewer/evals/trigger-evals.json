@@ -1,0 +1,35 @@
+{
+  "skill": "system-prompt-leakage-reviewer",
+  "description": "Trigger discrimination for the Phase 7 threat & injection cluster: system-prompt contents/secrecy-dependence vs injection defense vs user-data disclosure vs credential custody, and against the shipped secrets-identity-hardener.",
+  "overlaps_with": ["prompt-injection-defender", "sensitive-disclosure-guard", "agent-tool-safety-guard", "secrets-identity-hardener"],
+  "cases": [
+    {
+      "id": "prompt-leakage-wins-here",
+      "prompt": "Is it a problem that our security relies on the system prompt staying secret, and that the prompt has our internal endpoints in it?",
+      "expected_skill": "system-prompt-leakage-reviewer",
+      "should_not_trigger": ["prompt-injection-defender", "sensitive-disclosure-guard"],
+      "reason": "Secrets in the prompt and dependence on prompt secrecy is this skill (LLM07); prompt-injection-defender is the input side and sensitive-disclosure-guard covers user/context data, not the prompt itself."
+    },
+    {
+      "id": "injection-goes-to-injection-defender",
+      "prompt": "Stop untrusted document content from overriding our agent's instructions at runtime.",
+      "expected_skill": "prompt-injection-defender",
+      "should_not_trigger": ["system-prompt-leakage-reviewer"],
+      "reason": "Preventing untrusted content from changing behavior is prompt-injection-defender; this skill reviews the prompt's contents and whether security wrongly depends on its secrecy."
+    },
+    {
+      "id": "user-data-disclosure-goes-to-disclosure-guard",
+      "prompt": "Make sure the model doesn't leak PII or another user's data in its responses.",
+      "expected_skill": "sensitive-disclosure-guard",
+      "should_not_trigger": ["system-prompt-leakage-reviewer"],
+      "reason": "Sensitive user/context/output data leakage is sensitive-disclosure-guard (LLM02); this skill is specifically about the system prompt and secrecy-as-control."
+    },
+    {
+      "id": "credential-custody-goes-to-secrets-hardener",
+      "prompt": "Rotate the leaked key and set up proper server-side secret storage and least-privilege service accounts.",
+      "expected_skill": "secrets-identity-hardener",
+      "should_not_trigger": ["system-prompt-leakage-reviewer"],
+      "reason": "The custody/rotation mechanics are secrets-identity-hardener; this skill finds the secret in the prompt and routes it there, but doesn't own secret storage design."
+    }
+  ]
+}
