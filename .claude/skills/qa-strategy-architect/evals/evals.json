@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "qa-strategy-architect",
+  "description": "Trigger and behavior cases for product/repo-level QA strategy: risk-first, cheapest-reliable-layer decisions, explicit automation/manual split, evidence per change class, CI placement.",
+  "cases": [
+    {
+      "id": "positive-define-strategy",
+      "type": "should_trigger",
+      "prompt": "We have a SaaS app with almost no tests and no testing rules. Define how this product should be tested.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Builds a ranked risk inventory BEFORE any layer decisions and traces every layer choice to a named risk.",
+          "Picks the cheapest reliable layer per risk and states why cheaper layers were insufficient for E2E choices.",
+          "Declares the automation/manual split explicitly, names environments and test-data sources per layer, and defines CI gate placement.",
+          "Delegates security negative testing to multi-tenant-security-tester/rls-policy-auditor instead of re-owning it."
+        ]
+      }
+    },
+    {
+      "id": "edge-inverted-pyramid",
+      "type": "should_trigger",
+      "prompt": "All our tests are slow end-to-end browser tests and CI takes 90 minutes. Rework our testing approach.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Diagnoses the inverted pyramid against the risk inventory and reassigns risks to cheaper reliable layers.",
+          "Flags missing seams as an architectural cause where E2E-only coverage was forced, rather than only prescribing more unit tests.",
+          "Keeps a small named set of critical-journey E2E tests with rationale for each."
+        ]
+      }
+    },
+    {
+      "id": "negative-single-feature-plan",
+      "type": "should_not_trigger",
+      "prompt": "Write the test plan for the new CSV import feature shipping next sprint.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "A per-feature test plan is test-plan-designer's job; this skill sets the product-level strategy that such plans instantiate."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-coverage-goal",
+      "type": "should_trigger",
+      "prompt": "Set up our QA strategy — the goal is 100% code coverage across the repo.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Rejects coverage percentage as the strategy objective and replaces it with risk-derived layer decisions.",
+          "Explains that coverage numbers are an audit input (test-coverage-mapper), not a goal, and defines evidence per change class instead."
+        ]
+      }
+    }
+  ]
+}

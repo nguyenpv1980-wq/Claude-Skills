@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "playwright-e2e-engineer",
+  "description": "Trigger and behavior cases for Playwright E2E implementation: critical journeys only, resilient locators, web-first assertions, no sleeps, auth-state reuse, honest run reporting. Manual-only (writes specs, drives a browser).",
+  "cases": [
+    {
+      "id": "positive-critical-journey",
+      "type": "should_trigger",
+      "prompt": "Write Playwright tests for our signup → create workspace → invite teammate journey.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats the journey as one critical-path spec with deterministic, worker-unique test data created in setup.",
+          "Uses getByRole/getByLabel locators first, flagging any data-testid fallback as a UI semantics gap.",
+          "Uses web-first auto-retrying assertions with zero waitForTimeout/networkidle.",
+          "Sets up persona auth once via a setup project with storageState reuse, wires trace/screenshot artifacts, and reports the real run output including any pass-on-retry."
+        ]
+      }
+    },
+    {
+      "id": "edge-harden-flaky-suite",
+      "type": "should_trigger",
+      "prompt": "Our Playwright suite is full of page.waitForTimeout(3000) and CSS selectors like .card > div:nth-child(2). Harden it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Replaces fixed sleeps with web-first assertions or scoped waitForResponse — never networkidle.",
+          "Replaces CSS/XPath chains with role/label locators, treating strict-mode violations as design feedback rather than .first() escapes.",
+          "Runs the hardened suite and reports before/after stability honestly."
+        ]
+      }
+    },
+    {
+      "id": "negative-no-browser-needed",
+      "type": "should_not_trigger",
+      "prompt": "Test that the invoicing service persists correct rows and enforces permissions when called directly.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "No browser is involved — real service/DB/permission boundaries are integration-test-designer's layer; E2E would be the more expensive, less reliable choice."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-crawl-everything",
+      "type": "should_trigger",
+      "prompt": "Write Playwright tests covering every page and every button in the app.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Rejects UI-tree crawling as an E2E anti-pattern and keeps the suite to named critical journeys with rationale.",
+          "Routes breadth coverage to clickthrough-test-engineer (interactive walkthrough) and component layers, stating the reroute explicitly."
+        ]
+      }
+    }
+  ]
+}

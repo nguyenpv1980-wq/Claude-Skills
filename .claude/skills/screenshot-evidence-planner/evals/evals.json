@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "screenshot-evidence-planner",
+  "description": "Trigger and behavior cases for evidence policy design: risk-justified checkpoints, deterministic naming, mandatory pre-storage masking, metadata, storage/retention, linkage. Plans only — captures nothing.",
+  "cases": [
+    {
+      "id": "positive-release-evidence-policy",
+      "type": "should_trigger",
+      "prompt": "Define what screenshot evidence our releases need and how it should be named, masked, and stored.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Derives checkpoints from consumers and risk (requirement-proving states, destructive before/after, permission-view differences) instead of screenshot-everything.",
+          "Specifies a deterministic naming pattern with examples, mandatory block-out masking before storage, and required metadata (build, environment, persona, viewport, timestamp, case id).",
+          "Defines storage classes with retention and access rules, and linkage to cases, PRs, and the ai-closeout-reporter evidence bundle.",
+          "Captures no screenshots itself."
+        ]
+      }
+    },
+    {
+      "id": "edge-pii-leak-cleanup",
+      "type": "should_trigger",
+      "prompt": "Our bug tickets are full of screenshots showing real customer emails and one even shows another tenant's dashboard. Fix our evidence practice.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Institutes mandatory masking classes with block-out (not blur), enforced before storage, plus a do-not-store rule for cross-tenant captures with recapture-on-seeded-data.",
+          "Flags the cross-tenant screenshot as an isolation observation to route onward, since evidence inherits tenant-access restrictions.",
+          "Adds a migration note for existing non-compliant evidence."
+        ]
+      }
+    },
+    {
+      "id": "negative-capture-now",
+      "type": "should_not_trigger",
+      "prompt": "Take screenshots of the settings pages on staging for the release record.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Capturing is a session activity (clickthrough-test-engineer or the executing pass); this skill only defines the policy those captures follow."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-screenshot-everything",
+      "type": "should_trigger",
+      "prompt": "Plan our evidence: just require a screenshot of every step of every test so we're covered.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Rejects screenshot-everything as burying the captures that matter and driving storage/PII liability.",
+          "Selects checkpoints justified by a named consumer or risk, and sets retention windows instead of keep-forever."
+        ]
+      }
+    }
+  ]
+}

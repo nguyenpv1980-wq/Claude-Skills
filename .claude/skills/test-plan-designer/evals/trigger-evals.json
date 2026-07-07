@@ -1,0 +1,35 @@
+{
+  "skill": "test-plan-designer",
+  "description": "Trigger discrimination for the Phase 5 strategy/plan/coverage cluster: one-change plan vs product strategy vs coverage audit vs automation tooling, plus discrimination against the shipped multi-tenant-security-tester for security-suite asks.",
+  "overlaps_with": ["qa-strategy-architect", "test-coverage-mapper", "qa-automation-architect", "multi-tenant-security-tester"],
+  "cases": [
+    {
+      "id": "one-change-plan-wins-here",
+      "prompt": "We're shipping a new billing proration change next week — plan what we test, with what data, and when testing is done.",
+      "expected_skill": "test-plan-designer",
+      "should_not_trigger": ["qa-strategy-architect", "qa-automation-architect"],
+      "reason": "A single change's scope, data, and exit criteria is a per-change plan, not product strategy or tooling design."
+    },
+    {
+      "id": "strategy-goes-to-architect",
+      "prompt": "Decide which test layers this product needs long-term and who owns each.",
+      "expected_skill": "qa-strategy-architect",
+      "should_not_trigger": ["test-plan-designer"],
+      "reason": "Long-term layer investment and ownership is strategy; no single change is in view."
+    },
+    {
+      "id": "coverage-question-goes-to-mapper",
+      "prompt": "Before we plan anything new — what do our existing tests actually cover for billing?",
+      "expected_skill": "test-coverage-mapper",
+      "should_not_trigger": ["test-plan-designer"],
+      "reason": "Auditing current coverage is the mapper; planning new verification comes after."
+    },
+    {
+      "id": "security-suite-goes-to-tenant-tester",
+      "prompt": "Plan and specify the cross-tenant negative tests proving tenant A can't read tenant B's invoices.",
+      "expected_skill": "multi-tenant-security-tester",
+      "should_not_trigger": ["test-plan-designer"],
+      "reason": "Cross-tenant/authorization negative suites are owned by the shipped multi-tenant-security-tester; test plans reference its output as line items."
+    }
+  ]
+}

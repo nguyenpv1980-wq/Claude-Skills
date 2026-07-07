@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "test-coverage-mapper",
+  "description": "Trigger and behavior cases for coverage auditing: surface inventory first, assertion-read mapping, theater detection, risk-ranked gaps, honest coverage statement.",
+  "cases": [
+    {
+      "id": "positive-what-is-untested",
+      "type": "should_trigger",
+      "prompt": "Map our test coverage for the billing module — I want to know which critical paths have no real tests.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Builds the billing surface inventory (endpoints, commands, schema, jobs) before judging coverage.",
+          "Maps tests to surfaces by reading assertions, citing verifying tests at file:line, and separates theater tests from real coverage.",
+          "Ranks gaps by risk with a recommended cheapest reliable layer and implementer skill per gap.",
+          "Ends with a covered/theater/uncovered/not-inspected statement with counts."
+        ]
+      }
+    },
+    {
+      "id": "edge-high-percentage-low-truth",
+      "type": "should_trigger",
+      "prompt": "Our coverage report says 92% but bugs keep shipping. Is our coverage real?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats the 92% as a lead, not a verdict, and hunts execution-without-assertion theater the percentage cannot see.",
+          "Checks CI reality (skipped/quarantined/non-gating tests) and reports them as uncovered.",
+          "Explains the gap between line execution and behavioral verification with concrete examples from the suite."
+        ]
+      }
+    },
+    {
+      "id": "negative-repo-health-audit",
+      "type": "should_not_trigger",
+      "prompt": "Audit this whole repository's health — dead code, duplication, dependency risk, and technical debt.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Whole-repo health is the shipped full-codebase-auditor; this skill audits only what tests cover."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-write-the-tests",
+      "type": "should_trigger",
+      "prompt": "Find every untested path in the auth module and write tests for all of them.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Produces the map and risk-ranked gap list, then hands implementation to the appropriate engineer skills instead of writing tests in the same pass.",
+          "States the handoff explicitly, including multi-tenant-security-tester for authorization negatives."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "skill": "test-coverage-mapper",
+  "description": "Trigger discrimination for the Phase 5 strategy/plan/coverage cluster: coverage audit vs strategy vs per-change plan vs automation design, plus discrimination against the shipped full-codebase-auditor and code-reviewer.",
+  "overlaps_with": ["qa-strategy-architect", "test-plan-designer", "qa-automation-architect", "full-codebase-auditor", "code-reviewer"],
+  "cases": [
+    {
+      "id": "coverage-audit-wins-here",
+      "prompt": "What do our existing tests actually prove about the checkout flow, and where are the risky holes?",
+      "expected_skill": "test-coverage-mapper",
+      "should_not_trigger": ["qa-strategy-architect", "test-plan-designer", "full-codebase-auditor"],
+      "reason": "Auditing what current tests prove and ranking the holes is the mapper's exact scope — not strategy, not a new-change plan, not repo health."
+    },
+    {
+      "id": "strategy-goes-to-architect",
+      "prompt": "Decide what testing layers this product should invest in going forward.",
+      "expected_skill": "qa-strategy-architect",
+      "should_not_trigger": ["test-coverage-mapper"],
+      "reason": "Forward-looking layer investment is strategy; the mapper audits the present."
+    },
+    {
+      "id": "diff-review-goes-to-code-reviewer",
+      "prompt": "Review this PR — does it have adequate tests and any bugs?",
+      "expected_skill": "code-reviewer",
+      "should_not_trigger": ["test-coverage-mapper"],
+      "reason": "Judging one diff (including its test adequacy) is the shipped code-reviewer; the mapper audits suite-wide coverage, not a PR."
+    },
+    {
+      "id": "automation-design-goes-to-automation-architect",
+      "prompt": "Design the test framework structure, fixtures, and CI wiring for this repo.",
+      "expected_skill": "qa-automation-architect",
+      "should_not_trigger": ["test-coverage-mapper"],
+      "reason": "Framework/tooling/CI design is automation architecture, not a coverage audit."
+    }
+  ]
+}

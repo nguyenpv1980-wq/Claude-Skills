@@ -1,0 +1,35 @@
+{
+  "skill": "qa-automation-architect",
+  "description": "Trigger discrimination for the Phase 5 strategy/plan/coverage cluster: automation architecture vs strategy vs per-change plan vs coverage audit, plus the flake-policy vs flake-diagnosis boundary.",
+  "overlaps_with": ["qa-strategy-architect", "test-plan-designer", "test-coverage-mapper", "flaky-test-detective"],
+  "cases": [
+    {
+      "id": "framework-design-wins-here",
+      "prompt": "Structure our test codebase, pick the runners, and wire the suites into CI with sensible tiers and retries.",
+      "expected_skill": "qa-automation-architect",
+      "should_not_trigger": ["qa-strategy-architect", "test-plan-designer"],
+      "reason": "Runners, structure, and CI wiring are automation architecture — the machinery, not the what-to-test decisions."
+    },
+    {
+      "id": "layer-investment-goes-to-strategy",
+      "prompt": "Should this product rely on integration tests or E2E for release confidence, and who owns each layer?",
+      "expected_skill": "qa-strategy-architect",
+      "should_not_trigger": ["qa-automation-architect"],
+      "reason": "Layer investment and ownership derive from the risk inventory — strategy territory; the architect implements the decision afterward."
+    },
+    {
+      "id": "one-flaky-test-goes-to-detective",
+      "prompt": "This one checkout spec fails every fifth CI run — figure out why and fix it.",
+      "expected_skill": "flaky-test-detective",
+      "should_not_trigger": ["qa-automation-architect"],
+      "reason": "Diagnosing a specific flaky test is casework for the detective; the architect only sets the flake policy."
+    },
+    {
+      "id": "coverage-audit-goes-to-mapper",
+      "prompt": "Before restructuring anything, tell me what our current tests actually cover.",
+      "expected_skill": "test-coverage-mapper",
+      "should_not_trigger": ["qa-automation-architect"],
+      "reason": "Auditing present coverage is the mapper; architecture consumes its output."
+    }
+  ]
+}

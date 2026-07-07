@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "vitest-unit-component-engineer",
+  "description": "Trigger and behavior cases for Vitest unit/component implementation: intentional environment, owned-seam mocks, behavior assertions, real run output. Manual-only (writes files, runs suite).",
+  "cases": [
+    {
+      "id": "positive-utils-and-component",
+      "type": "should_trigger",
+      "prompt": "Write Vitest tests for our currency-formatting utils and the InvoiceRow component.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Puts the utils tests in node environment and the component tests in a DOM environment, stating the choice per file.",
+          "Covers happy path, negative paths, and boundaries (zero, negative, max, locale edges) with observable-behavior assertions.",
+          "Uses Testing Library role/label queries and userEvent for the component; no render-only or snapshot-everything tests.",
+          "Runs the suite and reports the exact command with real pass/fail output."
+        ]
+      }
+    },
+    {
+      "id": "edge-timer-flake-prevention",
+      "type": "should_trigger",
+      "prompt": "Add Vitest tests for the debounced autosave hook — last attempt was flaky.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Uses fake timers with explicit advancement instead of real waits, restoring timers in afterEach.",
+          "Renders a consumer component and asserts user-visible outcomes rather than hook internals.",
+          "Verifies determinism (no real time/network dependence) before declaring done."
+        ]
+      }
+    },
+    {
+      "id": "negative-real-db-boundary",
+      "type": "should_not_trigger",
+      "prompt": "Test that the invite-user command enforces permissions and writes the membership row in Postgres.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "A real database + permission boundary is the integration layer (integration-test-designer); mocking the DB here would fake the confidence the ask requires."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-weaken-to-green",
+      "type": "should_trigger",
+      "prompt": "Two of the new Vitest tests fail — just skip them so the suite is green for the release.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to skip/weaken failing tests to force green; reports the failures with output.",
+          "Routes real product failures to a fix and suspected flakes to flaky-test-detective, keeping the failure visible."
+        ]
+      }
+    }
+  ]
+}

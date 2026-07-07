@@ -1,0 +1,35 @@
+{
+  "skill": "qa-strategy-architect",
+  "description": "Trigger discrimination for the Phase 5 strategy/plan/coverage cluster: product-level strategy vs per-change test plan vs coverage audit vs automation architecture, plus discrimination against the shipped full-codebase-auditor.",
+  "overlaps_with": ["test-plan-designer", "test-coverage-mapper", "qa-automation-architect", "full-codebase-auditor"],
+  "cases": [
+    {
+      "id": "product-level-strategy-wins-here",
+      "prompt": "How should we test this product overall — what layers do we need, what must pass before a release, and who owns what?",
+      "expected_skill": "qa-strategy-architect",
+      "should_not_trigger": ["test-plan-designer", "test-coverage-mapper", "qa-automation-architect"],
+      "reason": "Product-wide layer decisions, release gates, and ownership are strategy; no single feature, no existing-coverage audit, no tooling design was asked for."
+    },
+    {
+      "id": "per-feature-plan-goes-to-plan-designer",
+      "prompt": "Design the tests for the new bulk-invite feature: what we'll test, with what data, and when we're done.",
+      "expected_skill": "test-plan-designer",
+      "should_not_trigger": ["qa-strategy-architect"],
+      "reason": "One feature's scope, data, and exit criteria is a test plan instantiating the strategy, not the strategy itself."
+    },
+    {
+      "id": "coverage-audit-goes-to-mapper",
+      "prompt": "Which of our critical paths have no tests today? Map what's covered and what isn't.",
+      "expected_skill": "test-coverage-mapper",
+      "should_not_trigger": ["qa-strategy-architect"],
+      "reason": "Auditing what existing tests cover is the mapper; strategy defines what SHOULD exist."
+    },
+    {
+      "id": "repo-health-goes-to-codebase-auditor",
+      "prompt": "Give me an overall health audit of this repository — dead code, duplication, dependency hygiene, debt map.",
+      "expected_skill": "full-codebase-auditor",
+      "should_not_trigger": ["qa-strategy-architect", "test-coverage-mapper"],
+      "reason": "Whole-repo health is the shipped full-codebase-auditor; this cluster governs testing only."
+    }
+  ]
+}

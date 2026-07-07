@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "integration-test-designer",
+  "description": "Trigger and behavior cases for the between-unit-and-E2E layer: real service/DB/auth/permission boundaries, named faked seams, persisted-state assertions, no browser.",
+  "cases": [
+    {
+      "id": "positive-command-through-real-stack",
+      "type": "should_trigger",
+      "prompt": "Design integration tests for the create-project command — it goes through the service layer, writes Postgres, and enforces workspace permissions.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Produces a boundary map: service, database, auth middleware, and permission checks REAL; third-party seams and clock FAKED with one-line rationale each.",
+          "Mints auth context through real code paths (signup/invite services or real token issuer), never by injecting fabricated session objects.",
+          "Every spec asserts persisted database state as well as the response, and includes invalid-input and permission-denied negatives.",
+          "Defines seeded-data isolation supporting parallel runs and states CI placement; hands implementation off."
+        ]
+      }
+    },
+    {
+      "id": "edge-mock-drift",
+      "type": "should_trigger",
+      "prompt": "Our unit tests are all green but staging keeps breaking where the billing service talks to the ledger module and the DB. What tests do we need?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies mock drift as the gap and designs the integration layer exercising the real billing→ledger→DB wiring.",
+          "Keeps external provider seams faked at owned adapters with recorded shapes, adding seam-failure cases (timeout, error shape, malformed success).",
+          "Reroutes anything requiring a browser to playwright-e2e-engineer explicitly."
+        ]
+      }
+    },
+    {
+      "id": "negative-isolated-component",
+      "type": "should_not_trigger",
+      "prompt": "Write tests for the DatePicker component's keyboard handling in isolation.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "An isolated component with no real service/DB/auth boundary is vitest-unit-component-engineer territory (keyboard specifics may also involve accessibility-test-harness)."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-security-matrix",
+      "type": "should_trigger",
+      "prompt": "Design integration tests for the documents service, including proving users from other tenants can never read documents by guessing ids.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs the functional boundary suite for the documents service, including a permission-denied functional check.",
+          "Explicitly defers the cross-tenant IDOR/enumeration matrix to multi-tenant-security-tester instead of re-owning the security negative suite.",
+          "Records the reroute in the output rather than silently dropping it."
+        ]
+      }
+    }
+  ]
+}

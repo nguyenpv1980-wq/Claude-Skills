@@ -1,0 +1,35 @@
+{
+  "skill": "integration-test-designer",
+  "description": "MANDATORY anti-overlap (pulled-forward roadmap #184): discriminates the real-boundary integration layer from isolated units (vitest-unit-component-engineer), full-stack browser journeys (playwright-e2e-engineer), contract verification (api-contract-test-designer), and security negative suites (multi-tenant-security-tester).",
+  "overlaps_with": ["vitest-unit-component-engineer", "playwright-e2e-engineer", "api-contract-test-designer", "multi-tenant-security-tester"],
+  "cases": [
+    {
+      "id": "real-boundaries-no-browser-wins-here",
+      "prompt": "Test the invoice-finalize flow through the real service, real Postgres, and the real permission middleware — no UI involved.",
+      "expected_skill": "integration-test-designer",
+      "should_not_trigger": ["vitest-unit-component-engineer", "playwright-e2e-engineer", "api-contract-test-designer"],
+      "reason": "Real service/DB/auth boundaries without a browser is the integration layer by definition — not isolated units, not a browser journey, not schema verification."
+    },
+    {
+      "id": "isolated-units-go-to-vitest",
+      "prompt": "Test the invoice total calculation and rounding rules as pure functions.",
+      "expected_skill": "vitest-unit-component-engineer",
+      "should_not_trigger": ["integration-test-designer"],
+      "reason": "Pure logic with no real boundary belongs at the unit layer; dragging it through a DB wastes cost for no signal."
+    },
+    {
+      "id": "browser-journey-goes-to-playwright",
+      "prompt": "Verify a user can log in, create an invoice in the UI, and see it in the list — full stack in a real browser.",
+      "expected_skill": "playwright-e2e-engineer",
+      "should_not_trigger": ["integration-test-designer"],
+      "reason": "A full-stack browser journey is E2E; integration explicitly excludes the browser."
+    },
+    {
+      "id": "schema-compat-goes-to-contract-designer",
+      "prompt": "Verify our public invoices API still matches its published schema and stays backward compatible with v1 consumers.",
+      "expected_skill": "api-contract-test-designer",
+      "should_not_trigger": ["integration-test-designer"],
+      "reason": "Shape/versioning/compatibility verification is contract testing, not end-to-end flow through internal boundaries."
+    }
+  ]
+}

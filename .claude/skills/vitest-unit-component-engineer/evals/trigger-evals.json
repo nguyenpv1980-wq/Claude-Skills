@@ -1,0 +1,35 @@
+{
+  "skill": "vitest-unit-component-engineer",
+  "description": "Trigger discrimination for the Phase 5 test-level cluster: isolated unit/component vs real-boundary integration vs browser E2E vs contract verification, plus the tdd-engineer boundary for new behavior.",
+  "overlaps_with": ["integration-test-designer", "playwright-e2e-engineer", "api-contract-test-designer", "tdd-engineer"],
+  "cases": [
+    {
+      "id": "isolated-unit-wins-here",
+      "prompt": "Write Vitest tests for the discount-calculation functions and the PricingBadge component in isolation.",
+      "expected_skill": "vitest-unit-component-engineer",
+      "should_not_trigger": ["integration-test-designer", "playwright-e2e-engineer"],
+      "reason": "Pure logic and an isolated component — no real service/DB boundary, no browser journey."
+    },
+    {
+      "id": "real-boundaries-go-to-integration",
+      "prompt": "Test the order-submit command through the real service, database transaction, and permission check — no browser.",
+      "expected_skill": "integration-test-designer",
+      "should_not_trigger": ["vitest-unit-component-engineer", "playwright-e2e-engineer"],
+      "reason": "Real service/DB/auth boundaries with no browser is exactly the integration layer, not isolated units."
+    },
+    {
+      "id": "browser-journey-goes-to-playwright",
+      "prompt": "Automate the signup-to-first-project journey in a real browser.",
+      "expected_skill": "playwright-e2e-engineer",
+      "should_not_trigger": ["vitest-unit-component-engineer"],
+      "reason": "A full-stack browser journey is E2E; jsdom cannot and should not fake it."
+    },
+    {
+      "id": "new-behavior-tdd-goes-to-tdd-engineer",
+      "prompt": "Implement the new proration rule test-first — failing test, then the code.",
+      "expected_skill": "tdd-engineer",
+      "should_not_trigger": ["vitest-unit-component-engineer"],
+      "reason": "Red-green-refactor for NEW behavior is the shipped tdd-engineer; this skill builds out suites for existing behavior."
+    }
+  ]
+}

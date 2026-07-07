@@ -1,0 +1,35 @@
+{
+  "skill": "api-contract-test-designer",
+  "description": "MANDATORY anti-overlap (pulled-forward roadmap #185): discriminates contract VERIFICATION from contract DESIGN (shipped api-event-architect) and from end-to-end flow testing (integration-test-designer), within the test-level cluster.",
+  "overlaps_with": ["api-event-architect", "integration-test-designer", "playwright-e2e-engineer", "multi-tenant-security-tester"],
+  "cases": [
+    {
+      "id": "verify-contract-wins-here",
+      "prompt": "Add CI checks proving our API responses and webhook payloads still match the published schemas and that changes stay backward compatible.",
+      "expected_skill": "api-contract-test-designer",
+      "should_not_trigger": ["api-event-architect", "integration-test-designer"],
+      "reason": "Schema conformance and compatibility gating is contract VERIFICATION — the contract already exists; no flow through internal boundaries is being tested."
+    },
+    {
+      "id": "design-contract-goes-to-api-event-architect",
+      "prompt": "We need a versioning and deprecation policy for our public API plus signed webhook envelopes with replay protection.",
+      "expected_skill": "api-event-architect",
+      "should_not_trigger": ["api-contract-test-designer"],
+      "reason": "That is designing the contract and its policies — the shipped api-event-architect's scope; verification comes after."
+    },
+    {
+      "id": "flow-goes-to-integration",
+      "prompt": "Test that submitting an order updates inventory and writes the audit row through the real services and database.",
+      "expected_skill": "integration-test-designer",
+      "should_not_trigger": ["api-contract-test-designer"],
+      "reason": "That is business flow across real internal boundaries — integration; contract testing checks shape/version, not multi-step behavior."
+    },
+    {
+      "id": "authz-refusals-go-to-security-tester",
+      "prompt": "Prove wrong-tenant callers get denied on every orders endpoint.",
+      "expected_skill": "multi-tenant-security-tester",
+      "should_not_trigger": ["api-contract-test-designer"],
+      "reason": "WHO gets denied is the authorization negative suite (shipped multi-tenant-security-tester); contract tests only verify the SHAPE of refusals."
+    }
+  ]
+}
