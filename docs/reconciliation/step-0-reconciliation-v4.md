@@ -413,6 +413,61 @@ evidence plumbing.
 targets unchanged; exact sequencing relative to Phase 7.5 and Phase 8 batches is left open.
 This banks scope the same way the D6/D7 coverage maps did.
 
+### Engineering discipline expansion (D12) — candidate packs
+
+**BANKED scope (D12, 2026-07-07) — 7 candidate packs, 42 named candidates; nothing in it is
+built now; all on-demand.** At 95 shipped skills the library covers the technical,
+governance, and compliance stacks; this banks the engineering disciplines a senior/principal
+engineer would compose alongside them that remain uncovered. **Standing rule recorded here
+(D12): the library is NOT capped at 300 skills** — the 300-skill roadmap (D5) is the
+strategic backlog the library was audited against, not a ceiling; packs open as coverage or
+real engineering need demands, not to hit a count. Every skill below is *(candidate — not
+built)*; pull-forward goes through the §4.1 batch rules and the §4.2 pre-generation plan
+table like any other batch, and per D13 below, `skill-quality-reviewer` builds first if any
+pack is pulled forward.
+
+| Pack | Candidate skills *(all: candidate — not built)* | Pack rationale |
+|---|---|---|
+| **D12.1 Data engineering (P1)** | `schema-evolution-planner`, `streaming-event-architect`, `data-quality-monitor-designer`, `operational-vs-analytical-splitter`, `warehouse-lake-architect`, `pii-lifecycle-designer`, `data-migration-runbook-author` | Multi-tenant SaaS operational + analytical data as a first-class discipline. |
+| **D12.2 Product engineering craft (P1)** | `pagination-cursor-designer`, `error-taxonomy-designer`, `edge-state-ux-designer`, `notification-webhook-ux-designer`, `mobile-viewport-craft` | API/UX craft distinct from contract design (Phase 3 `api-event-architect` owns the contract; these own the craft inside it). |
+| **D12.3 Performance engineering (P1)** | `profiling-methodology-designer`, `query-plan-reader`, `n-plus-one-detector`, `caching-strategy-designer`, `latency-budget-architect`, `frontend-perf-engineer` | Performance as an engineering discipline — distinct from the load-testing VALIDATION banked in D10 Tier 1 (`performance-test-harness` + `load-test-planner`): D12.3 designs for performance, D10 measures it. |
+| **D12.4 Technical writing / docs engineering (P1)** | `readme-craftsman`, `adr-sequencer` (extends shipped `adr-writer` with longitudinal ADR management), `diataxis-doc-organizer`, `docs-as-code-architect`, `api-doc-generator-designer`, `contribution-guide-author`, `onboarding-doc-designer` | Durable documentation as its own discipline. |
+| **D12.5 PM / product engineering interface (P2)** | `requirements-gathering-facilitator`, `product-spec-writer` (a product spec, distinct from an ADR), `roadmap-under-uncertainty-planner`, `prioritization-frame-picker`, `feature-flag-rollout-strategist`, `sunset-deprecation-communicator` | The engineering/PM boundary. |
+| **D12.6 Growth / analytics engineering (P2)** | `event-schema-architect` (analytics counterpart to `api-event-architect`), `funnel-definition-designer`, `ab-test-designer` (design AND reading of results), `product-analytics-instrumenter` | User-facing product analytics, distinct from system-facing observability (Phase 6 `observability-operator` / `slo-reliability-architect`). |
+| **D12.7 Staff+ IC craft (P2)** | `tech-spec-writer` (broader than an ADR), `design-review-facilitator`, `cross-team-dependency-negotiator`, `roadmap-to-commitments-translator`, `staff-scope-selector`, `promotion-packet-writer`, `phased-work-handoff-designer` (multi-stage sequenced work with binding decisions carried forward as evidence — distinct from `ai-closeout-reporter`, which reports ONE turn, and from `ai-sdlc-operating-model`, which frames the whole lifecycle) | Technical leadership without management authority. |
+
+### Library meta / self-application (D13) — candidate skills
+
+**BANKED scope (D13, 2026-07-07) — 5 candidate skills; nothing in it is built now.** The
+library validates its own structure (`scripts/validate-skills.py`) but has no skills that
+apply its own discipline to itself. These candidates turn the generation standard, the eval
+convention (D3), and today's manual PR review flow into reusable skills.
+`skill-quality-reviewer` is the highest-leverage candidate: **if any D12 pack is later pulled
+forward, `skill-quality-reviewer` builds FIRST** so subsequent additions audit themselves.
+
+| Candidate skill *(all: candidate — not built)* | One-line rationale |
+|---|---|
+| `skill-quality-reviewer` | Audits a skill against [`docs/skill-generation-standard.md`](../skill-generation-standard.md) — required sections, description length, trigger discrimination, overlap detection, evals presence — so every future addition gets the review the standard demands. |
+| `eval-runner-designer` | Specs what an eval runner should do (inputs, pass criteria, reporting); it does NOT build the runner — closes the design gap D3 left open ("there is no eval runner yet"). |
+| `skill-usage-instrumenter` | Telemetry design: which skills are invoked vs unused, trigger-match rate, false-positive-rate estimation — evidence for pruning and trigger fixes. |
+| `skill-deprecation-planner` | Safe skill sunset — mark deprecated, redirect triggers, remove from catalog — so the library can shrink as deliberately as it grows. |
+| `library-diff-reviewer` | Audits a skill-adding PR the way manual review does today: validator run, cluster-collision check, catalog integrity, incident-eval verification. |
+
+### Framework refresh & source-currency discipline (D14) — candidate skills
+
+**BANKED scope (D14, 2026-07-07) — 3 candidate skills; nothing in it is built now.** The
+framework mappings banked and shipped so far (D6/D7/D8 OWASP maps, D9 compliance batch) are
+point-in-time snapshots of external standards that revise on their own cadence. These
+candidates give the library a refresh discipline so external-truth drift is detected instead
+of silent — distinct from D12 (breadth) and D13 (self-quality): D14 governs currency with
+EXTERNAL truth.
+
+| Candidate skill *(all: candidate — not built)* | Purpose |
+|---|---|
+| `framework-edition-tracker` | Pins the editions cited by D6/D7/D8/D9; detects when a new edition ships; produces a delta report WITHOUT auto-updating any mapping. Highest-leverage of the three — pull forward when the first new edition drops. |
+| `framework-mapping-refresher` | Given an edition delta, proposes the specific updates to affected skill descriptions, references, and coverage maps; human review required before any change lands. |
+| `source-currency-auditor` | Audits skills citing external sources against a known-good source list; flags citations older than N months for re-verification. |
+
 ### Phase 8 — Backlog expansion (NEW in v4, ported from execution plan §8)
 Convert the remaining 300-skill roadmap into executable skills **in validated batches** under
 the batch rules in §4 below. Run only after Phases 0–7.5 validate cleanly.
@@ -598,6 +653,32 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   repository moved … Project-Aegis.git" and redirected automatically). README/catalog carry
   no badges or absolute repo URLs (verified); local git remotes still pointing at the old
   URL keep working via redirect but should be updated in a follow-up.
+- **D12 (2026-07-07) — Seven engineering-discipline candidate packs (~40 candidate skills)
+  are banked as on-demand scope; the library is NOT capped at 300 skills.** All on-demand:
+  packs open as coverage or real engineering need demands, not to hit a count. Rationale: at
+  95 skills the library covers the technical, governance, and compliance stacks; D12 records
+  the engineering domains a senior/principal engineer would compose from that remain
+  uncovered — data engineering, product engineering craft, performance engineering,
+  technical writing / docs engineering, the PM/engineering interface, growth/analytics
+  engineering, and Staff+ IC craft. Docs-only banking: no skills built now, no phases
+  renumbered, validator skill-count target unchanged (95). Pack detail and per-pack
+  rationales in §3.
+- **D13 (2026-07-07) — Five library-meta / self-application candidate skills are banked**
+  (`skill-quality-reviewer`, `eval-runner-designer`, `skill-usage-instrumenter`,
+  `skill-deprecation-planner`, `library-diff-reviewer`). `skill-quality-reviewer` is the
+  highest-leverage candidate; if any D12 pack is later pulled forward, build
+  `skill-quality-reviewer` FIRST so subsequent additions audit themselves. Docs-only
+  banking: no skills built now; validator skill-count target unchanged (95). Detail in §3.
+- **D14 (2026-07-07) — Three candidate skills for framework refresh & source-currency
+  discipline are banked** (`framework-edition-tracker`, `framework-mapping-refresher`,
+  `source-currency-auditor`). Rationale: the D6–D9 mappings and any future framework skill
+  are point-in-time — the underlying standards revise on their own cadence (the OWASP LLM
+  Top 10 roughly annually, ISO standards periodically, the EU AI Act still finalizing);
+  without a refresh discipline the compliance and security mappings drift silently.
+  `framework-edition-tracker` is the highest-leverage candidate — pull it forward when the
+  first new edition drops. D14 governs how the library stays current with EXTERNAL truth;
+  distinct from D12 (breadth) and D13 (self-quality). Docs-only banking: no skills built
+  now; validator skill-count target unchanged (95). Detail in §3.
 
 ---
 
