@@ -1,0 +1,35 @@
+{
+  "skill": "threat-modeler",
+  "description": "Trigger discrimination for the Phase 4 threat-and-hardening cluster. Pins design-time threat modeling apart from control implementation, secrets/identity hardening, and diff review.",
+  "overlaps_with": ["appsec-implementer", "secrets-identity-hardener", "security-pr-reviewer", "tenant-isolation-reviewer"],
+  "cases": [
+    {
+      "id": "model-before-build",
+      "prompt": "Before we write any code for the new payments integration, enumerate what can go wrong, how bad each is, and what we'd test.",
+      "expected_skill": "threat-modeler",
+      "should_not_trigger": ["appsec-implementer", "security-pr-reviewer"],
+      "reason": "Design-time enumeration of threats, abuse cases, mitigations, and a test plan — not building controls or reviewing a diff."
+    },
+    {
+      "id": "build-the-control-goes-to-implementer",
+      "prompt": "We already decided we need input validation and output encoding on the comment field — go implement it.",
+      "expected_skill": "appsec-implementer",
+      "should_not_trigger": ["threat-modeler"],
+      "reason": "The decision is made; this is implementing a specific control, which is a side-effecting build task."
+    },
+    {
+      "id": "secrets-rotation-goes-to-hardener",
+      "prompt": "Our API keys are hardcoded and never rotate — fix where secrets live and how they load.",
+      "expected_skill": "secrets-identity-hardener",
+      "should_not_trigger": ["threat-modeler"],
+      "reason": "Concrete secrets/identity hardening work, not a threat enumeration."
+    },
+    {
+      "id": "existing-isolation-audit-goes-to-reviewer",
+      "prompt": "Go through the running app and tell me if tenants can already reach each other's data.",
+      "expected_skill": "tenant-isolation-reviewer",
+      "should_not_trigger": ["threat-modeler"],
+      "reason": "Auditing an existing system for leakage, not modeling threats for a design."
+    }
+  ]
+}

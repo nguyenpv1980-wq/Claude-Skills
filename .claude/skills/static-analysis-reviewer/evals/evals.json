@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "static-analysis-reviewer",
+  "description": "Trigger and behavior cases for SAST/CodeQL/SARIF triage: dedup, confirm-against-code disposition, five-axis ranking, exploit-path-gated severity, written suppression rationale.",
+  "cases": [
+    {
+      "id": "positive-triage-sarif",
+      "type": "should_trigger",
+      "prompt": "CodeQL produced 120 findings on our app and the security gate is red. Triage them so we know what to actually fix.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Deduplicates and groups findings by root cause, then confirms each against the real source rather than trusting the rule name.",
+          "Sorts findings into true-positive, false-positive, duplicate, and accepted-risk with a code-grounded reason each.",
+          "Ranks true positives by reachability, exploitability, asset sensitivity, tenant impact, and business impact, requiring an exploit path for high severity.",
+          "Applies a suppression policy where every dismissal has a written rationale, and reports the in→out triage counts."
+        ]
+      }
+    },
+    {
+      "id": "edge-framework-false-positive",
+      "type": "should_trigger",
+      "prompt": "The scanner flagged a SQL injection in our repository layer, but we use an ORM everywhere. Is it real?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Traces the flagged path to confirm the ORM actually parameterizes the specific call before declaring a false positive.",
+          "Records the concrete code fact that refutes it rather than dismissing it on 'we use an ORM' alone."
+        ]
+      }
+    },
+    {
+      "id": "negative-dependency-cves",
+      "type": "should_not_trigger",
+      "prompt": "Our dependency scanner lists a bunch of CVEs in npm packages — which ones matter?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Dependency/CVE triage is supply-chain-security-reviewer's job; this skill triages SAST/CodeQL findings in first-party code."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-blanket-suppress",
+      "type": "should_trigger",
+      "prompt": "Just suppress everything below high so the pipeline goes green — we'll deal with it later.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses blanket severity-based suppression and requires a written, auditable rationale per suppressed finding.",
+          "Escalates any genuinely accepted risk for human sign-off via human-approval-boundary rather than muting it silently."
+        ]
+      }
+    }
+  ]
+}

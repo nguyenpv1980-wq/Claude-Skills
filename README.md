@@ -13,8 +13,9 @@ standard, templates, eval convention, validator, catalog, the seven read-only re
 subagents, and the Step 0 reconciliation of the two earlier planning tracks. **Phase 1**
 shipped the first real skills: the 8-skill AI engineering **operating-discipline pack**
 (reconciled decision D4). **Phase 2** shipped the 10-skill **core architecture &
-engineering pack**. **Phase 3** ships the 9-skill **SaaS & tenant isolation pack** —
-see [Skills (shipped)](#skills-shipped) below.
+engineering pack**. **Phase 3** shipped the 9-skill **SaaS & tenant isolation pack**.
+**Phase 4** ships the 9-skill **security, RLS & supply-chain pack** — see
+[Skills (shipped)](#skills-shipped) below.
 
 ## Start here (canonical reading order)
 
@@ -45,8 +46,8 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | 0 | Foundation: standard, templates, eval convention, validator, catalog, README, 7 subagents, `_template` | P0 | ✅ merged |
 | 1 | AI engineering **operating-discipline** pack (8 skills) | P0 | ✅ merged |
 | 2 | Core architecture & engineering (10) | P0 | ✅ merged |
-| 3 | SaaS & tenant isolation (9) | P0/P1 | ✅ this branch |
-| 4 | Security, RLS & supply chain (9) | P0/P1 | backlog |
+| 3 | SaaS & tenant isolation (9) | P0/P1 | ✅ merged |
+| 4 | Security, RLS & supply chain (9) | P0/P1 | ✅ this branch |
 | 5 | QA, E2E, manual QA & evidence (13) | P0/P1 | backlog |
 | 6 | Cloud, DevOps, reliability & release (10) | P1 | backlog |
 | 7 | AI security & LLM systems (10) | P1 | backlog |
@@ -111,6 +112,20 @@ Phase 3 — SaaS & tenant isolation pack:
 | `audit-log-architect` | Audit event taxonomy, versioned record schema, append-only integrity with explicit write-failure policy, retention/redaction, tenant-scoped access, negative tests. | auto + manual |
 | `saas-cost-architect` | Bill-grounded cost drivers, per-tenant attribution (or admitted overhead), distribution-based unit economics vs revenue, exposure math, guardrails with observe-first rollout. | auto + manual |
 | `api-event-architect` | External API/event contracts: credential-derived tenant context, idempotency, per-tenant/plan rate limits, versioning with dual-run deprecation, tenant-scoped signed webhooks. | auto + manual |
+
+Phase 4 — security, RLS & supply-chain pack:
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `threat-modeler` | Design-time threat model: assets/actors/trust-boundaries, STRIDE per boundary, abuse cases, exploit-path-gated severity, mitigations mapped to negative tests; consumes tenant/authz outputs instead of re-deriving them. | auto + manual |
+| `appsec-implementer` | Implements one NAMED security control test-first — negative test red→green, minimal server-side control, scoped diff, residual risk stated. | **manual only** |
+| `multi-tenant-security-tester` | Executable cross-tenant/authorization negative suite: two-tenant fixtures, forbidden-action-denied assertions, positive controls, IDOR/list/mass-assignment/exports/jobs, honest coverage. | auto + manual |
+| `rls-policy-auditor` | Per-command RLS audit/authoring (merges rls-policy-author + rls-negative-test-designer): recursion, unsafe SECURITY DEFINER, broad grants, missing tenant scope, service-role leakage, frontend-derived scope; mandatory negative-test plan; policies delivered as a migration, never run live. | auto + manual |
+| `secrets-identity-hardener` | Env classification (catches VITE_/NEXT_PUBLIC_ leaks), moves secrets server-side with a client-bundle-absence proof, rotates leaked credentials, least-privilege service accounts, session/token flags. | **manual only** |
+| `supply-chain-security-reviewer` | SLSA-style: lockfile-based dependency set, reachability triage of scanner output, install/build-script and CI compromise paths, SHA pinning, compromise-path-gated severity. | auto + manual |
+| `security-pr-reviewer` | Security lens on an actual diff: authz/object-level/tenant-scope, injection, secrets, SSRF, control-weakening detection; exploit-path-gated findings; no diff, no review. | auto + manual |
+| `secure-migration-reviewer` | Whole-migration deploy safety: RLS/policy gaps, GRANT widening, unsafe defaults, destructive/irreversible ops, tenant-scoped backfills, lock risk, expand→contract deploy order, rollback; delegates policy text to `rls-policy-auditor`. | auto + manual |
+| `static-analysis-reviewer` | Triages SAST/CodeQL/SARIF on first-party code: dedup, confirm-against-code disposition (TP/FP/dup/accepted), five-axis ranking (reachability/exploitability/asset/tenant/business), written suppression policy. | auto + manual |
 
 ## Authoring a new skill
 

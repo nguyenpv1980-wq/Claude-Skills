@@ -1,0 +1,35 @@
+{
+  "skill": "appsec-implementer",
+  "description": "Trigger discrimination for the Phase 4 threat-and-hardening cluster. Pins building a single decided control apart from deciding controls, broad secrets hardening, and diff review.",
+  "overlaps_with": ["threat-modeler", "secrets-identity-hardener", "security-pr-reviewer", "rls-policy-auditor"],
+  "cases": [
+    {
+      "id": "build-decided-control-here",
+      "prompt": "We agreed the profile endpoint needs an ownership check — add the authorization check and a test proving a wrong-tenant user gets 404.",
+      "expected_skill": "appsec-implementer",
+      "should_not_trigger": ["threat-modeler", "security-pr-reviewer"],
+      "reason": "A single, already-decided control is being implemented test-first — a side-effecting build task."
+    },
+    {
+      "id": "decide-controls-goes-to-threat-modeler",
+      "prompt": "What security controls does this new admin console actually need?",
+      "expected_skill": "threat-modeler",
+      "should_not_trigger": ["appsec-implementer"],
+      "reason": "Deciding which controls are needed is design-time threat modeling, not implementation."
+    },
+    {
+      "id": "secrets-hardening-goes-to-hardener",
+      "prompt": "Move all our hardcoded credentials into a secret manager and set up rotation.",
+      "expected_skill": "secrets-identity-hardener",
+      "should_not_trigger": ["appsec-implementer"],
+      "reason": "Broad secrets/identity hardening across the app, not a single app-layer control."
+    },
+    {
+      "id": "rls-policy-goes-to-auditor",
+      "prompt": "The isolation control we need is a Postgres RLS policy on the orders table — write and check it.",
+      "expected_skill": "rls-policy-auditor",
+      "should_not_trigger": ["appsec-implementer"],
+      "reason": "Database RLS policy authoring/audit belongs to rls-policy-auditor, not app-layer control implementation."
+    }
+  ]
+}

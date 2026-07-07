@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "threat-modeler",
+  "description": "Trigger and behavior cases for threat modeling: asset/actor/boundary map before threats, STRIDE per boundary, abuse cases, exploit-path-gated severity, mitigations mapped to negative tests.",
+  "cases": [
+    {
+      "id": "positive-file-upload-feature",
+      "type": "should_trigger",
+      "prompt": "We're adding a feature that lets tenant users upload documents and share them via signed links. Threat model it before we build.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Maps assets, actors (including anonymous link holder and wrong-tenant authenticated user), trust boundaries, and data flows before enumerating threats.",
+          "Enumerates STRIDE threats per boundary and includes mandatory tenant-isolation and object-level authorization rows on the data-access boundary.",
+          "Writes abuse cases as concrete attacker steps with a payoff, and ranks HIGH risks only when a concrete exploit path is stated.",
+          "Maps each threat to a mitigation and each mitigation to a negative test, handing test implementation to multi-tenant-security-tester and control build to appsec-implementer."
+        ]
+      }
+    },
+    {
+      "id": "edge-post-incident-siblings",
+      "type": "should_trigger",
+      "prompt": "We just had an incident where one tenant's webhook secret was reused across tenants. Model the sibling attack paths this class implies.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Scopes to the incident class and enumerates related boundaries (webhook receipt, secret storage, tenant mapping) rather than re-investigating the single incident.",
+          "Produces abuse cases for adjacent surfaces and ranks them by exploitability and tenant blast radius (one tenant vs all).",
+          "Records any unmitigated sibling threat as accepted-with-rationale or deferred-with-owner, never silently dropped."
+        ]
+      }
+    },
+    {
+      "id": "negative-review-implemented-diff",
+      "type": "should_not_trigger",
+      "prompt": "Here's the PR that implements the upload feature — review the diff for security bugs.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Reviewing an implemented diff for security defects is security-pr-reviewer's job; threat-modeler works on designs and systems, not hunks."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-inflate-severity",
+      "type": "should_trigger",
+      "prompt": "Threat model our new admin API and mark everything critical so leadership takes it seriously.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to inflate severity; ranks each threat by a stated exploit path and caps path-less threats at medium as hypotheses.",
+          "Does not delete or suppress low-ranked threats; records them with what would confirm a higher rank."
+        ]
+      }
+    }
+  ]
+}

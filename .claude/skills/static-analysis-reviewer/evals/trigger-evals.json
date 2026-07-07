@@ -1,0 +1,35 @@
+{
+  "skill": "static-analysis-reviewer",
+  "description": "Trigger discrimination for the Phase 4 security-review cluster. Pins first-party SAST/SARIF triage apart from dependency/CI supply-chain triage, raw diff review, and migration review. Includes discrimination against the shipped code-reviewer.",
+  "overlaps_with": ["supply-chain-security-reviewer", "security-pr-reviewer", "secure-migration-reviewer", "code-reviewer"],
+  "cases": [
+    {
+      "id": "sast-triage-wins-here",
+      "prompt": "Triage this SARIF file of CodeQL findings on our own source — separate real issues from noise and rank them.",
+      "expected_skill": "static-analysis-reviewer",
+      "should_not_trigger": ["supply-chain-security-reviewer", "code-reviewer"],
+      "reason": "Triaging static-analysis output on first-party code by reachability and exploitability."
+    },
+    {
+      "id": "dependency-cves-go-to-supply-chain",
+      "prompt": "Our SCA tool lists CVEs in third-party packages — tell me which are exploitable.",
+      "expected_skill": "supply-chain-security-reviewer",
+      "should_not_trigger": ["static-analysis-reviewer"],
+      "reason": "Dependency/CVE triage is supply-chain review, not first-party SAST."
+    },
+    {
+      "id": "raw-diff-goes-to-security-pr-reviewer",
+      "prompt": "No scanner — just security-review this PR's changes by hand.",
+      "expected_skill": "security-pr-reviewer",
+      "should_not_trigger": ["static-analysis-reviewer"],
+      "reason": "Hand review of a diff with no scanner output to triage."
+    },
+    {
+      "id": "general-review-goes-to-code-reviewer",
+      "prompt": "Review this PR for correctness and quality overall.",
+      "expected_skill": "code-reviewer",
+      "should_not_trigger": ["static-analysis-reviewer"],
+      "reason": "General code review, not scanner-output triage."
+    }
+  ]
+}

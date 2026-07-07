@@ -1,0 +1,35 @@
+{
+  "skill": "security-pr-reviewer",
+  "description": "Trigger discrimination for the Phase 4 security-review cluster. Pins security review of a diff apart from general code review, migration review, supply-chain review, and SAST triage. Includes discrimination against the shipped code-reviewer.",
+  "overlaps_with": ["code-reviewer", "secure-migration-reviewer", "supply-chain-security-reviewer", "static-analysis-reviewer"],
+  "cases": [
+    {
+      "id": "security-diff-review-wins-here",
+      "prompt": "Give this PR a security review — I care about authz, tenant isolation, and injection, not style.",
+      "expected_skill": "security-pr-reviewer",
+      "should_not_trigger": ["code-reviewer", "static-analysis-reviewer"],
+      "reason": "Security-specialized review of an actual diff with exploit-path-gated findings."
+    },
+    {
+      "id": "general-review-goes-to-code-reviewer",
+      "prompt": "Review this PR overall — correctness, readability, performance, and tests.",
+      "expected_skill": "code-reviewer",
+      "should_not_trigger": ["security-pr-reviewer"],
+      "reason": "General multi-axis code review, not the security-only lens."
+    },
+    {
+      "id": "migration-goes-to-migration-reviewer",
+      "prompt": "This PR is a database migration — check it's safe to deploy (grants, drops, policy changes, lock time).",
+      "expected_skill": "secure-migration-reviewer",
+      "should_not_trigger": ["security-pr-reviewer"],
+      "reason": "Migration deploy-safety is its own skill; the RLS/policy part can be delegated to rls-policy-auditor."
+    },
+    {
+      "id": "sast-triage-goes-to-static-analysis",
+      "prompt": "Here's a SARIF file from our scanner on this branch — triage the findings.",
+      "expected_skill": "static-analysis-reviewer",
+      "should_not_trigger": ["security-pr-reviewer"],
+      "reason": "Triaging scanner output is static-analysis-reviewer; security-pr-reviewer reviews the diff itself."
+    }
+  ]
+}

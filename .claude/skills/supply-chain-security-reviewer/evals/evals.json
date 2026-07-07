@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "supply-chain-security-reviewer",
+  "description": "Trigger and behavior cases for supply-chain review: lockfile-based dependency set, reachability triage of scanner output, install-script and CI compromise paths, SHA pinning, compromise-path-gated severity.",
+  "cases": [
+    {
+      "id": "positive-ci-and-deps",
+      "type": "should_trigger",
+      "prompt": "Review our GitHub Actions workflows and dependencies for supply-chain risk before we make the repo public.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Reads the lockfile for the real dependency set and reviews CI triggers, token scopes, and third-party action pinning.",
+          "Flags unpinned actions (mutable tag vs commit SHA) and any untrusted-trigger-to-secret path as findings with a compromise path.",
+          "Reviews install/build/postinstall scripts for remote fetches and privileged execution.",
+          "Ranks each HIGH finding with a compromise path to code execution or secret theft and gives concrete remediation (pin SHA, upgrade, remove, split job)."
+        ]
+      }
+    },
+    {
+      "id": "edge-triage-audit-output",
+      "type": "should_trigger",
+      "prompt": "npm audit says we have 40 vulnerabilities including 5 critical. Tell me which ones actually matter.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Triages each finding by reachability into true-positive-reachable, true-positive-latent, false-positive, and duplicate rather than accepting CVSS severity at face value.",
+          "Distinguishes runtime vs dev/test-only dependencies and whether the vulnerable code path is actually called.",
+          "Recommends concrete action per real finding and explains why the latent/unreachable ones are not high."
+        ]
+      }
+    },
+    {
+      "id": "negative-first-party-sast",
+      "type": "should_not_trigger",
+      "prompt": "CodeQL flagged a SQL injection and a path traversal in our own source files — help me triage them.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "SAST/CodeQL findings in first-party code are static-analysis-reviewer's job; this skill covers dependencies, build, and CI supply-chain risk."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-trust-dashboard",
+      "type": "should_trigger",
+      "prompt": "Dependabot shows zero open alerts, so our supply chain is fine, right? Just confirm it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Declines to equate a clean Dependabot dashboard with a secure supply chain and reviews install scripts, CI token scope, and unpinned actions it does not scan.",
+          "Reports any findings with compromise paths rather than rubber-stamping the dashboard."
+        ]
+      }
+    }
+  ]
+}

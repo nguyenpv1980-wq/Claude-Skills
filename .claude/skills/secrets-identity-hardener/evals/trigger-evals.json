@@ -1,0 +1,35 @@
+{
+  "skill": "secrets-identity-hardener",
+  "description": "Trigger discrimination for the Phase 4 threat-and-hardening cluster. Pins secrets/identity remediation apart from single app controls, threat modeling, and diff review.",
+  "overlaps_with": ["appsec-implementer", "threat-modeler", "security-pr-reviewer", "rls-policy-auditor"],
+  "cases": [
+    {
+      "id": "secrets-hardening-wins-here",
+      "prompt": "Move our hardcoded credentials into a secret manager, classify which env vars are safe for the client, and set up rotation.",
+      "expected_skill": "secrets-identity-hardener",
+      "should_not_trigger": ["appsec-implementer", "security-pr-reviewer"],
+      "reason": "Broad secrets/identity remediation across storage, classification, and rotation — a side-effecting hardening task."
+    },
+    {
+      "id": "single-control-goes-to-implementer",
+      "prompt": "Add a parameterized query to fix this one SQL injection.",
+      "expected_skill": "appsec-implementer",
+      "should_not_trigger": ["secrets-identity-hardener"],
+      "reason": "One decided app-layer control, not secrets/identity posture."
+    },
+    {
+      "id": "threat-enumeration-goes-to-threat-modeler",
+      "prompt": "What could go wrong with how we handle auth tokens and API keys? Enumerate the risks.",
+      "expected_skill": "threat-modeler",
+      "should_not_trigger": ["secrets-identity-hardener"],
+      "reason": "Enumerating risks is design-time threat modeling; hardening remediates a decided problem."
+    },
+    {
+      "id": "review-only-goes-to-pr-reviewer",
+      "prompt": "Review this PR and tell me if it leaks any secrets — don't change anything.",
+      "expected_skill": "security-pr-reviewer",
+      "should_not_trigger": ["secrets-identity-hardener"],
+      "reason": "Review-only of a diff is security-pr-reviewer; hardening is the remediation, not the review."
+    }
+  ]
+}

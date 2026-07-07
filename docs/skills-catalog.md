@@ -7,10 +7,11 @@ and the **category backlogs** under [`docs/skills/`](skills/). `scripts/validate
 checks that every *implemented* skill is listed here and in `README.md`.
 
 > **Status:** Phase 0 (foundation), Phase 1 (the 8-skill operating-discipline pack,
-> decision D4), Phase 2 (the 10-skill core architecture & engineering pack), and
-> Phase 3 (the 9-skill SaaS & tenant isolation pack) are implemented. `_template`
-> remains a reference template ignored by the validator. Everything under "Backlog"
-> is planned, not built.
+> decision D4), Phase 2 (the 10-skill core architecture & engineering pack),
+> Phase 3 (the 9-skill SaaS & tenant isolation pack), and Phase 4 (the 9-skill
+> security, RLS & supply-chain pack) are implemented. `_template` remains a
+> reference template ignored by the validator. Everything under "Backlog" is
+> planned, not built.
 
 ---
 
@@ -39,7 +40,7 @@ in the reconciliation doc §5.
 
 ---
 
-## Implemented (Phases 0–3)
+## Implemented (Phases 0–4)
 
 ### Foundation (Phase 0)
 
@@ -142,6 +143,47 @@ platform/commercial (`saas-platform-architect`, `plan-entitlement-architect`,
 `audit-log-architect`, `api-event-architect`) — plus cross-cluster discrimination for
 the authorization-vs-entitlement axis ("can this ROLE do X" vs "does this PLAN include X").
 
+### Skills (Phase 4 — security, RLS & supply-chain pack)
+
+All under `.claude/skills/<name>/`; every one ships `evals/evals.json` **and**
+`evals/trigger-evals.json` (all nine sit in one of two overlap clusters). Per
+master-prompt §6: ASVS-style verification, SSDF-style secure-SDLC, and SLSA-style
+supply-chain thinking; scanner output is treated as input, not truth; high-severity
+claims require an exploit path or abuse scenario; tenant isolation and object-level
+authorization are mandatory on SaaS paths; every skill produces concrete artifacts and
+negative tests; no finding is suppressed without written rationale. Two skills have
+side effects and are **manual-only** (`disable-model-invocation: true`):
+`appsec-implementer` and `secrets-identity-hardener` edit code/config.
+
+Per reconciliation §3, the execution-plan `rls-policy-author` and
+`rls-negative-test-designer` are **merged into `rls-policy-auditor`** (no separate
+skills): it audits SELECT/INSERT/UPDATE/DELETE policies, hunts recursion / unsafe
+SECURITY DEFINER / broad grants / missing tenant scope / service-role leakage /
+frontend-derived scope, authors corrected policies on request, and always ships a
+per-command negative-test plan.
+
+| Skill | Source (category doc) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `threat-modeler` | cat 03 #91/#92 | yes | Design-time threat model: assets/actors/trust-boundaries, STRIDE per boundary, abuse cases, exploit-path-gated severity, mitigations mapped to negative tests; consumes tenant/authz outputs. |
+| `appsec-implementer` | cat 03 (control implementation) | **no** (manual-only; edits code/config) | Builds one NAMED control test-first — negative test red→green, minimal server-side control, scoped diff, residual risk stated. |
+| `multi-tenant-security-tester` | cat 03 #93/#95 + cat 06 | yes | Executable cross-tenant/authorization negative suite: two-tenant fixtures, forbidden-action-denied assertions, positive controls, IDOR/list/mass-assignment/exports/jobs, honest coverage. |
+| `rls-policy-auditor` | cat 03 #94/#95/#96/#97/#98/#99/#100/#102 (merged author + negative-test designer) | yes | Per-command RLS audit/authoring: recursion, unsafe SECURITY DEFINER, broad grants, missing tenant scope, service-role leakage, frontend-derived scope; mandatory negative-test plan; delivers policies as a migration, never runs live DDL. |
+| `secrets-identity-hardener` | cat 03 #103/#104/#123/#109 | **no** (manual-only; edits code/config) | Env classification (catches VITE_/NEXT_PUBLIC_ leaks), moves secrets server-side with a client-bundle-absence proof, rotates leaked creds, least-privilege service accounts, session/token flags. |
+| `supply-chain-security-reviewer` | cat 03 #121/#122 | yes | SLSA-style: lockfile-based dependency set, reachability triage of scanner output, install/build-script and CI compromise paths, SHA pinning, compromise-path-gated severity. |
+| `security-pr-reviewer` | cat 03 #114/#111/#112/#113 + cat 08 #277 | yes | Security lens on an ACTUAL diff: authz/object-level/tenant-scope, injection, secrets, SSRF, control-weakening detection; exploit-path-gated findings; no diff, no review. |
+| `secure-migration-reviewer` | cat 03 #126 | yes | Whole-migration deploy safety: RLS/policy gaps, GRANT widening, unsafe defaults, destructive/irreversible ops, tenant-scoped backfills, lock risk, expand→contract deploy order, rollback; delegates policy text to `rls-policy-auditor`. |
+| `static-analysis-reviewer` | cat 03 #121 adjacent + cat 06/08 | yes | Triages SAST/CodeQL/SARIF on first-party code: dedup, confirm-against-code disposition (TP/FP/dup/accepted), five-axis ranking (reachability/exploitability/asset/tenant/business), written suppression policy. |
+
+Trigger-overlap coverage (`evals/trigger-evals.json`) ships for the two Phase 4 clusters:
+the **threat & hardening** cluster (`threat-modeler`, `appsec-implementer`,
+`secrets-identity-hardener`) and the **security-review** cluster
+(`supply-chain-security-reviewer`, `security-pr-reviewer`, `secure-migration-reviewer`,
+`static-analysis-reviewer`) — the latter with explicit discrimination against the
+shipped `code-reviewer` (general review vs security-specialized). The **tenant-security**
+cluster (`multi-tenant-security-tester`, `rls-policy-auditor`) additionally discriminates
+against the shipped `tenant-isolation-reviewer` (inspection-based review vs executable
+tests vs database-policy audit).
+
 ---
 
 ## Backlog by phase (reconciled)
@@ -175,10 +217,15 @@ backlog** (`tenant-provisioning-designer`, `membership-invitation-designer`,
 Phase 8 batches.
 
 ### Phase 4 — Security, RLS & supply chain (P0/P1)
-`threat-modeler`, `appsec-implementer`, `multi-tenant-security-tester`, `rls-policy-auditor`,
-`secrets-identity-hardener`, `supply-chain-security-reviewer`, `security-pr-reviewer`,
-`secure-migration-reviewer`, `static-analysis-reviewer`.
+✅ **Implemented** — all 9 first-pass skills moved to
+[Implemented → Skills (Phase 4)](#skills-phase-4--security-rls--supply-chain-pack) above.
 Source: [`docs/skills/03-saas-security-rls.md`](skills/03-saas-security-rls.md).
+Reconciliation §3 merge: the execution-plan `rls-policy-author` and
+`rls-negative-test-designer` are merged into `rls-policy-auditor` (no separate skills).
+The Phase 4 **expansion backlog** (the remaining cat-03 rows: authentication/session
+review, CSRF/XSS/SQLi deep-dives, storage-policy review, webhook security, rate-limit
+design, logging redaction, compliance-evidence mapping, privacy-by-design, security-drift
+detection, security-impact-note authoring) remains backlog, built in Phase 8 batches.
 
 ### Phase 5 — QA, E2E, manual QA & evidence (P0/P1)
 `qa-strategy-architect`, `test-plan-designer`, `test-coverage-mapper`, `qa-automation-architect`,

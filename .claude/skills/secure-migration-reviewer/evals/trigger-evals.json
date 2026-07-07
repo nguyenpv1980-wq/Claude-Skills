@@ -1,0 +1,35 @@
+{
+  "skill": "secure-migration-reviewer",
+  "description": "Trigger discrimination for the Phase 4 security-review cluster. Pins whole-migration deploy-safety review apart from app-diff review, RLS policy-text audit, supply-chain, and SAST triage. Includes discrimination against the shipped code-reviewer.",
+  "overlaps_with": ["security-pr-reviewer", "rls-policy-auditor", "static-analysis-reviewer", "code-reviewer"],
+  "cases": [
+    {
+      "id": "migration-safety-wins-here",
+      "prompt": "Is this DDL migration safe to deploy — grants, destructive ops, lock time, rollback, and deploy order versus the running code?",
+      "expected_skill": "secure-migration-reviewer",
+      "should_not_trigger": ["security-pr-reviewer", "code-reviewer"],
+      "reason": "Whole-migration security and operational deploy-safety verdict, not an app-code diff review."
+    },
+    {
+      "id": "rls-policy-text-goes-to-rls-auditor",
+      "prompt": "Audit the RLS policies themselves — per-command USING/WITH CHECK, recursion, SECURITY DEFINER search_path.",
+      "expected_skill": "rls-policy-auditor",
+      "should_not_trigger": ["secure-migration-reviewer"],
+      "reason": "Deep RLS policy correctness is delegated to rls-policy-auditor; the migration reviewer flags and routes it."
+    },
+    {
+      "id": "app-diff-goes-to-security-pr-reviewer",
+      "prompt": "Security-review the application changes in this PR — authz and injection in the new handler.",
+      "expected_skill": "security-pr-reviewer",
+      "should_not_trigger": ["secure-migration-reviewer"],
+      "reason": "Application-code security review, not a migration artifact."
+    },
+    {
+      "id": "general-review-goes-to-code-reviewer",
+      "prompt": "Review this PR for correctness and readability overall.",
+      "expected_skill": "code-reviewer",
+      "should_not_trigger": ["secure-migration-reviewer"],
+      "reason": "General code review, not migration deploy-safety."
+    }
+  ]
+}

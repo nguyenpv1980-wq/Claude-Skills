@@ -1,0 +1,35 @@
+{
+  "skill": "multi-tenant-security-tester",
+  "description": "Trigger discrimination for the Phase 4 tenant-security cluster. Pins executable negative testing apart from inspection-based isolation review, RLS policy audit, and tenant modeling. Includes discrimination against the shipped tenant-isolation-reviewer.",
+  "overlaps_with": ["tenant-isolation-reviewer", "rls-policy-auditor", "tenant-modeler"],
+  "cases": [
+    {
+      "id": "tests-win-here",
+      "prompt": "Give me an executable negative-test suite that proves tenant A cannot reach tenant B's data through the API, search, and exports.",
+      "expected_skill": "multi-tenant-security-tester",
+      "should_not_trigger": ["tenant-isolation-reviewer", "rls-policy-auditor"],
+      "reason": "The ask is to build the proving test suite (fixtures, denial assertions), not to inspect code for leaks or audit policy text."
+    },
+    {
+      "id": "inspection-goes-to-isolation-reviewer",
+      "prompt": "Look through our app and find every place where tenant data could leak — I want a findings report, not tests.",
+      "expected_skill": "tenant-isolation-reviewer",
+      "should_not_trigger": ["multi-tenant-security-tester"],
+      "reason": "Finding leaks by inspecting real code across surfaces is the reviewer's job; testing proves/refutes, it does not hunt."
+    },
+    {
+      "id": "rls-policy-text-goes-to-rls-auditor",
+      "prompt": "Audit our Postgres RLS policies on the orders and invoices tables for recursion, SECURITY DEFINER misuse, and missing tenant scope.",
+      "expected_skill": "rls-policy-auditor",
+      "should_not_trigger": ["multi-tenant-security-tester"],
+      "reason": "Auditing RLS policy text at the database layer is rls-policy-auditor; this skill covers the application/API/cross-surface layer."
+    },
+    {
+      "id": "define-tenant-goes-to-modeler",
+      "prompt": "We can't agree on what a tenant is versus a workspace — define it before we test anything.",
+      "expected_skill": "tenant-modeler",
+      "should_not_trigger": ["multi-tenant-security-tester"],
+      "reason": "No defined boundary exists to test against; semantics must be modeled first."
+    }
+  ]
+}

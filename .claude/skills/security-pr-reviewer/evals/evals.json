@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "security-pr-reviewer",
+  "description": "Trigger and behavior cases for security review of a real diff: boundary mapping, object-level/tenant-scope checks on SaaS paths, injection/secrets passes, exploit-path-gated severity, control-weakening detection.",
+  "cases": [
+    {
+      "id": "positive-security-review-pr",
+      "type": "should_trigger",
+      "prompt": "Security-review PR #212 before we merge — it adds a new endpoint that returns a customer's records.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Obtains the actual diff and records the command used, reviewing the change against the trust boundaries it touches.",
+          "Checks object-level authorization and server-derived tenant scope on the new data path even though the PR description may not mention them.",
+          "Runs injection, mass-assignment, and secrets passes and flags any weakening of an existing control.",
+          "Gives each high-severity finding an exploit path (persona → steps → payoff) and delivers an approve/request-changes verdict naming blockers."
+        ]
+      }
+    },
+    {
+      "id": "edge-control-weakening",
+      "type": "should_trigger",
+      "prompt": "Review this small diff — it just broadens the CORS config and relaxes one auth check to fix a bug.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Flags the broadened CORS and relaxed auth check as security findings on their own, even though the feature works.",
+          "Assesses the exploit exposure the loosened control creates and requests changes or written risk acceptance rather than silently approving."
+        ]
+      }
+    },
+    {
+      "id": "negative-general-code-review",
+      "type": "should_not_trigger",
+      "prompt": "Review this PR for correctness, readability, and test coverage.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "General correctness/quality review is code-reviewer's job; security-pr-reviewer is the security-specialized pass, not the general one."
+        ]
+      }
+    },
+    {
+      "id": "stop-no-diff",
+      "type": "should_trigger",
+      "prompt": "I described the change I'm about to make in chat — just tell me if it's secure, no code yet.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to security-review from a description with no diff to obtain.",
+          "Suggests threat-modeler for design-time analysis and offers to review once an actual diff exists."
+        ]
+      }
+    }
+  ]
+}

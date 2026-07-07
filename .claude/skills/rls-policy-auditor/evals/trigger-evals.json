@@ -1,0 +1,35 @@
+{
+  "skill": "rls-policy-auditor",
+  "description": "Trigger discrimination for the Phase 4 tenant-security cluster. Pins database RLS policy audit/authoring apart from app-layer isolation testing, general migration review, and inspection-based isolation review. Includes discrimination against the shipped tenant-isolation-reviewer.",
+  "overlaps_with": ["multi-tenant-security-tester", "secure-migration-reviewer", "tenant-isolation-reviewer"],
+  "cases": [
+    {
+      "id": "rls-audit-wins-here",
+      "prompt": "Review our Postgres row-level-security policies on tenant tables for recursion, SECURITY DEFINER misuse, missing WITH CHECK, and client-supplied tenant scope.",
+      "expected_skill": "rls-policy-auditor",
+      "should_not_trigger": ["multi-tenant-security-tester", "secure-migration-reviewer"],
+      "reason": "Database-layer RLS policy text audit with per-command failure-mode hunting and a DB negative-test plan."
+    },
+    {
+      "id": "app-layer-tests-go-to-tester",
+      "prompt": "Build the negative-test suite that proves the API and export endpoints deny cross-tenant access.",
+      "expected_skill": "multi-tenant-security-tester",
+      "should_not_trigger": ["rls-policy-auditor"],
+      "reason": "Application/API/cross-surface isolation testing, not database policy text."
+    },
+    {
+      "id": "full-migration-goes-to-migration-reviewer",
+      "prompt": "Review this migration that adds columns, changes GRANTs, drops a table, and edits some policies — is it safe to ship?",
+      "expected_skill": "secure-migration-reviewer",
+      "should_not_trigger": ["rls-policy-auditor"],
+      "reason": "Whole-migration safety (privilege changes, destructive ops, deploy order) is the migration reviewer's scope; the RLS portion can be delegated here."
+    },
+    {
+      "id": "surface-inspection-goes-to-isolation-reviewer",
+      "prompt": "Across the whole app — storage, logs, search, support tools — where can tenant data leak? Give me findings.",
+      "expected_skill": "tenant-isolation-reviewer",
+      "should_not_trigger": ["rls-policy-auditor"],
+      "reason": "Cross-surface leak inspection beyond the database is the isolation reviewer; RLS auditor is database-policy-scoped."
+    }
+  ]
+}

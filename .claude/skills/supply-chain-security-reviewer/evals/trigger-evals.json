@@ -1,0 +1,35 @@
+{
+  "skill": "supply-chain-security-reviewer",
+  "description": "Trigger discrimination for the Phase 4 security-review cluster. Pins supply-chain (dependency/build/CI) review apart from first-party SAST triage, diff review, and migration review. Includes discrimination against the shipped code-reviewer.",
+  "overlaps_with": ["static-analysis-reviewer", "security-pr-reviewer", "secure-migration-reviewer", "code-reviewer"],
+  "cases": [
+    {
+      "id": "supply-chain-wins-here",
+      "prompt": "Check our dependencies, lockfile pinning, and CI workflows for supply-chain compromise paths.",
+      "expected_skill": "supply-chain-security-reviewer",
+      "should_not_trigger": ["static-analysis-reviewer", "security-pr-reviewer", "code-reviewer"],
+      "reason": "Dependency/build/CI provenance and integrity, not first-party static analysis or app-logic diff review."
+    },
+    {
+      "id": "first-party-sast-goes-to-static-analysis",
+      "prompt": "Triage these CodeQL alerts in our own application code by reachability and exploitability.",
+      "expected_skill": "static-analysis-reviewer",
+      "should_not_trigger": ["supply-chain-security-reviewer"],
+      "reason": "SAST/CodeQL findings in first-party code, not dependency/CI supply-chain risk."
+    },
+    {
+      "id": "diff-security-goes-to-pr-reviewer",
+      "prompt": "Do a security review of this feature PR's changes.",
+      "expected_skill": "security-pr-reviewer",
+      "should_not_trigger": ["supply-chain-security-reviewer"],
+      "reason": "Security review of application changes in a diff, not the supply chain."
+    },
+    {
+      "id": "migration-goes-to-migration-reviewer",
+      "prompt": "Is this database migration safe to deploy — grants, destructive ops, policy changes?",
+      "expected_skill": "secure-migration-reviewer",
+      "should_not_trigger": ["supply-chain-security-reviewer"],
+      "reason": "Migration safety, not dependency/build supply chain."
+    }
+  ]
+}

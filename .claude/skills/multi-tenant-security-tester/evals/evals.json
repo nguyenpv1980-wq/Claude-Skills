@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "multi-tenant-security-tester",
+  "description": "Trigger and behavior cases for tenant-isolation/authorization negative testing: two-tenant fixtures, forbidden-action-denied assertions, positive controls, honest coverage.",
+  "cases": [
+    {
+      "id": "positive-cross-tenant-suite",
+      "type": "should_trigger",
+      "prompt": "Write a security test suite proving a user in one tenant can't read or modify another tenant's records through our API.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs a two-tenant (A/B) seeded fixture with per-role users and recorded ids, minting tokens through the real auth path.",
+          "Produces a surface × actor × operation matrix where each negative test attempts a forbidden action and passes only on denial.",
+          "Pairs each negative test with a positive control so a blanket-deny bug cannot pass as isolation.",
+          "Asserts on leakage (404-vs-403 existence, error-body echo), covers IDOR/list/mass-assignment/exports/jobs, and states coverage honestly."
+        ]
+      }
+    },
+    {
+      "id": "edge-ai-retrieval-regression",
+      "type": "should_trigger",
+      "prompt": "Turn this isolation-review finding — 'shared vector store returns other tenants' chunks' — into a permanent regression test.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Specifies a canary-document test: tenant A's query returns zero chunks sourced from tenant B's documents.",
+          "Tests the retrieval RESULT, not just the presence of a query filter, and includes a positive control for A's own content.",
+          "Marks the test as a permanent regression whose removal needs written rationale."
+        ]
+      }
+    },
+    {
+      "id": "negative-find-leaks-by-inspection",
+      "type": "should_not_trigger",
+      "prompt": "Read through our codebase and tell me where tenant data might leak across all surfaces.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Finding leaks by inspection is tenant-isolation-reviewer's job; this skill proves or refutes with executable negative tests, it does not hunt by reading."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-happy-path-only",
+      "type": "should_trigger",
+      "prompt": "Add tenant security tests but keep it simple — just confirm each tenant can see their own data.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Explains that happy-path-only tests prove nothing about isolation and adds the forbidden-action negative tests as the core of the suite.",
+          "Keeps the owner-sees-own-data checks only as positive controls paired with the cross-tenant denial tests."
+        ]
+      }
+    }
+  ]
+}
