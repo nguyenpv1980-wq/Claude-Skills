@@ -13,8 +13,8 @@
 
 | Label used below | Path |
 |---|---|
-| Repo A ("Brigara OS") | `C:\Users\penguye\Carrot and Daikon Banh Mi\GitHub\opsflow` |
-| Repo B ("WayPoint") | `C:\Users\penguye\Carrot and Daikon Banh Mi\GitHub\waypoint-mission-control` |
+| Repo A | `<local-path-to-repo-A>` |
+| Repo B | `<local-path-to-repo-B>` |
 
 **Repo A top-level (summary):** `.agents/`, `.github/workflows/`, `docs/` (20 subdirectories incl. `decisions/`, `runbooks/`, `context/`, `codex/`, `prompts/`), `scripts/` (~55 audit/lint/probe scripts), `e2e/`, `src/`, `supabase/`, plus root files `AGENTS.md`, `CLAUDE.md`, `Project_Guardrails.md`, `DOCS_SUMMARY.md`, `TEST_PLAN.md`, `BUG_REPORT.md`, `Makefile`.
 
