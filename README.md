@@ -1,12 +1,28 @@
-# Claude-Skills
+# Project Aegis
 
-Reusable planning + implementation repository for product-agnostic Claude Code **skills**
-and read-only project **subagents**.
+**Project Aegis — Shield of the agent fleet**
 
-The goal is not a pile of prompts. The goal is reusable Claude Code Skills and agents that
-make Claude behave like a disciplined senior/principal engineering partner: model before
-code, docs before implementation, tests before changes, small diffs, tenant isolation and
-security by default, QA evidence before release, and evidence-based troubleshooting.
+*Discipline before code. Evidence before merge.*
+
+Project Aegis is a reusable Claude engineering shield: a library of skills, subagents,
+validation gates, and safety patterns that turns Claude into a disciplined
+senior/principal engineering partner for architecture, SaaS, security, QA, audit,
+troubleshooting, and AI safety.
+
+## About
+
+Project Aegis is a reusable Claude engineering operating system built to protect, guide,
+and sharpen AI-assisted software development. It combines reusable Claude Code skills,
+read-only specialist subagents, validation gates, eval conventions, and disciplined
+engineering workflows so Claude operates like a senior/principal engineering partner.
+The name carries three layers: the divine shield of Zeus and Athena; the Navy's Aegis,
+shield of the fleet — fitting for a veteran-founded project whose operating model is a
+fleet of agents; and a shield proven in use — several skills' eval cases are drawn from
+real incidents this project absorbed during its own construction (an unauthorized
+auto-merge, stale-memory session collisions, an empty-directory build). The goal is not
+prompt bloat; it is a protected execution framework where Claude models before coding,
+reads docs before implementation, tests before changes, keeps diffs small, respects
+human approval boundaries, and produces evidence before closeout.
 
 The repo is built in **phases**. **Phase 0** established the foundation — authoring
 standard, templates, eval convention, validator, catalog, the seven read-only reviewer

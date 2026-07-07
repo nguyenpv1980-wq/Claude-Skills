@@ -1,4 +1,4 @@
-# Skills & Agents Catalog
+# Project Aegis — Skills & Agents Catalog
 
 Single source of truth for what skills and subagents exist, what is planned, and how the two
 differ. The backlog below is derived from the **reconciled phase lists**
