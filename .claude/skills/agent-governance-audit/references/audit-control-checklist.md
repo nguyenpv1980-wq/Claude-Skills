@@ -10,7 +10,7 @@ evidence source. Missing evidence → UNVERIFIABLE, never PASS.
 |---|---|---|---|
 | C1 | Classification & scope lock | declared class (conversation/PR body); `git diff --stat` of the change vs the class's file-set | class declared before implementation; touched files inside the approved class; mid-task growth reclassified, not absorbed |
 | C2 | Boundary approvals | approval records (PR thread, conversation, approval log) matched to each boundary the change crossed (schema, RLS/security, secrets, deploy, prod data, history) | every crossed boundary has a recorded human approval whose scope wording covers the action actually taken |
-| C3 | Merge/deploy authority | `gh pr view <n> --json author,reviews,mergedBy,mergedAt,autoMergeRequest,timelineItems` — including the auto-merge ENABLED event and its actor | merge decision traceable to a named human per the authorization matrix; no agent-armed auto-merge; deploys triggered per matrix |
+| C3 | Merge/deploy authority | `gh pr view <n> --json author,reviews,mergedBy,mergedAt,autoMergeRequest` plus `gh api repos/{owner}/{repo}/issues/<n>/timeline` — including the auto-merge ENABLED event (strategy-specific name, see Retrieval commands) and its actor | merge decision traceable to a named human per the authorization matrix; no agent-armed auto-merge; deploys triggered per matrix |
 | C4 | Validation floor | CI run logs, command outputs quoted in the record; the class's required checks list | the floor's checks actually ran with real outputs; green on the RIGHT checks, not just green |
 | C5 | Security review | review records on the PR; security lens where class = RLS/security/schema/secrets | required security review present and by the required party |
 | C6 | Closeout completeness | the closeout report vs `git`/PR reality | all sections present incl. intentionally-not-done; claims consistent with primary record (files, tests, skips) |
@@ -20,10 +20,16 @@ evidence source. Missing evidence → UNVERIFIABLE, never PASS.
 
 ```bash
 gh pr view <n> --json author,reviews,mergedBy,mergedAt,autoMergeRequest,statusCheckRollup
-gh api repos/{owner}/{repo}/pulls/<n>/events        # timeline incl. auto_merge_enabled + actor
+gh api repos/{owner}/{repo}/issues/<n>/timeline     # timeline incl. the armed-auto-merge event + actor
 gh run list --branch <branch> ; gh run view <id> --log
 git log --oneline --graph <base>..<head> ; git diff --stat <base>..<head>
 ```
+
+The armed-auto-merge timeline event is **strategy-specific**: it is
+`auto_merge_enabled`, `auto_squash_enabled`, or `auto_rebase_enabled`,
+whichever matches the repo's merge strategy — a squash-merge repo emits
+`auto_squash_enabled`. Check for all three; grepping only for
+`auto_merge_enabled` MISSES an armed state on a squash- or rebase-merge repo.
 
 ## Verdict discipline
 
@@ -39,7 +45,8 @@ git log --oneline --graph <base>..<head> ; git diff --stat <base>..<head>
 ## Known evidence traps
 
 - `mergedBy` shows who (or what) executed the merge, not who DECIDED it — the
-  auto-merge enabled event and its actor is the decision evidence (C3).
+  auto-merge enabled event (strategy-specific name, see Retrieval commands) and
+  its actor is the decision evidence (C3).
 - Squash merges hide branch history; audit the pre-merge branch or PR commits.
 - A review approval timestamp seconds after PR-open is reportable timing
   evidence; report the timing, not an inferred motive.

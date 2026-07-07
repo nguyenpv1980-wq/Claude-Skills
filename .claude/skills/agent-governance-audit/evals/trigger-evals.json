@@ -1,14 +1,14 @@
 {
   "skill": "agent-governance-audit",
-  "description": "Trigger discrimination: third-party process-compliance audit vs writing your own closeout (ai-closeout-reporter), whole-repo health (full-codebase-auditor), diff correctness (code-reviewer), and process design (ai-sdlc-operating-model).",
-  "overlaps_with": ["ai-closeout-reporter", "full-codebase-auditor", "code-reviewer", "ai-sdlc-operating-model"],
+  "description": "Trigger discrimination: third-party process-compliance audit vs writing your own closeout (ai-closeout-reporter), whole-repo health (full-codebase-auditor), diff correctness (code-reviewer), process design (ai-sdlc-operating-model), the forward ship/merge gate (release-readiness-reviewer), and codifying standing authority (agent-authorization-matrix).",
+  "overlaps_with": ["ai-closeout-reporter", "full-codebase-auditor", "code-reviewer", "ai-sdlc-operating-model", "release-readiness-reviewer", "agent-authorization-matrix"],
   "cases": [
     {
       "id": "did-it-follow-process-wins-here",
       "prompt": "Before we widen the agent's autonomy, check whether its last five PRs actually followed our approval and validation discipline.",
       "expected_skill": "agent-governance-audit",
-      "should_not_trigger": ["ai-closeout-reporter", "full-codebase-auditor"],
-      "reason": "Third-party compliance verdicts on finished changes gate autonomy decisions — that is the governance audit, not self-reporting and not repo health."
+      "should_not_trigger": ["ai-closeout-reporter", "full-codebase-auditor", "release-readiness-reviewer"],
+      "reason": "Third-party compliance verdicts on finished changes gate autonomy decisions — that is the governance audit, not self-reporting, not repo health, and not a forward release gate (the PRs already merged)."
     },
     {
       "id": "own-finished-work-goes-to-closeout",
@@ -37,6 +37,34 @@
       "expected_skill": "code-reviewer",
       "should_not_trigger": ["agent-governance-audit"],
       "reason": "Judging the code itself pre-merge is review; the governance audit checks after the fact that such a review HAPPENED."
+    },
+    {
+      "id": "forward-ship-gate-goes-to-release-readiness",
+      "prompt": "PR #52 is approved and we want to ship today — is it safe to merge and deploy? Check CI on the release commit, migration risk, rollback path, and flag defaults before we press the button.",
+      "expected_skill": "release-readiness-reviewer",
+      "should_not_trigger": ["agent-governance-audit"],
+      "reason": "A forward ship/merge-readiness gate on an upcoming release is release-readiness-reviewer; the governance audit is the retrospective did-it-follow-process verdict on changes already made."
+    },
+    {
+      "id": "post-incident-what-happened-wins-here",
+      "prompt": "Last night a PR merged to main with zero human review because auto-merge fired. Audit what actually happened — who armed it, what approvals existed, and which controls failed.",
+      "expected_skill": "agent-governance-audit",
+      "should_not_trigger": ["agent-authorization-matrix"],
+      "reason": "Establishing what happened after an autonomy incident is the governance audit; the authorization matrix is the follow-up that codifies the corrected authority rule."
+    },
+    {
+      "id": "codify-authority-goes-to-authorization-matrix",
+      "prompt": "After last week's auto-merge incident, write the standing rule: agents may open PRs, but arming auto-merge and merging to main always require a named human decision.",
+      "expected_skill": "agent-authorization-matrix",
+      "should_not_trigger": ["agent-governance-audit"],
+      "reason": "Codifying who holds merge/deploy authority going forward is the authorization matrix; the audit only establishes what happened and feeds that rule."
+    },
+    {
+      "id": "process-design-goes-to-operating-model",
+      "prompt": "Define how our humans and agents should work together end to end — the stages from planning to merge and closeout, who holds authority at each stage, and which gate each stage must pass.",
+      "expected_skill": "ai-sdlc-operating-model",
+      "should_not_trigger": ["agent-governance-audit"],
+      "reason": "Designing the process is ai-sdlc-operating-model; the governance audit consumes that process as its baseline and judges one change's compliance against it."
     }
   ]
 }

@@ -773,6 +773,20 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   `library-diff-reviewer`) remain candidate — not built; the `library-diff-reviewer` seam
   (whole skill-adding PR vs ONE skill's quality) is pinned in the new skill's
   trigger-evals. 95→96 skills.
+- **D19 (2026-07-07) — `agent-governance-audit` retrieval commands fixed and seams
+  added,** per the first `skill-quality-reviewer` audit finding live-verified command
+  failures in the skill's flagship merge-authority control: `timelineItems` removed
+  from the `gh pr view --json` field list, `pulls/<n>/events` → `issues/<n>/timeline`,
+  and the armed-auto-merge timeline event documented as strategy-specific
+  (`auto_merge_enabled` / `auto_squash_enabled` / `auto_rebase_enabled` — on PR #7,
+  the incident this control was built from, the actual event is `auto_squash_enabled`).
+  `release-readiness-reviewer` (forward ship/merge gate vs retrospective
+  did-it-follow-process verdict) and `agent-authorization-matrix` (audit-what-happened
+  vs codify-the-authority-rule) seams added to the description/overlaps/trigger-evals;
+  the should-not-soften eval retyped to the `_template` stop-condition convention
+  (`should_trigger` / `triggers: true`). All fixed commands live-verified against this
+  repo. No new skill; 96 skills unchanged. Neighbor follow-up (`ai-closeout-reporter`
+  yield clause + trigger-evals) tracked separately.
 
 ---
 

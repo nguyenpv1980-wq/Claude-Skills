@@ -1,6 +1,6 @@
 ---
 name: agent-governance-audit
-description: Audit whether an AI-assisted change actually followed governance discipline — classification and scope lock, human approval at each crossed boundary, merge/deploy authority (WHO merged, who armed auto-merge), real validation evidence, security review where the class required it, closeout completeness (incl. intentionally-not-done), and governed memory/doc updates. Per-control verdicts PASS/FAIL/UNVERIFIABLE cite primary evidence (PR timeline, commits, CI runs, approval records); closeout self-claims are cross-checked, never trusted; missing evidence is never a PASS. Use when asked whether a change or PR followed process, for post-incident review, to spot-check agent work before widening autonomy, or to verify a closeout's claims. Read-only, produces the governance report and changes nothing. Do NOT use to write the closeout for your own finished work (ai-closeout-reporter), audit whole-repo code health (full-codebase-auditor), or review diff correctness (code-reviewer / security-pr-reviewer).
+description: Audit whether an AI-assisted change actually followed governance discipline — classification and scope lock, human approval at each crossed boundary, merge/deploy authority (WHO merged, who armed auto-merge), real validation evidence, security review where required, closeout completeness (incl. intentionally-not-done), and governed memory/doc updates. Per-control verdicts PASS/FAIL/UNVERIFIABLE cite primary evidence; closeout claims are cross-checked, never trusted; missing evidence is never a PASS. Use when asked if a change or PR followed process, for post-incident review, to spot-check agent work before widening autonomy, or to verify a closeout's claims. Read-only; changes nothing. Do NOT use to gate an upcoming ship/merge (release-readiness-reviewer — this skill is the retrospective did-it-follow-process verdict), write the closeout for your own finished work (ai-closeout-reporter), audit whole-repo code health (full-codebase-auditor), or review diff correctness (code-reviewer / security-pr-reviewer).
 ---
 
 # Agent Governance Audit
@@ -34,6 +34,9 @@ matrix more than paperwork.
 - Do NOT use when: judging a diff's correctness or security — that is
   `code-reviewer` / `security-pr-reviewer`; their EXISTENCE in the trail is
   what this skill checks.
+- Do NOT use when: gating an upcoming ship/merge decision — that is
+  `release-readiness-reviewer` (the forward go/no-go gate); this skill delivers
+  the retrospective did-it-follow-process verdict on changes already made.
 - Do NOT use when: defining the process being audited against — that is
   `ai-sdlc-operating-model` (this skill consumes it and feeds revisions back).
 
@@ -44,7 +47,8 @@ matrix more than paperwork.
    If none existed, the audit baseline is the repo's shipped discipline-skill
    contracts — and the report says so.
 2. The PR's primary record: `gh pr view <n> --json author,reviews,mergedBy,
-   autoMergeRequest,statusCheckRollup,timelineItems` — who opened, reviewed,
+   autoMergeRequest,statusCheckRollup` plus its timeline via
+   `gh api repos/{owner}/{repo}/issues/<n>/timeline` — who opened, reviewed,
    approved, armed auto-merge, and merged, in what order.
 3. Commit and branch history: scope drift, force-pushes, history rewrites,
    files touched vs the approved class.
@@ -115,7 +119,10 @@ Not inspected: <what this audit did not look at, and why>
   instead of the primary record turns the audit into proofreading.
 - Merge-authority blind spot: `mergedBy` can show a bot or even a human while
   the real authority act was ARMING auto-merge sessions earlier. The timeline
-  event for enabling auto-merge is the evidence that matters.
+  event for enabling auto-merge is the evidence that matters — and its name is
+  strategy-specific: `auto_merge_enabled`, `auto_squash_enabled`, or
+  `auto_rebase_enabled` per the repo's merge strategy; checking only one name
+  misses armed states on the others.
 - CI green is not "validation complete" — the change class defines the floor;
   green on the wrong checks still FAILs the validation control.
 - An approval that exists but covers a different scope ("yes to staging") is
@@ -147,4 +154,5 @@ Not inspected: <what this audit did not look at, and why>
 - `evals/evals.json` — behavior cases, including missing-evidence →
   UNVERIFIABLE and refusing to soften a FAIL.
 - `evals/trigger-evals.json` — discrimination against `ai-closeout-reporter`,
-  `full-codebase-auditor`, `code-reviewer`, and the Phase 1.5 siblings.
+  `full-codebase-auditor`, `code-reviewer`, `release-readiness-reviewer`,
+  `agent-authorization-matrix`, and the Phase 1.5 siblings.
