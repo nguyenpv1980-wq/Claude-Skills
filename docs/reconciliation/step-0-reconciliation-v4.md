@@ -321,7 +321,8 @@ target (52 skills) is unchanged.
 
 ### Compliance & Governance batch (ISO 27001:2022 + ISO 42001:2023 + SOC 2 Type 2)
 
-**BANKED batch (D9) — targeted AFTER Phase 7; nothing in it is built now.** This is
+**SHIPPED batch (D9) — banked 2026-07-06 targeted AFTER Phase 7; implemented 2026-07-07 and
+merged via PR #21 (merge commit `2df96f1`) — all 9 skills.** This is
 certification/attestation readiness for an AI SaaS vendor selling into US enterprise and EU
 markets: SOC 2 is the de-facto US enterprise procurement ask, ISO 27001 is pulled through EU
 supply chains by NIS2 obligations on customers, and ISO 42001 is emerging in EU public
@@ -378,21 +379,21 @@ roughly **60–80%** (industry estimate, not a standard-derived figure): the sam
 crypto, change-management, logging, incident-response, vendor-management, and risk-assessment
 controls satisfy 27001 Annex A, SOC 2 TSC, and much of 42001's non-AI-specific surface.
 Consequence: **build TSC criteria and Annex A mapping together, not sequentially** — the
-foundation is written once and projected per framework. The 9 candidates below are already the
+foundation is written once and projected per framework. The 9 skills below are already the
 merged set: evidence collection is ONE skill across all three frameworks (not per-framework),
 gap auditing is ONE parameterized skill, and the SoA author serves both ISO standards.
 
-| Candidate skill *(all: candidate — not built)* | Layer | Purpose |
+| Skill *(all: implemented — PR #21, 2026-07-07)* | Layer | Purpose |
 |---|---|---|
-| `compliance-control-foundation` | Shared foundation | One framework-agnostic common control set — access control, cryptography, change management, logging/monitoring, incident response, vendor management, risk assessment — written once, consumed by the projections |
-| `compliance-evidence-collector` | Shared foundation | Operating-effectiveness evidence **over time** (cadence, retention, audit-window coverage) — SOC 2 Type 2's core demand, reused for ISO surveillance audits |
-| `statement-of-applicability-author` | Shared foundation | The ISO-mandatory SoA — per-control inclusion/exclusion justification tied to the 6.1.3 risk-treatment process; the largest net-new ISO artifact SOC 2 lacks |
-| `iso-27001-isms-architect` | Framework projection | ISMS per clauses 4–10; four-theme Annex A control selection; internal audit + management review cadence; Amd 1:2024 climate-context check |
-| `iso-42001-aims-architect` | Framework projection | AIMS per clauses 4–10; AI risk assessment / treatment and AI system impact assessment; Annex A control-objective selection |
-| `soc2-trust-criteria-mapper` | Framework projection | TSC scoping — Security baseline plus which optional categories to attest; Type 1 vs Type 2 decision and audit-window planning |
-| `multi-framework-crosswalk` | Cross-cutting | One control → 27001 Annex A + SOC 2 TSC + 42001 Annex A (+ AI RMF function) — the do-the-work-once engine between foundation and projections |
-| `compliance-gap-auditor` | Cross-cutting | Current state vs chosen framework(s) → prioritized gap list with remediation order and evidence gaps |
-| `ai-lifecycle-risk-manager` | Cross-cutting | NIST AI RMF GOVERN/MAP/MEASURE/MANAGE across the AI lifecycle; pairs with `iso-42001-aims-architect` |
+| [`compliance-control-foundation`](../../.claude/skills/compliance-control-foundation/SKILL.md) | Shared foundation | One framework-agnostic common control set — access control, cryptography, change management, logging/monitoring, incident response, vendor management, risk assessment — written once, consumed by the projections |
+| [`compliance-evidence-collector`](../../.claude/skills/compliance-evidence-collector/SKILL.md) | Shared foundation | Operating-effectiveness evidence **over time** (cadence, retention, audit-window coverage) — SOC 2 Type 2's core demand, reused for ISO surveillance audits |
+| [`statement-of-applicability-author`](../../.claude/skills/statement-of-applicability-author/SKILL.md) | Shared foundation | The ISO-mandatory SoA — per-control inclusion/exclusion justification tied to the 6.1.3 risk-treatment process; the largest net-new ISO artifact SOC 2 lacks |
+| [`iso-27001-isms-architect`](../../.claude/skills/iso-27001-isms-architect/SKILL.md) | Framework projection | ISMS per clauses 4–10; four-theme Annex A control selection; internal audit + management review cadence; Amd 1:2024 climate-context check |
+| [`iso-42001-aims-architect`](../../.claude/skills/iso-42001-aims-architect/SKILL.md) | Framework projection | AIMS per clauses 4–10; AI risk assessment / treatment and AI system impact assessment; Annex A control-objective selection |
+| [`soc2-trust-criteria-mapper`](../../.claude/skills/soc2-trust-criteria-mapper/SKILL.md) | Framework projection | TSC scoping — Security baseline plus which optional categories to attest; Type 1 vs Type 2 decision and audit-window planning |
+| [`multi-framework-crosswalk`](../../.claude/skills/multi-framework-crosswalk/SKILL.md) | Cross-cutting | One control → 27001 Annex A + SOC 2 TSC + 42001 Annex A (+ AI RMF function) — the do-the-work-once engine between foundation and projections |
+| [`compliance-gap-auditor`](../../.claude/skills/compliance-gap-auditor/SKILL.md) | Cross-cutting | Current state vs chosen framework(s) → prioritized gap list with remediation order and evidence gaps |
+| [`ai-lifecycle-risk-manager`](../../.claude/skills/ai-lifecycle-risk-manager/SKILL.md) | Cross-cutting | NIST AI RMF GOVERN/MAP/MEASURE/MANAGE across the AI lifecycle; pairs with `iso-42001-aims-architect` |
 
 **Already covered — the batch MAPS, it does not rebuild:** much of 27001's A.8 Technological
 theme and SOC 2's Security category is already implemented by shipped skills — Phase 3
@@ -409,9 +410,10 @@ mapping and auditor-consumable evidence on top of these; net-new implementation 
 limited to ISO management-system artifacts (SoA, internal audit, management review) and
 evidence plumbing.
 
-**Status: banked only (D9).** No skills built now, no phases renumbered, validator skill-count
-targets unchanged; exact sequencing relative to Phase 7.5 and Phase 8 batches is left open.
-This banks scope the same way the D6/D7 coverage maps did.
+**Status: implemented (D9 — PR #21).** All 9 skills merged to `main` 2026-07-07 via PR #21
+(merge commit `2df96f1`); validator target moved 86 → 95, exit 0. No phases renumbered. The
+sequencing left open at banking time resolved as: after Phase 7.5 and the D11 rebrand,
+before any Phase 8 batch.
 
 ### Phase 8 — Backlog expansion (NEW in v4, ported from execution plan §8)
 Convert the remaining backlog — the original 300-skill roadmap, per the D12 standing rule a
@@ -517,21 +519,23 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   renumbered, validator target unchanged. Third distinct framework: separate from the OWASP
   Top 10 for LLM Applications (D6) and from the OWASP Agentic Top 10 for 2026 (D7, Phase 7.5).
 - **D9 (2026-07-06) — A Compliance & Governance batch (ISO 27001:2022 + ISO 42001:2023 + SOC 2
-  Type 2, with NIST AI RMF 1.0 as companion) is banked as a future batch targeted AFTER
-  Phase 7.** Subsection in §3, after Phase 7.5. Rationale: as an AI SaaS vendor selling into US
+  Type 2, with NIST AI RMF 1.0 as companion) was banked as a future batch targeted AFTER
+  Phase 7; implemented 2026-07-07 via PR #21 (merge commit `2df96f1`).** Subsection in §3,
+  after Phase 7.5. Rationale: as an AI SaaS vendor selling into US
   enterprise and EU markets, these converge into procurement requirements (SOC 2 in US
   enterprise sales; 27001 via EU NIS2 supply-chain demand on customers; 42001 emerging in EU
   public procurement) — vendor-market rationale, not a standards claim. Architecture: **one
-  shared control foundation + framework-specific projections + a crosswalk** (9 candidate
-  skills, already merged — one evidence collector, one gap auditor, one SoA author across
+  shared control foundation + framework-specific projections + a crosswalk** (9 skills,
+  already merged — one evidence collector, one gap auditor, one SoA author across
   frameworks), NOT three parallel skill sets; published crosswalks put cross-framework control
   overlap at ~60–80% (industry estimate, not a standard-derived number). The batch is
   substantially a **mapping + evidence layer** over controls already shipped in Phases 3/4
   (and the Phase 5 evidence pack) — it does not rebuild them. Precision: SOC 2 is an AICPA
   **attestation** (CPA examination); 27001/42001 are **certifiable** management-system
   standards. Distinct from Phase 1.5 (operational agent governance) and the OWASP maps
-  (D6/D7/D8). No skills built now; no phases renumbered; validator skill-count targets
-  unchanged. Sources fetched 2026-07-06 (<https://www.iso.org/standard/27001> and
+  (D6/D7/D8). All 9 skills built and merged via PR #21 (2026-07-07, merge commit `2df96f1`);
+  no phases renumbered; validator target moved 86 → 95, exit 0. Sources fetched 2026-07-06
+  (<https://www.iso.org/standard/27001> and
   <https://www.iso.org/standard/42001> returned HTTP 403 to automated fetch, so standard
   structure was verified from official-distributor preview PDFs of the standards themselves):
   - **ISO/IEC 27001:2022 preview PDF** (title page, TOC, Foreword/Introduction):
