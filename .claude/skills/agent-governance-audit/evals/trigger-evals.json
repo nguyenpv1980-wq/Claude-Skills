@@ -1,0 +1,42 @@
+{
+  "skill": "agent-governance-audit",
+  "description": "Trigger discrimination: third-party process-compliance audit vs writing your own closeout (ai-closeout-reporter), whole-repo health (full-codebase-auditor), diff correctness (code-reviewer), and process design (ai-sdlc-operating-model).",
+  "overlaps_with": ["ai-closeout-reporter", "full-codebase-auditor", "code-reviewer", "ai-sdlc-operating-model"],
+  "cases": [
+    {
+      "id": "did-it-follow-process-wins-here",
+      "prompt": "Before we widen the agent's autonomy, check whether its last five PRs actually followed our approval and validation discipline.",
+      "expected_skill": "agent-governance-audit",
+      "should_not_trigger": ["ai-closeout-reporter", "full-codebase-auditor"],
+      "reason": "Third-party compliance verdicts on finished changes gate autonomy decisions — that is the governance audit, not self-reporting and not repo health."
+    },
+    {
+      "id": "own-finished-work-goes-to-closeout",
+      "prompt": "You've just finished the refactor task — write up what you did, what you skipped, and what you validated.",
+      "expected_skill": "ai-closeout-reporter",
+      "should_not_trigger": ["agent-governance-audit"],
+      "reason": "First-person terminal disclosure of your own work is the closeout; the audit is the later third-party check of such reports."
+    },
+    {
+      "id": "closeout-claims-verification-wins-here",
+      "prompt": "Here's the closeout report the agent produced for Phase 3 — verify its claims against what actually happened in the repo and PRs.",
+      "expected_skill": "agent-governance-audit",
+      "should_not_trigger": ["ai-closeout-reporter"],
+      "reason": "Cross-checking a closeout's claims against the primary record is the audit's C6 control, not writing another closeout."
+    },
+    {
+      "id": "repo-health-goes-to-full-codebase-auditor",
+      "prompt": "What's the overall state of this codebase — dead code, duplication, dependency risk, debt priorities?",
+      "expected_skill": "full-codebase-auditor",
+      "should_not_trigger": ["agent-governance-audit"],
+      "reason": "Whole-repo code-state inventory is the codebase audit; no single change's process is in question."
+    },
+    {
+      "id": "diff-correctness-goes-to-code-reviewer",
+      "prompt": "Review this PR's diff for bugs, missing tests, and security issues before we merge it.",
+      "expected_skill": "code-reviewer",
+      "should_not_trigger": ["agent-governance-audit"],
+      "reason": "Judging the code itself pre-merge is review; the governance audit checks after the fact that such a review HAPPENED."
+    }
+  ]
+}

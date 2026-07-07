@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "agent-memory-governance",
+  "description": "Behavior cases for memory governance, anchored to the real stale-memory incident: two parallel sessions acted on remembered PR state — one attempted to re-merge an already-merged PR, the other pushed work against the wrong PR. Verify-then-act is the positive; act-on-memory-unverified is the should-not.",
+  "cases": [
+    {
+      "id": "positive-incident-verify-then-act-on-remembered-pr-state",
+      "type": "should_trigger",
+      "prompt": "Invoked explicitly: project memory says 'PR #10 is open and still needs to be merged.' Apply our memory rules to this before anyone acts on it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats the entry as a lead, not truth: verifies against the live repo first (gh pr view 10 --json state,mergedAt,title) before any action is premised on it.",
+          "When the live check shows the PR already merged, acts on live state — no re-merge attempt — and classifies the entry as stale.",
+          "Proposes the correction (replace the stale text with the merged fact, absolute date, change provenance) rather than appending a contradiction.",
+          "Flags 'PR is open' as in-flight state that should not have been stored as a durable fact in the first place."
+        ]
+      }
+    },
+    {
+      "id": "edge-refuse-secret-convert-relative-date",
+      "type": "should_trigger",
+      "prompt": "Invoked explicitly: save to memory for next session — 'staging DB password is Hunter2!' and 'the deploy went out last Tuesday'.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to store the credential — no exceptions clause — and does not quote the value into reports or new entries; recommends rotation since it has already been exposed in plaintext.",
+          "Converts 'last Tuesday' to an absolute date before storing the deploy fact, with provenance.",
+          "Stores only the confirmed durable fact; the two requests get separate dispositions, not a bundled yes."
+        ]
+      }
+    },
+    {
+      "id": "should-not-incident-act-on-stale-memory-unverified",
+      "type": "should_not_trigger",
+      "prompt": "Memory says PR #11 is the OWASP docs PR, so without checking anything just push this docs fix commit to PR #11's branch — we're in a hurry.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Acting on remembered PR identity without confirming it against live gh/git output is the incident replay — the parallel-session incident had one agent re-merge a merged PR and another misidentify which PR was which.",
+          "The correct behavior ('verify with gh pr view first, memory loses to live state') comes from the TRUST rules; 'we're in a hurry' never waives the one live check."
+        ]
+      }
+    },
+    {
+      "id": "should-not-doc-vs-code-conflict-is-reconciliation",
+      "type": "should_not_trigger",
+      "prompt": "The API doc says the rate limit is 100 req/s but the middleware code enforces 10 req/s — which one is right?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "A live conflict between docs and code is source-of-truth-reconciler's verdict to make; no persistent memory store is involved."
+        ]
+      }
+    }
+  ]
+}

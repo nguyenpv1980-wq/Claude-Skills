@@ -15,8 +15,10 @@ shipped the first real skills: the 8-skill AI engineering **operating-discipline
 (reconciled decision D4). **Phase 2** shipped the 10-skill **core architecture &
 engineering pack**. **Phase 3** shipped the 9-skill **SaaS & tenant isolation pack**.
 **Phase 4** shipped the 9-skill **security, RLS & supply-chain pack**. **Phase 5**
-ships the 16-skill **QA, E2E, manual QA & evidence pack** (the 13 canonical Phase 5
-skills plus 3 pulled forward from the QA backlog: roadmap #184/#185/#204) — see
+shipped the 16-skill **QA, E2E, manual QA & evidence pack** (the 13 canonical Phase 5
+skills plus 3 pulled forward from the QA backlog: roadmap #184/#185/#204). **Phase 1.5**
+ships the 4-skill **AI-SDLC governance completion** (roadmap #261/#268/#279/#280),
+completing the category-08 governance layer Phase 1 started — see
 [Skills (shipped)](#skills-shipped) below.
 
 ## Start here (canonical reading order)
@@ -47,10 +49,11 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 |---:|---|---|---|
 | 0 | Foundation: standard, templates, eval convention, validator, catalog, README, 7 subagents, `_template` | P0 | ✅ merged |
 | 1 | AI engineering **operating-discipline** pack (8 skills) | P0 | ✅ merged |
+| 1.5 | AI-SDLC **governance completion** (4 skills: roadmap #261/#268/#279/#280) | P0/P1 | ✅ this branch |
 | 2 | Core architecture & engineering (10) | P0 | ✅ merged |
 | 3 | SaaS & tenant isolation (9) | P0/P1 | ✅ merged |
 | 4 | Security, RLS & supply chain (9) | P0/P1 | ✅ merged |
-| 5 | QA, E2E, manual QA & evidence (16 = 13 canonical + 3 pulled forward from the QA backlog: roadmap #184/#185/#204) | P0/P1 | ✅ this branch |
+| 5 | QA, E2E, manual QA & evidence (16 = 13 canonical + 3 pulled forward from the QA backlog: roadmap #184/#185/#204) | P0/P1 | ✅ merged |
 | 6 | Cloud, DevOps, reliability & release (10) | P1 | backlog |
 | 7 | AI security & LLM systems (10) | P1 | backlog |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
@@ -85,6 +88,16 @@ Phase 1 — AI engineering operating-discipline pack, under `.claude/skills/<nam
 | `ai-closeout-reporter` | Terminal closeout report with a mandatory "intentionally not done / omitted" section — scope reductions are never silent. | auto + manual |
 | `agent-failure-recovery` | Preserve-first recovery from broken git/tree state; destructive cleanup only with backup + explicit approval. | **manual only** |
 | `agent-instruction-consolidator` | Aligns CLAUDE.md / AGENTS.md / Cursor / Copilot instruction files to one canonical source with rule-preservation proof. | **manual only** |
+
+Phase 1.5 — AI-SDLC governance completion (roadmap #261/#268/#279/#280; completes the
+category-08 layer Phase 1 started — composes the Phase 1 skills, never restates them):
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `ai-sdlc-operating-model` | End-to-end human+agent lifecycle contract: named stages with entry/exit gates, per-stage authority (human / agent / agent-with-approval), enforcing skill per stage, failure routing, learning loop; grounded in observed PR practice with a gap list. | auto + manual |
+| `agent-authorization-matrix` | Deny-by-default action × context matrix of standing agent authority — merge to protected branches requires a named human always; auto-merge arming is forbidden to agents (armed state re-checked after every push); approval scope/expiry semantics; proposal-first. | **manual only** |
+| `agent-memory-governance` | Persistent-memory WRITE/TRUST/HYGIENE rules: confirmed durable facts with provenance and absolute dates, never secrets; remembered repo/PR state verified against live git/gh before acting; disposition-approved cleanups. | **manual only** |
+| `agent-governance-audit` | Audits one AI-assisted change's process compliance from primary evidence (PR timeline incl. who armed auto-merge, commits, CI runs): per-control PASS/FAIL/UNVERIFIABLE verdicts; closeout claims cross-checked; missing evidence is never a PASS. | auto + manual |
 
 Phase 2 — core architecture & engineering pack:
 

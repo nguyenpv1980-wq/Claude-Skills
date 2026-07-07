@@ -1,0 +1,42 @@
+{
+  "skill": "ai-sdlc-operating-model",
+  "description": "Trigger discrimination for the Phase 1.5 governance cluster: the end-to-end umbrella vs the standing permission matrix vs memory rules vs the compliance audit vs the Phase 1 stage skills.",
+  "overlaps_with": ["agent-authorization-matrix", "agent-memory-governance", "agent-governance-audit", "change-classification-gate", "human-approval-boundary"],
+  "cases": [
+    {
+      "id": "end-to-end-workflow-wins-here",
+      "prompt": "How should our humans and AI agents split the work of planning, implementing, reviewing, merging, and closing changes?",
+      "expected_skill": "ai-sdlc-operating-model",
+      "should_not_trigger": ["agent-authorization-matrix", "agent-governance-audit"],
+      "reason": "End-to-end lifecycle design is the umbrella; permissions and compliance are single columns inside it."
+    },
+    {
+      "id": "merge-permission-goes-to-matrix",
+      "prompt": "Decide whether the agent is allowed to merge its own PRs to main once CI is green.",
+      "expected_skill": "agent-authorization-matrix",
+      "should_not_trigger": ["ai-sdlc-operating-model"],
+      "reason": "A standing authority decision for one action class is the matrix's cell, not a lifecycle redesign."
+    },
+    {
+      "id": "compliance-check-goes-to-audit",
+      "prompt": "Did last week's billing change follow our planning, approval, and validation process?",
+      "expected_skill": "agent-governance-audit",
+      "should_not_trigger": ["ai-sdlc-operating-model"],
+      "reason": "Judging one finished change against the process is the audit; the umbrella defines the process."
+    },
+    {
+      "id": "memory-rules-go-to-memory-governance",
+      "prompt": "Set the rules for what our agents may write into persistent project memory and when they must verify it.",
+      "expected_skill": "agent-memory-governance",
+      "should_not_trigger": ["ai-sdlc-operating-model"],
+      "reason": "Memory write/trust/hygiene rules are memory-governance's deliverable; the model only cites them in its learning loop."
+    },
+    {
+      "id": "single-change-rigor-goes-to-classification",
+      "prompt": "What validation does this RLS policy change need before it ships?",
+      "expected_skill": "change-classification-gate",
+      "should_not_trigger": ["ai-sdlc-operating-model"],
+      "reason": "Routing one change to its validation floor is the classification gate working in-flight, not workflow design."
+    }
+  ]
+}

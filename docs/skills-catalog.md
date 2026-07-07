@@ -7,7 +7,8 @@ and the **category backlogs** under [`docs/skills/`](skills/). `scripts/validate
 checks that every *implemented* skill is listed here and in `README.md`.
 
 > **Status:** Phase 0 (foundation), Phase 1 (the 8-skill operating-discipline pack,
-> decision D4), Phase 2 (the 10-skill core architecture & engineering pack),
+> decision D4), Phase 1.5 (the 4-skill AI-SDLC governance completion, roadmap
+> #261/#268/#279/#280), Phase 2 (the 10-skill core architecture & engineering pack),
 > Phase 3 (the 9-skill SaaS & tenant isolation pack), Phase 4 (the 9-skill
 > security, RLS & supply-chain pack), and Phase 5 (the 16-skill QA, E2E, manual QA
 > & evidence pack — the 13 canonical skills plus 3 pulled forward from the QA
@@ -88,6 +89,32 @@ Trigger-overlap coverage (`evals/trigger-evals.json`) ships for the two overlap 
 context/truth (`agent-startup-context-gate`, `source-of-truth-reconciler`) and
 change governance (`change-classification-gate`, `human-approval-boundary`,
 `reviewable-diff-discipline`).
+
+### Skills (Phase 1.5 — AI-SDLC governance completion)
+
+Completes the category-08 governance layer Phase 1 started (roadmap
+#261/#268/#279/#280). These four COMPOSE the Phase 1 skills — each stage or
+control cites its enforcing skill by name, never restating its procedure. All
+ship `evals/evals.json` **and** `evals/trigger-evals.json` (the four overlap
+each other and the Phase 1 pack). Two edit behavior-steering artifacts and are
+**manual-only** (`disable-model-invocation: true`): `agent-authorization-matrix`
+(governance artifacts) and `agent-memory-governance` (memory files).
+
+| Skill | Roadmap ref (cat 08) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `ai-sdlc-operating-model` | #261 | yes | End-to-end human+agent lifecycle contract: named stages with entry/exit gates, per-stage authority (human / agent / agent-with-approval), enforcing skill per stage, failure routing, learning loop; grounded in observed PR practice with a gap list. |
+| `agent-authorization-matrix` | #268 | **no** (manual-only; edits governance artifacts) | Deny-by-default action × context matrix of standing agent authority — merge to protected branches requires a named human always, auto-merge arming forbidden to agents (armed state re-checked after every push), approval scope/expiry semantics; proposal-first. |
+| `agent-memory-governance` | #279 | **no** (manual-only; edits memory files) | Memory WRITE/TRUST/HYGIENE rules: confirmed durable facts with provenance and absolute dates, never secrets; remembered repo/PR state verified against live git/gh before acting; per-entry disposition-approved cleanups. |
+| `agent-governance-audit` | #280 | yes | Per-control PASS/FAIL/UNVERIFIABLE compliance audit of one AI-assisted change from primary evidence (PR timeline incl. who armed auto-merge, commits, CI runs); closeout claims cross-checked, never trusted; missing evidence is never a PASS. |
+
+Trigger-overlap coverage (`evals/trigger-evals.json`) ships for all four: the
+governance cluster discriminates internally (umbrella vs matrix vs memory vs
+audit) and against the Phase 1 pack (`human-approval-boundary`,
+`source-of-truth-reconciler`, `agent-startup-context-gate`,
+`agent-instruction-consolidator`, `ai-closeout-reporter`,
+`change-classification-gate`), Phase 2's `code-reviewer` and
+`full-codebase-auditor`, and Phase 3's `authorization-matrix-designer`
+(agent authority vs end-user RBAC).
 
 ### Skills (Phase 2 — core architecture & engineering pack)
 
@@ -250,6 +277,15 @@ reconciliation doc §3 for merge/move notes and the per-phase "expansion backlog
 ### Phase 1 — AI operating-discipline pack (P0)
 ✅ **Implemented** — all 8 skills moved to [Implemented → Skills](#skills-phase-1--operating-discipline-pack) above.
 Source: [`docs/skills/08-ai-era-sdlc-agent-ops.md`](skills/08-ai-era-sdlc-agent-ops.md).
+
+### Phase 1.5 — AI-SDLC governance completion (P0/P1)
+✅ **Implemented** — 4 skills (roadmap #261/#268/#279/#280) moved to
+[Implemented → Skills (Phase 1.5)](#skills-phase-15--ai-sdlc-governance-completion)
+above, completing the category-08 governance layer Phase 1 started.
+Source: [`docs/skills/08-ai-era-sdlc-agent-ops.md`](skills/08-ai-era-sdlc-agent-ops.md).
+The remaining cat-08 items (#266 AI Task Decomposition, #267 Prompt-to-Diff
+Traceability, #273 AI Work Evidence Pack, #277 AI Code Review Protocol, #278 AI
+Pair Engineering Protocol) remain backlog, built in Phase 8 batches.
 
 ### Phase 2 — Core architecture & engineering (P0)
 ✅ **Implemented** — all 10 first-pass skills moved to

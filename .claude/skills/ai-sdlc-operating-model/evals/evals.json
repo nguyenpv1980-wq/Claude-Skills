@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "ai-sdlc-operating-model",
+  "description": "Trigger and behavior cases for the operating-model umbrella: compose-don't-restate, grounding in observed practice, merge-authority deferral to the matrix.",
+  "cases": [
+    {
+      "id": "positive-define-model-for-agent-adoption",
+      "type": "should_trigger",
+      "prompt": "We're rolling out AI agents for feature work across the team and it's chaos — nobody knows who reviews, who merges, or what evidence a change needs. Define how humans and agents should work together end to end.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inspects observed practice (recent PRs: who opened/reviewed/merged, what evidence shipped) before designing.",
+          "Produces named stages, each with entry condition, exit gate, authority holder, enforcing skill, and required evidence.",
+          "Composes the existing discipline skills by name (startup gate, classification, approval boundary, diff discipline, closeout) without restating their procedures.",
+          "Merge/deploy authority defers to agent-authorization-matrix, or records its absence as a gap with an interim open-PR-and-stop rule.",
+          "Delivers a gap list citing observed evidence and an incremental adoption sequence with a review date."
+        ]
+      }
+    },
+    {
+      "id": "edge-existing-rules-gap-analysis-not-restatement",
+      "type": "should_trigger",
+      "prompt": "We already have CLAUDE.md rules and the Phase 1 discipline skills installed. Do we still need an operating model, and what would it add?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats the installed skills and instruction files as inputs to inspect, not competition — the model is the lifecycle contract that composes them.",
+          "Output is a gap analysis (which stages have no enforcing skill, where authority is undefined, where claimed and observed practice diverge) rather than a restatement of skill content.",
+          "Names concretely what the model adds: stage ordering, per-stage authority, failure routing, the learning loop."
+        ]
+      }
+    },
+    {
+      "id": "negative-imminent-risky-action-not-the-umbrella",
+      "type": "should_not_trigger",
+      "prompt": "I'm about to run the migration that drops the legacy_events table on production. Should I?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "An imminent risky action is human-approval-boundary's halt, not a workflow-design conversation — the umbrella never absorbs a stage skill's in-flight job."
+        ]
+      }
+    },
+    {
+      "id": "negative-standing-permissions-question",
+      "type": "should_not_trigger",
+      "prompt": "Write down exactly what our coding agent may commit, push, and merge without asking a human first.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Standing agent permissions are agent-authorization-matrix's deliverable; the operating model only cites that matrix in its authority column."
+        ]
+      }
+    }
+  ]
+}

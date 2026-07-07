@@ -1,0 +1,42 @@
+{
+  "skill": "agent-authorization-matrix",
+  "description": "Trigger discrimination: standing agent-authority policy vs the runtime approval halt (human-approval-boundary), vs end-user RBAC design (authorization-matrix-designer), vs the lifecycle umbrella (ai-sdlc-operating-model).",
+  "overlaps_with": ["human-approval-boundary", "authorization-matrix-designer", "ai-sdlc-operating-model"],
+  "cases": [
+    {
+      "id": "standing-authority-definition-wins-here",
+      "prompt": "Write the policy for what our coding agent may do without asking: commits, pushes, opening PRs, merging, deploying.",
+      "expected_skill": "agent-authorization-matrix",
+      "should_not_trigger": ["human-approval-boundary", "authorization-matrix-designer"],
+      "reason": "Defining standing agent authority is the matrix; the boundary only enforces it at runtime, and end-user RBAC is a different skill entirely."
+    },
+    {
+      "id": "imminent-risky-step-goes-to-the-boundary",
+      "prompt": "I'm about to force-push over main to fix the history. Go?",
+      "expected_skill": "human-approval-boundary",
+      "should_not_trigger": ["agent-authorization-matrix"],
+      "reason": "An imminent risky action needs the runtime halt-and-approval-request, not a policy-design session."
+    },
+    {
+      "id": "post-incident-authority-fix-wins-here",
+      "prompt": "Yesterday a PR merged to main with no human review because auto-merge had been armed in an earlier agent session. Codify the rule so this cannot recur.",
+      "expected_skill": "agent-authorization-matrix",
+      "should_not_trigger": ["human-approval-boundary", "agent-governance-audit"],
+      "reason": "Codifying corrected standing authority after an autonomy incident is matrix work; auditing what happened would be agent-governance-audit, and no risky action is imminent."
+    },
+    {
+      "id": "tenant-roles-go-to-the-saas-designer",
+      "prompt": "We need an authorization matrix: owner, admin, member, and billing roles against our workspace resources.",
+      "expected_skill": "authorization-matrix-designer",
+      "should_not_trigger": ["agent-authorization-matrix"],
+      "reason": "Roles × permissions × resources for the product's users is SaaS authorization design, despite the shared 'authorization matrix' vocabulary."
+    },
+    {
+      "id": "whole-workflow-goes-to-the-umbrella",
+      "prompt": "Define our whole human+agent development workflow, from picking up a task to closing it out.",
+      "expected_skill": "ai-sdlc-operating-model",
+      "should_not_trigger": ["agent-authorization-matrix"],
+      "reason": "End-to-end lifecycle design is the umbrella; the matrix is only its authority column."
+    }
+  ]
+}
