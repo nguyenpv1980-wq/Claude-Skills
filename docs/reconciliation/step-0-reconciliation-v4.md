@@ -158,6 +158,77 @@ Execution-plan extras merged: `acceptance-criteria-tester`, `e2e-test-architect`
 > are absorbed into v4 Phase 2 (`full-codebase-auditor`, `principal-code-analyst`) with the
 > remainder in the Phase 2/5 expansion backlog.
 
+#### Phase 5 QA expansion backlog — prioritized (D10)
+
+Gap audit (D10, 2026-07-07) of roadmap category 06
+([`docs/skills/06-qa-test-engineering.md`](../skills/06-qa-test-engineering.md), scoped to
+items #181–#230) against the **16 shipped Phase 5 skills** — the 13 canonical above plus
+`integration-test-designer` (#184), `api-contract-test-designer` (#185), and
+`accessibility-test-harness` (#204), pulled forward at ship time. Uncovered items land in
+three build tiers; **every entry is (candidate — not built)**. This prioritizes the backlog
+only: no skills created, no phases renumbered, validator targets unchanged.
+
+**Already covered — mapped once, not re-listed as candidates:**
+
+| Roadmap # (cat 06) | Owned by shipped skill |
+|---|---|
+| #181 Test Strategy Authoring | `qa-strategy-architect` (Phase 5) |
+| #182 Risk-Based Validation Matrix | `change-classification-gate` (Phase 1) — validation-tier selection lives cross-phase |
+| #183 Unit Test Design | `vitest-unit-component-engineer` (Phase 5) |
+| #184 Integration Test Design | `integration-test-designer` (Phase 5, pulled forward) |
+| #185 Contract Test Design | `api-contract-test-designer` (Phase 5, pulled forward) |
+| #186 RLS Test Harness Design | `multi-tenant-security-tester` + `rls-policy-auditor` (Phase 4) — RLS testing lives cross-phase |
+| #187 E2E Journey Design | `playwright-e2e-engineer` (Phase 5) |
+| #196 Test Data Isolation / #197 Seed Fixture Governance | `test-data-architect` (Phase 5) |
+| #204 Accessibility Test Harness | `accessibility-test-harness` (Phase 5, pulled forward) |
+| #209 Flake Detection / #210 Flake Quarantine Governance | `flaky-test-detective` (Phase 5) |
+| #221 Manual QA Script Authoring | `manual-test-case-creator` (Phase 5) |
+| #222 Clickthrough Testing Protocol | `clickthrough-test-engineer` (Phase 5) |
+| #223 Screenshot Evidence Capture | `screenshot-evidence-planner` (Phase 5) |
+
+**Tier 1 — build first when the QA expansion runs** (uncovered roadmap P0s plus the
+performance/load headline):
+
+| Candidate *(all: candidate — not built)* | Roadmap ref (cat 06) | Note |
+|---|---|---|
+| `performance-test-harness` + `load-test-planner` | #205 (P1) + #206 (P2) | **Headline gap:** load/render/query/API/edge-function/background-job performance measurement plus realistic traffic/tenant/data-volume load planning — the largest uncovered risk for a multi-tenant SaaS (noisy neighbors, per-tenant degradation). May merge into ONE skill at build time; decide at the §4.2 pre-generation plan table. Pre-release counterpart to Phase 6 `slo-reliability-architect` (targets/alerting). |
+| `regression-first-bug-fixer` | #190 (P0) | Failing test that reproduces the bug BEFORE the fix. `regression-suite-curator` cites #190 but owns suite membership, not the fix workflow; `tdd-engineer` owns new behavior, not bug reproduction. |
+| `negative-path-test-mapper` | #192 (P0) | Systematic unauthorized/invalid/expired/missing/duplicated/conflicting/out-of-order enumeration per surface. `test-plan-designer`/`test-coverage-mapper` cite #192 as a source but own planning/audit; security negatives stay with Phase 4 `multi-tenant-security-tester`. |
+| `test-tenant-provisioner` | #198 (P0) | Repeatable test tenants/users for auth, RLS, integration, and E2E runs. `test-data-architect` (source range #196–#199) owns the data catalog; provisioning the tenants/users themselves is unowned. |
+| `ci-failure-classifier` | #214 + #215 (merged; both P0) | ONE skill: hidden runtime-marker scan (console errors, unhandled rejections, skipped tests, auth failures) + failure classification (product bug / test bug / missing secret / timeout-only / infra / skipped runtime). `flaky-test-detective` owns intermittence root-cause; this owns the every-run CI verdict. |
+| `acceptance-criteria-tester` | #226 + #227 (merged; both P0) | Testability/completeness/ambiguity review of acceptance criteria + definition-of-done check. **Already deferred once** (execution-plan extra → this backlog, note above); the deferral stands — it builds in this tier, not before. |
+
+**Tier 2 — second wave** (roadmap P1 hardening, plus #203 promoted because UI drift is
+otherwise invisible to the shipped suite):
+
+| Candidate *(all: candidate — not built)* | Roadmap ref (cat 06) | Note |
+|---|---|---|
+| `visual-regression-test-designer` | #203 (P2) | Critical UI states with stable data, deterministic viewport, reviewable diffs. |
+| `role-based-qa-matrix` | #229 (P1) | Behavior across anonymous/member/manager/admin/owner/support/platform roles; QA counterpart to Phase 3 `authorization-matrix-designer`. |
+| `mobile-viewport-qa` | #230 (P1) | Critical journeys on mobile breakpoints, touch interactions, dialogs, navigation. |
+| `exploratory-testing-charter` | #228 (P1) | Mission/risks/personas/data/paths/timebox charters for exploratory passes. |
+| `mock-strategy-designer` | #200 + #201 (merged; both P1) | ONE skill: mock/fake/stub/adapter/recording/live selection + test-double contract review keeping doubles aligned with real provider/DB behavior (`api-contract-test-designer`'s fake-fidelity check is the contract-layer slice of this). |
+| `ci-shard-parallel-isolation` | #211 + #212 (merged; both P1) | ONE skill: shard design (stable shards, run IDs, artifacts) + parallel isolation (no shared users/tenants/records/ports/browser state/queues). Extends `qa-automation-architect`'s blueprint into enforceable rules. |
+
+**Tier 3 — specialized, defer** (all roadmap P2; build on demand only):
+
+| Candidate *(all: candidate — not built)* | Roadmap ref (cat 06) | Note |
+|---|---|---|
+| `property-based-test-designer` | #194 (P2) | Generated input combinations for validation, parsing, math, state, transformations. |
+| `mutation-testing-reviewer` | #195 (P2) | Mutation thinking to expose tests that pass without proving behavior. |
+| `soak-test-planner` | #207 (P2) | Long-duration runs for leaks, queue buildup, token expiry, degradation. |
+| `chaos-test-planner` | #208 (P2) | Safe injection of service failures, timeouts, retries, partial outages. |
+
+- **Build timing (D10):** after the core phases (7, 7.5) or on demand; nothing here is
+  built now.
+- Category-06 items neither tiered nor mapped above (#188, #189, #191, #193, #199, #202,
+  #213, #216–#220, #224, #225), plus the category tail outside this audit's #181–#230 scope
+  (#231–#235), stay unprioritized backlog in the Phase 8 batch flow (D5). Several are already
+  partially absorbed via shipped catalog source mappings (#191 → `test-coverage-mapper`,
+  #199 → `test-data-architect`, #217 → `vite-build-qa-engineer`) and were counted neither as
+  gaps nor as coverage. The execution-plan extras note above (`e2e-test-architect`,
+  `qa-closeout-reporter`) is unchanged.
+
 ### Phase 6 — Cloud, DevOps, reliability & release (P1)
 **Canonical = v4's 10:** `cloud-architecture-decider`, `azure-saas-architect`, `aws-saas-architect`,
 `iac-reviewer`, `ci-pipeline-architect`, `release-readiness-reviewer`, `rollback-runbook-author`,
@@ -499,6 +570,20 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     (2024-07-26); NIST notes AI RMF 1.0 is being revised.
   - The **~60–80% overlap** figure is an industry crosswalk estimate — **not a
     standard-derived number.**
+- **D10 (2026-07-07) — Phase 5 QA expansion backlog is prioritized in three tiers from a gap
+  audit of category 06 vs shipped skills; Tier 1 headlined by performance/load testing as the
+  largest uncovered risk for a multi-tenant SaaS. Build timing: after the core phases (7, 7.5)
+  or on demand; no skills built now.** Audit baseline: the 16 shipped Phase 5 skills (the 13
+  canonical plus `integration-test-designer` #184, `api-contract-test-designer` #185, and
+  `accessibility-test-harness` #204, pulled forward at ship time), plus QA coverage living
+  cross-phase (#186 RLS testing → Phase 4 `multi-tenant-security-tester` /
+  `rls-policy-auditor`; #182 validation-tier selection → Phase 1
+  `change-classification-gate`). Overlapping roadmap items are merged, not multiplied:
+  #205+#206 (may merge into one skill at build time), #214+#215, #226+#227, #200+#201,
+  #211+#212. Items already owned by shipped skills are mapped once in the backlog section,
+  not re-listed as candidates; `acceptance-criteria-tester` keeps its existing deferral note.
+  Docs-only: no skills created, no phases renumbered, validator skill-count targets
+  unchanged. Backlog + coverage mapping in §3 Phase 5.
 
 ---
 
