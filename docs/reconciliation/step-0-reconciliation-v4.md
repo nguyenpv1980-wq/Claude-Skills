@@ -126,13 +126,43 @@ Execution-plan extras (`cloud-security-baseline-reviewer`, `resilience-architect
 `environment-parity-reviewer`, `database-backup-verifier`) → Phase 6 expansion backlog.
 
 ### Phase 7 — AI security & LLM systems (P1)
-**Canonical = v4's 10:** `ai-threat-modeler`, `prompt-injection-defender`, `rag-security-architect`,
-`agent-tool-safety-guard`, `llm-output-safety-reviewer`, `ai-evaluation-harness`,
-`ai-cost-guardrail-designer`, `ai-governance-risk-reviewer`, `ai-router-architect`,
-`structured-output-validator`.
+**Canonical = 14 — v4's 10 + 4 OWASP-gap additions (D6):** `ai-threat-modeler`,
+`prompt-injection-defender`, `rag-security-architect`, `agent-tool-safety-guard`,
+`llm-output-safety-reviewer`, `ai-evaluation-harness`, `ai-cost-guardrail-designer`,
+`ai-governance-risk-reviewer`, `ai-router-architect`, `structured-output-validator`,
+`sensitive-disclosure-guard` *(NEW)*, `model-poisoning-reviewer` *(NEW)*,
+`system-prompt-leakage-reviewer` *(NEW)*, `ai-misinformation-guard` *(NEW)*.
 Execution-plan extras (`ai-provider-adapter-designer`, `prompt-contract-designer`,
 `ai-human-in-the-loop-designer`, `ai-autonomy-boundary-designer`, `ai-security-test-harness`→merged
 into `ai-evaluation-harness`, `ai-feature-kill-switch-designer`) → Phase 7 expansion backlog.
+
+#### OWASP LLM Top 10 (2025) coverage map
+
+Phase 7 is anchored to the **OWASP Top 10 for LLM Applications (2025)**, LLM01:2025–LLM10:2025.
+Source: <https://genai.owasp.org/llm-top-10/> (verified 2026-07-06). This banks the coverage
+target now; the skills themselves are still built at Phase 7, not before.
+
+| OWASP LLM Top 10 (2025) | Covering Phase 7 skill(s) | Status |
+|---|---|---|
+| LLM01:2025 Prompt Injection | `prompt-injection-defender` | covered |
+| LLM02:2025 Sensitive Information Disclosure | `sensitive-disclosure-guard` *(NEW)* | gap |
+| LLM03:2025 Supply Chain | Phase 4 `supply-chain-security-reviewer`, **extended** to cover models, datasets, and fine-tuning adapters | extend-existing |
+| LLM04:2025 Data and Model Poisoning | `model-poisoning-reviewer` *(NEW)* | gap |
+| LLM05:2025 Improper Output Handling | `llm-output-safety-reviewer` + `structured-output-validator` | covered |
+| LLM06:2025 Excessive Agency | `agent-tool-safety-guard` | covered |
+| LLM07:2025 System Prompt Leakage | `system-prompt-leakage-reviewer` *(NEW)* | gap |
+| LLM08:2025 Vector and Embedding Weaknesses | `rag-security-architect`, including cross-tenant vector-store access control | covered |
+| LLM09:2025 Misinformation | `ai-misinformation-guard` *(NEW)* — grounding, citation, uncertainty signaling | gap |
+| LLM10:2025 Unbounded Consumption | `ai-cost-guardrail-designer`, **extended** to cover denial-of-service and denial-of-wallet | extend-existing |
+
+- `system-prompt-leakage-reviewer` must encode that **system prompts are NOT security
+  controls**; enforcement must be deterministic and live outside the LLM.
+- `ai-threat-modeler`, `ai-governance-risk-reviewer`, `ai-router-architect`, and
+  `ai-evaluation-harness` are cross-cutting glue across all ten categories rather than
+  mapped one-to-one.
+- The **OWASP Top 10 for Agentic/Agent Applications is a separate framework** that the
+  LLM Top 10 does not cover; agentic-specific skills are a candidate **Phase 8 follow-on**,
+  not part of this Phase 7 expansion.
 
 ### Phase 8 — Backlog expansion (NEW in v4, ported from execution plan §8)
 Convert the remaining 300-skill roadmap into executable skills **in validated batches** under
@@ -197,6 +227,11 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   architecture-heavy Phase 1. Architecture skills move to Phase 2.
 - **D5 — 300-skill roadmap is the backlog/capability map, not a batch command.** Executable skills
   are built phase-by-phase; the remainder flows through Phase 8 batches.
+- **D6 (2026-07-06) — Phase 7 is anchored to the OWASP Top 10 for LLM Applications (2025).**
+  Canonical Phase 7 list expands 10 → 14 (adds `sensitive-disclosure-guard`,
+  `model-poisoning-reviewer`, `system-prompt-leakage-reviewer`, `ai-misinformation-guard`).
+  Rationale: anchor the AI-security pack to a current published framework rather than an
+  ad-hoc list. Source: <https://genai.owasp.org/llm-top-10/>. Coverage map in §3 Phase 7.
 
 ---
 
