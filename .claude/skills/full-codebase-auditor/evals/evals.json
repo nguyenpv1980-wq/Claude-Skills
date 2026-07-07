@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "full-codebase-auditor",
+  "description": "Trigger and behavior cases for whole-repo auditing: inventory-first coverage, four-tier epistemic filing, provable blind spots, and read-only discipline.",
+  "cases": [
+    {
+      "id": "positive-inherited-repo",
+      "type": "should_trigger",
+      "prompt": "We just took over this repository from an agency that's gone. Full audit: what are we sitting on?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Produces the complete inventory (tree classification, language census, entry points, manifests, CI pipelines) BEFORE any finding, and findings reference only inventoried areas.",
+          "Publishes a coverage statement mapping every area to fully/sampled(rule)/not-examined(reason) — no silent skips.",
+          "Files every result as confirmed, likely, hypothesis, or missing information with evidence matching the tier.",
+          "Ends with a ranked remediation roadmap including an investigations lane that would upgrade hypotheses; changes nothing in the repo."
+        ]
+      }
+    },
+    {
+      "id": "edge-monorepo-hidden-projects",
+      "type": "should_trigger",
+      "prompt": "Audit this monorepo — I think it's just the web app but there might be more in there.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Sweeps for dependency manifests at every depth and inventories each discovered sub-project, rather than auditing only the obvious app.",
+          "If the repo is too large for meaningful single-pass coverage, stops after the inventory and proposes a staged audit plan instead of delivering secretly thin coverage."
+        ]
+      }
+    },
+    {
+      "id": "negative-single-subsystem",
+      "type": "should_not_trigger",
+      "prompt": "Assess just the payments module — architectural risks and what to fix first; leave the rest of the repo alone.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Subsystem-scoped strategic assessment is principal-code-analyst's job; the whole-repo inventory discipline is unnecessary overhead here."
+        ]
+      }
+    },
+    {
+      "id": "stop-live-credential-found",
+      "type": "should_trigger",
+      "prompt": "Run the standard quarterly audit on the platform repo.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "If a live credential or exploitable exposure is found in code or git history mid-audit, escalates immediately through human-approval-boundary and treats the credential as live until rotation is confirmed.",
+          "Does not sit on the exposure until the report is finished, and does not attempt rotation or fixes itself (read-only audit)."
+        ]
+      }
+    }
+  ]
+}

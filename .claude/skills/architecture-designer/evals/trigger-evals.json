@@ -1,0 +1,28 @@
+{
+  "skill": "architecture-designer",
+  "description": "Trigger discrimination for the Phase 2 design cluster. Pins structural design apart from concept modeling and decision recording.",
+  "overlaps_with": ["domain-modeler", "adr-writer"],
+  "cases": [
+    {
+      "id": "structure-wins-here",
+      "prompt": "Where should the new document-export pipeline live, what should it depend on, and how do we get there from the current tangle?",
+      "expected_skill": "architecture-designer",
+      "should_not_trigger": ["domain-modeler", "adr-writer"],
+      "reason": "Component placement, dependencies, and migration path — structure, not vocabulary, not recording."
+    },
+    {
+      "id": "unclear-concepts-go-to-domain-modeler",
+      "prompt": "Everyone on the team means something different by 'export' — some mean PDFs, some mean data dumps, some mean the audit trail. Sort out what these things actually are first.",
+      "expected_skill": "domain-modeler",
+      "should_not_trigger": ["architecture-designer"],
+      "reason": "The concepts themselves are contested; structure follows meaning, so modeling runs first."
+    },
+    {
+      "id": "made-decision-goes-to-adr",
+      "prompt": "The export pipeline will be a queue-consumer in the worker service — that's settled. Capture the decision with the alternatives we rejected and how we'd back out.",
+      "expected_skill": "adr-writer",
+      "should_not_trigger": ["architecture-designer"],
+      "reason": "No open design question remains; the task is the durable record with rollback and review date."
+    }
+  ]
+}

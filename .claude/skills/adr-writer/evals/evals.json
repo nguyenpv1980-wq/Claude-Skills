@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "adr-writer",
+  "description": "Trigger and behavior cases for ADR writing: complete records with honest alternatives, mandatory rollback plan and review date, and refusal to launder unmade decisions.",
+  "cases": [
+    {
+      "id": "positive-record-made-decision",
+      "type": "should_trigger",
+      "prompt": "We decided yesterday to move background jobs from cron scripts to a proper queue (BullMQ). Write the ADR — we also looked at Temporal and at keeping cron.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Follows the repo's existing ADR numbering/location convention, or establishes docs/adr/NNNN-title.md only if none exists.",
+          "Context section is solution-free; decision is stated in active voice.",
+          "Records Temporal and status-quo cron as alternatives with real rejection reasons, and includes at least one genuine negative consequence.",
+          "Includes a rollback/reversal plan with trigger conditions and steps, and a specific review date."
+        ]
+      }
+    },
+    {
+      "id": "edge-superseding-old-adr",
+      "type": "should_trigger",
+      "prompt": "ADR-0007 said we'd stay on REST-only. We're now adding a GraphQL gateway for the mobile team. Record this properly.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Creates a new ADR rather than editing ADR-0007's history.",
+          "Marks ADR-0007 superseded and links both ADRs in both directions.",
+          "Explains in context what changed since ADR-0007's assumptions."
+        ]
+      }
+    },
+    {
+      "id": "negative-decision-still-open",
+      "type": "should_not_trigger",
+      "prompt": "Should we use Postgres or DynamoDB for the events table? Compare them for our access patterns.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "An open design comparison is architecture-designer territory; no ADR is written for an unmade decision."
+        ]
+      }
+    },
+    {
+      "id": "stop-no-alternatives-nameable",
+      "type": "should_trigger",
+      "prompt": "Just write an ADR saying we use Redis for caching. No, we didn't really consider anything else, just write it up as decided.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Asks for or flags the missing alternatives rather than fabricating a comparison.",
+          "If proceeding, records the honest context (decision by momentum), marks status appropriately, and does not invent rejected options.",
+          "Still includes the mandatory rollback plan and review date."
+        ]
+      }
+    }
+  ]
+}

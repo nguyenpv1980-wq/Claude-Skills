@@ -1,0 +1,35 @@
+{
+  "skill": "code-simplifier",
+  "description": "Trigger discrimination for the Phase 2 review/audit cluster. Pins cleanup APPLICATION apart from findings-only review, strategic analysis, and repo audit.",
+  "overlaps_with": ["code-reviewer", "principal-code-analyst", "full-codebase-auditor"],
+  "cases": [
+    {
+      "id": "apply-cleanup-wins-here",
+      "prompt": "Please de-tangle the checkout controller — flatten the nesting and kill the dead branches, behavior identical.",
+      "expected_skill": "code-simplifier",
+      "should_not_trigger": ["code-reviewer"],
+      "reason": "Explicit request to APPLY behavior-preserving edits to a named target — the side-effecting simplification job."
+    },
+    {
+      "id": "findings-only-goes-to-reviewer",
+      "prompt": "Look over the diff in PR #77 and tell me what's wrong with it — don't change anything.",
+      "expected_skill": "code-reviewer",
+      "should_not_trigger": ["code-simplifier"],
+      "reason": "Findings report on a diff with no edits — reviewer territory."
+    },
+    {
+      "id": "complexity-assessment-goes-to-analyst",
+      "prompt": "Why does every change to the checkout area take three sprints? Assess what's structurally wrong there and what it's costing us.",
+      "expected_skill": "principal-code-analyst",
+      "should_not_trigger": ["code-simplifier"],
+      "reason": "Strategic diagnosis connecting code state to delivery cost — analysis, not edits."
+    },
+    {
+      "id": "repo-wide-cleanup-scan-goes-to-auditor",
+      "prompt": "Sweep the whole repo and tell me where the dead code, duplication, and dependency rot is concentrated.",
+      "expected_skill": "full-codebase-auditor",
+      "should_not_trigger": ["code-simplifier"],
+      "reason": "Whole-repo inventory and findings — audit first; targeted simplification passes may follow per finding."
+    }
+  ]
+}

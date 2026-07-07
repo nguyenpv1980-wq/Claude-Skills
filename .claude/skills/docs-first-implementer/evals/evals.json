@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "docs-first-implementer",
+  "description": "Trigger and behavior cases for docs-first implementation: lockfile version pinning, version-matched doc reading, declared uncertainty, and real verification.",
+  "cases": [
+    {
+      "id": "positive-framework-feature",
+      "type": "should_trigger",
+      "prompt": "Add server-side pagination to the users table using our data-grid library.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies the exact installed version of the data-grid library from the lockfile, not the package.json range.",
+          "Consults documentation matching that version (versioned docs, installed package files, or bridged changelog) and records which source was used.",
+          "Summarizes only the task-relevant API facts before implementing, and follows any existing repo wrapper/pattern for the library.",
+          "Runs the project's real test/build/lint commands and reports exact commands with actual results."
+        ]
+      }
+    },
+    {
+      "id": "edge-docs-unavailable-for-version",
+      "type": "should_trigger",
+      "prompt": "Integrate the payments SDK v0.3.1 we have pinned — their docs site only covers v1.x now.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Attempts to bridge via the installed package's own README/types/source and the changelog between v0.3.1 and v1.x.",
+          "States remaining uncertainty explicitly as unverified assumptions with mitigations, instead of implementing v1.x syntax from memory.",
+          "Presents the upgrade-vs-proceed-with-risk option to the human if the gap is unbridgeable."
+        ]
+      }
+    },
+    {
+      "id": "negative-internal-logic-only",
+      "type": "should_not_trigger",
+      "prompt": "Rename the internal helper formatCurrency to formatMoney and update its three call sites.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Pure project-internal change touching no external API; no version-pinning ritual is needed."
+        ]
+      }
+    },
+    {
+      "id": "stop-fix-requires-version-bump",
+      "type": "should_trigger",
+      "prompt": "Use the ORM's new bulk-upsert API to speed up the import job.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Discovers from the pinned version's docs whether bulk-upsert exists in the installed version.",
+          "If the API only exists in a newer version, stops and surfaces the required dependency bump as its own approval-gated change instead of silently upgrading or writing code that cannot run.",
+          "Does not implement against the newer API while the old version is installed."
+        ]
+      }
+    }
+  ]
+}

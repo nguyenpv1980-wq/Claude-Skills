@@ -1,0 +1,28 @@
+{
+  "skill": "adr-writer",
+  "description": "Trigger discrimination for the Phase 2 design cluster. Pins decision recording apart from concept modeling and open design work.",
+  "overlaps_with": ["domain-modeler", "architecture-designer"],
+  "cases": [
+    {
+      "id": "recording-wins-here",
+      "prompt": "Document why we went with event sourcing for the audit trail — include what we rejected and how we'd unwind it if it doesn't pan out.",
+      "expected_skill": "adr-writer",
+      "should_not_trigger": ["architecture-designer", "domain-modeler"],
+      "reason": "The decision is made; alternatives, consequences, and reversal plan are the exact ADR deliverable."
+    },
+    {
+      "id": "open-question-goes-to-designer",
+      "prompt": "Would event sourcing even make sense for our audit trail, given the current write volume and the team's experience?",
+      "expected_skill": "architecture-designer",
+      "should_not_trigger": ["adr-writer"],
+      "reason": "Genuinely open tradeoff analysis — designing, not recording. An ADR here would launder an unmade decision."
+    },
+    {
+      "id": "concept-confusion-goes-to-modeler",
+      "prompt": "Before anything else — what even counts as an 'audit event' in our domain versus a regular domain event? People keep conflating them.",
+      "expected_skill": "domain-modeler",
+      "should_not_trigger": ["adr-writer", "architecture-designer"],
+      "reason": "Contested vocabulary and concept boundaries are modeling work, upstream of both design and recording."
+    }
+  ]
+}

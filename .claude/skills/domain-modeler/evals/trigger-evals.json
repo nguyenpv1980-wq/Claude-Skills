@@ -1,0 +1,28 @@
+{
+  "skill": "domain-modeler",
+  "description": "Trigger discrimination for the Phase 2 design cluster. Pins domain modeling apart from architecture design and decision recording.",
+  "overlaps_with": ["architecture-designer", "adr-writer"],
+  "cases": [
+    {
+      "id": "business-concepts-win-here",
+      "prompt": "Before we build the quoting module, map out what a quote actually is — line items, revisions, approvals, expiry — and how it relates to orders.",
+      "expected_skill": "domain-modeler",
+      "should_not_trigger": ["architecture-designer", "adr-writer"],
+      "reason": "The question is what the business concepts ARE — vocabulary, entities, invariants — not how components are structured or which decision to record."
+    },
+    {
+      "id": "component-structure-goes-to-architecture",
+      "prompt": "The domain model for quoting is agreed. Should quoting be its own service, a module in the monolith, and what talks to what?",
+      "expected_skill": "architecture-designer",
+      "should_not_trigger": ["domain-modeler"],
+      "reason": "The model exists; the open question is component structure, dependencies, and deployment shape."
+    },
+    {
+      "id": "recording-a-decision-goes-to-adr",
+      "prompt": "We've decided quoting stays a module inside the monolith. Write that up properly so future us knows why.",
+      "expected_skill": "adr-writer",
+      "should_not_trigger": ["domain-modeler", "architecture-designer"],
+      "reason": "The decision is made; the task is durable recording with alternatives, consequences, and rollback — not new modeling or design."
+    }
+  ]
+}

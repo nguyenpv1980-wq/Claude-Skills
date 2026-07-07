@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "domain-modeler",
+  "description": "Trigger and behavior cases for domain modeling: full artifact set from prose requirements, code-as-evidence handling, and the do-not-code-yet gate.",
+  "cases": [
+    {
+      "id": "positive-prose-requirements",
+      "type": "should_trigger",
+      "prompt": "We're adding a subscriptions feature: customers pick a plan, get a trial, can upgrade mid-cycle with proration, and billing emails go out on renewal. Model the domain before we touch the schema.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Produces ubiquitous language, actors, workflows, subdomains, bounded contexts, entities, value objects, aggregates with named invariants, domain services, domain events, and context relationships.",
+          "Lists assumptions with risk-if-wrong and open questions with who can answer them, as separate sections.",
+          "Writes no code, schema, or migration files and ends at the explicit do-not-code-yet gate."
+        ]
+      }
+    },
+    {
+      "id": "edge-legacy-code-as-input",
+      "type": "should_trigger",
+      "prompt": "This codebase calls the same thing 'org', 'company', and 'workspace' in different modules and it keeps causing bugs. Map the actual domain concepts.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inspects existing code, schema, and tests as evidence of the embedded de-facto model.",
+          "Records the org/company/workspace collision explicitly with a chosen canonical term and aliases, rather than silently merging them.",
+          "Treats code vocabulary as evidence, not verdict — flags where code names contradict the requirements' language."
+        ]
+      }
+    },
+    {
+      "id": "negative-implementation-against-agreed-model",
+      "type": "should_not_trigger",
+      "prompt": "The domain model doc is approved — implement the Invoice aggregate as specified in docs/domain/billing.md.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Implementation against an already-agreed model goes to docs-first-implementer or tdd-engineer, not back into modeling."
+        ]
+      }
+    },
+    {
+      "id": "stop-gate-holds-under-pressure",
+      "type": "should_trigger",
+      "prompt": "Model the loyalty-points domain and then just go ahead and create the tables while you're at it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Produces the model, then stops at the gate and confirms before any implementation, because the request bundled implementation without review of the model.",
+          "Creates no DDL or migration in the same pass."
+        ]
+      }
+    }
+  ]
+}

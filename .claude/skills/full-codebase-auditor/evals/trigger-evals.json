@@ -1,0 +1,35 @@
+{
+  "skill": "full-codebase-auditor",
+  "description": "Trigger discrimination for the Phase 2 review/audit cluster. Pins whole-repo auditing apart from diff review, subsystem analysis, and cleanup application.",
+  "overlaps_with": ["code-reviewer", "principal-code-analyst", "code-simplifier"],
+  "cases": [
+    {
+      "id": "whole-repo-wins-here",
+      "prompt": "Board wants technical due diligence on the target company's repository before we sign — everything: architecture, security, tests, dependencies, deployability.",
+      "expected_skill": "full-codebase-auditor",
+      "should_not_trigger": ["principal-code-analyst", "code-reviewer"],
+      "reason": "Entire-repository scope across all dimensions with due-diligence stakes — the inventory-first audit."
+    },
+    {
+      "id": "one-subsystem-goes-to-analyst",
+      "prompt": "From that audit, drill into the ingestion pipeline specifically — is it salvageable and in what order would we fix it?",
+      "expected_skill": "principal-code-analyst",
+      "should_not_trigger": ["full-codebase-auditor"],
+      "reason": "Scope has narrowed to one subsystem with a fix-first decision attached — the analyst consumes the audit's inventory."
+    },
+    {
+      "id": "one-diff-goes-to-reviewer",
+      "prompt": "The vendor sent a patch as a PR against their repo — review the diff before we accept it.",
+      "expected_skill": "code-reviewer",
+      "should_not_trigger": ["full-codebase-auditor"],
+      "reason": "A single change-set with a merge decision — diff review, not a repo audit."
+    },
+    {
+      "id": "audit-finding-cleanup-goes-to-simplifier",
+      "prompt": "The audit flagged utils/legacy_export.py as dead-code-heavy. Strip the dead paths out of it, behavior unchanged.",
+      "expected_skill": "code-simplifier",
+      "should_not_trigger": ["full-codebase-auditor"],
+      "reason": "Applying a named behavior-preserving cleanup — the audit is read-only and never edits."
+    }
+  ]
+}

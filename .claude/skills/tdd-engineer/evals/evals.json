@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "tdd-engineer",
+  "description": "Trigger and behavior cases for strict red-green-refactor: confirmed failure reasons, minimal implementation, refactor-under-green, and honest command transcripts.",
+  "cases": [
+    {
+      "id": "positive-new-behavior-tdd",
+      "type": "should_trigger",
+      "prompt": "Build the discount calculator TDD-style: 10% off orders over $100, 20% over $500, never stacking with promo codes.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "States the contract as concrete cases before any code, and writes the first failing test before any production code.",
+          "Runs the test and quotes the failure message proving it failed for the intended reason, not an import/setup error.",
+          "Implements the minimal change per iteration and refactors only while green, re-running the suite after refactoring.",
+          "Reports exact commands and real output for every red and green."
+        ]
+      }
+    },
+    {
+      "id": "edge-test-passes-immediately",
+      "type": "should_trigger",
+      "prompt": "Add a test-first guard so empty cart checkout returns a validation error instead of a 500.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "If the new test passes immediately, treats it as a red flag: investigates whether the behavior already exists, the assertion is tautological, or the wrong path is exercised.",
+          "Does not proceed to 'implementation' of behavior that already exists; reports the finding instead."
+        ]
+      }
+    },
+    {
+      "id": "negative-exploratory-spike",
+      "type": "should_not_trigger",
+      "prompt": "Play around with the new charting library and see if it can even render our dataset shapes — nothing decided yet.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "No settled contract exists; a time-boxed spike is appropriate, and TDD against a guessed contract would harden the guess."
+        ]
+      }
+    },
+    {
+      "id": "stop-baseline-suite-already-red",
+      "type": "should_trigger",
+      "prompt": "TDD the new webhook signature verification into the api module.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "If the module's existing suite is already failing before work starts, reports the red baseline and stops for a decision instead of building on top of it or fixing unrelated tests unprompted.",
+          "Does not misattribute pre-existing failures to the new work or vice versa."
+        ]
+      }
+    }
+  ]
+}

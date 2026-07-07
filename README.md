@@ -11,8 +11,9 @@ security by default, QA evidence before release, and evidence-based troubleshoot
 The repo is built in **phases**. **Phase 0** established the foundation — authoring
 standard, templates, eval convention, validator, catalog, the seven read-only reviewer
 subagents, and the Step 0 reconciliation of the two earlier planning tracks. **Phase 1**
-ships the first real skills: the 8-skill AI engineering **operating-discipline pack**
-(reconciled decision D4) — see [Skills (shipped)](#skills-shipped) below.
+shipped the first real skills: the 8-skill AI engineering **operating-discipline pack**
+(reconciled decision D4). **Phase 2** ships the 10-skill **core architecture &
+engineering pack** — see [Skills (shipped)](#skills-shipped) below.
 
 ## Start here (canonical reading order)
 
@@ -41,8 +42,8 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | Phase | Pack | Priority | Status |
 |---:|---|---|---|
 | 0 | Foundation: standard, templates, eval convention, validator, catalog, README, 7 subagents, `_template` | P0 | ✅ merged |
-| 1 | AI engineering **operating-discipline** pack (8 skills) | P0 | ✅ this branch |
-| 2 | Core architecture & engineering (10) | P0 | backlog |
+| 1 | AI engineering **operating-discipline** pack (8 skills) | P0 | ✅ merged |
+| 2 | Core architecture & engineering (10) | P0 | ✅ this branch |
 | 3 | SaaS & tenant isolation (9) | P0/P1 | backlog |
 | 4 | Security, RLS & supply chain (9) | P0/P1 | backlog |
 | 5 | QA, E2E, manual QA & evidence (13) | P0/P1 | backlog |
@@ -80,6 +81,21 @@ Phase 1 — AI engineering operating-discipline pack, under `.claude/skills/<nam
 | `ai-closeout-reporter` | Terminal closeout report with a mandatory "intentionally not done / omitted" section — scope reductions are never silent. | auto + manual |
 | `agent-failure-recovery` | Preserve-first recovery from broken git/tree state; destructive cleanup only with backup + explicit approval. | **manual only** |
 | `agent-instruction-consolidator` | Aligns CLAUDE.md / AGENTS.md / Cursor / Copilot instruction files to one canonical source with rule-preservation proof. | **manual only** |
+
+Phase 2 — core architecture & engineering pack:
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `domain-modeler` | Domain model from requirements/code — language, bounded contexts, aggregates with invariants; hard "do not code yet" gate at the end. | auto + manual |
+| `architecture-designer` | Inspects the CURRENT architecture first, then component/dependency/data-ownership maps, tradeoffs, ADR draft, and an incremental migration plan. | auto + manual |
+| `adr-writer` | Architecture Decision Records with honest alternatives, consequences, operational impact, mandatory rollback/reversal plan and review date. | auto + manual |
+| `docs-first-implementer` | Pins the exact installed library version (lockfile), reads version-matching docs before coding, verifies with real commands; declares uncertainty instead of guessing. | auto + manual |
+| `tdd-engineer` | Strict red-green-refactor: confirms each test fails for the intended reason before the minimal implementation; reports exact commands and results. | auto + manual |
+| `systematic-debugger` | Reproduce → reduce → isolate → fix one thing → verify → prevent; prediction-tested hypotheses, single-variable fixes, regression test kept. | auto + manual |
+| `code-reviewer` | Reviews actual diffs only — severity-ranked findings with file:line evidence and remediation; no diff, no review. | auto + manual |
+| `code-simplifier` | Behavior-preserving simplification with the suite green before and after every move; coverage gate; restraint ("not done" list) is a deliverable. | **manual only** |
+| `principal-code-analyst` | Subsystem-level strategic analysis laddering code findings to architecture, security, cost; risk register + small-step remediation with validation signals. | auto + manual |
+| `full-codebase-auditor` | Whole-repo audit with inventory-first coverage; findings filed as confirmed / likely / hypotheses / missing information. (Skill = procedure; same-named subagent composes it.) | auto + manual |
 
 ## Authoring a new skill
 

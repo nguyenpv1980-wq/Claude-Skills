@@ -1,0 +1,35 @@
+{
+  "skill": "tdd-engineer",
+  "description": "Trigger discrimination for the Phase 2 implementation cluster. Pins test-first development apart from docs-first library work and unknown-cause debugging.",
+  "overlaps_with": ["docs-first-implementer", "systematic-debugger"],
+  "cases": [
+    {
+      "id": "tests-first-wins-here",
+      "prompt": "Implement the proration logic for mid-cycle plan changes — write the failing tests first so we agree on the math before code.",
+      "expected_skill": "tdd-engineer",
+      "should_not_trigger": ["docs-first-implementer", "systematic-debugger"],
+      "reason": "Explicit failing-tests-first request with a specifiable contract — the red-green-refactor loop is the deliverable."
+    },
+    {
+      "id": "sdk-integration-goes-docs-first",
+      "prompt": "Hook our invoices up to the tax-calculation API using their client library.",
+      "expected_skill": "docs-first-implementer",
+      "should_not_trigger": ["tdd-engineer"],
+      "reason": "The governing risk is version/API drift on an external SDK, not contract design — docs-first leads; tests still verify at the end."
+    },
+    {
+      "id": "mystery-regression-goes-to-debugger-first",
+      "prompt": "Proration amounts are wrong for some annual plans since last release and we don't know why. Get to the bottom of it.",
+      "expected_skill": "systematic-debugger",
+      "should_not_trigger": ["tdd-engineer"],
+      "reason": "Cause unknown — reproduce/reduce/isolate comes first; the reproduction then hands off as the regression test."
+    },
+    {
+      "id": "known-bug-with-repro-can-run-tdd",
+      "prompt": "We isolated it: February's leap-day handling in prorateDays() is off by one. Fix it with a regression test that fails first.",
+      "expected_skill": "tdd-engineer",
+      "should_not_trigger": ["systematic-debugger"],
+      "reason": "Root cause already isolated; the remaining work is exactly the red-green loop with the repro as the failing test."
+    }
+  ]
+}

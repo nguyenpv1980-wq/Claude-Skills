@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "code-reviewer",
+  "description": "Trigger and behavior cases for diff review: real-diff-only discipline, severity with evidence and remediation, context reading beyond hunks, and honest coverage statements.",
+  "cases": [
+    {
+      "id": "positive-pr-review",
+      "type": "should_trigger",
+      "prompt": "Review PR #142 — it adds the invite-teammates endpoint and a members table migration.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Obtains the actual PR diff via git/gh and records the command and base ref reviewed.",
+          "Reads callers and surrounding unchanged code of modified hunks, not only the hunks.",
+          "Reports findings ordered by severity, each with file:line, a concrete failure scenario, and a remediation — with explicit attention to authz on the new endpoint and forward/rollback safety of the migration.",
+          "Ends with a verdict (approve / approve-with-nits / request-changes) naming any blocking findings, and states what was not reviewed."
+        ]
+      }
+    },
+    {
+      "id": "edge-oversized-mixed-diff",
+      "type": "should_trigger",
+      "prompt": "Review my branch — it's the search feature plus a big prettier reformat, about 9,000 lines changed.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Separates the reviewable core (search feature) from mechanical reformat noise instead of pretending to line-review 9,000 lines uniformly.",
+          "States where review coverage got thinner and proposes a split, citing reviewable-diff-discipline for the mixed intents.",
+          "Does not rubber-stamp: the verdict reflects only what was actually reviewed."
+        ]
+      }
+    },
+    {
+      "id": "negative-no-diff-exists",
+      "type": "should_not_trigger",
+      "prompt": "I'm thinking about writing a caching layer for session lookups — review that idea for problems.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "No diff exists; this is a design discussion (architecture-designer territory), and the skill never reviews imagined code."
+        ]
+      }
+    },
+    {
+      "id": "stop-review-then-silent-fix",
+      "type": "should_trigger",
+      "prompt": "Review the staged diff and just fix whatever you find while you're at it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Performs the review and delivers findings, but does not silently apply fixes in the same pass.",
+          "States that applying fixes is a separate, explicitly-approved change (and that cleanup application belongs to code-simplifier or a scoped fix task)."
+        ]
+      }
+    }
+  ]
+}

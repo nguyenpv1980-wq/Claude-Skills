@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "code-simplifier",
+  "description": "Trigger and behavior cases for behavior-preserving simplification: green-before-and-after proof, coverage-gate, one-move-at-a-time discipline, and the not-done list.",
+  "cases": [
+    {
+      "id": "positive-explicit-simplify-request",
+      "type": "should_trigger",
+      "prompt": "Simplify services/report_builder.py — it's 600 lines of nested ifs and half of it looks dead. Don't change what it produces.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Runs the covering tests first and records the green baseline before any edit.",
+          "Verifies 'dead' code against dynamic references (reflection, string dispatch, entry points) before removing it, not just static imports.",
+          "Applies one catalog move at a time with the suite re-run after each, and reports a not-done list of tempting changes that would alter behavior.",
+          "Final report includes complexity before/after and real full-suite results."
+        ]
+      }
+    },
+    {
+      "id": "edge-no-test-coverage",
+      "type": "should_trigger",
+      "prompt": "Clean up utils/date_helpers.js. Heads up: there are basically no tests for it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Stops at the coverage gate: offers characterization tests first, or asks for explicit acceptance of unprotected simplification — never silently proceeds.",
+          "If characterization tests are written, they pin CURRENT behavior including quirks, and suspected bugs found while pinning are reported, not fixed in-band."
+        ]
+      }
+    },
+    {
+      "id": "negative-auto-invocation-mid-task",
+      "type": "should_not_trigger",
+      "prompt": "Add the CSV export button to the settings page. (While implementing, the model notices settings_controller.rb is convoluted.)",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "disable-model-invocation is true: the skill must not fire opportunistically during unrelated work; convoluted code spotted in passing is at most a note to the human."
+        ]
+      }
+    },
+    {
+      "id": "stop-simplification-becomes-behavior-change",
+      "type": "should_trigger",
+      "prompt": "Simplify the retry wrapper in lib/http.ts — and while simplifying it, feel free to make the backoff smarter.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Separates the behavior-preserving simplification from 'make the backoff smarter', which is a behavior change outside this skill's contract.",
+          "Performs only the preserving moves; lists the backoff change under not-done as its own task requiring its own tests and approval."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "skill": "docs-first-implementer",
+  "description": "Trigger discrimination for the Phase 2 implementation cluster. Pins docs-first library work apart from test-first development and unknown-cause debugging.",
+  "overlaps_with": ["tdd-engineer", "systematic-debugger"],
+  "cases": [
+    {
+      "id": "library-api-wins-here",
+      "prompt": "Wire up file uploads through the storage SDK — multipart, size limits, signed URLs.",
+      "expected_skill": "docs-first-implementer",
+      "should_not_trigger": ["systematic-debugger"],
+      "reason": "Feature implementation against an external SDK surface — version pinning and doc reading are the governing discipline."
+    },
+    {
+      "id": "explicit-tdd-wins-outer-loop",
+      "prompt": "Build the rate-limit calculator test-first — I want to see the failing tests before any implementation.",
+      "expected_skill": "tdd-engineer",
+      "should_not_trigger": ["docs-first-implementer"],
+      "reason": "Explicit test-first request makes tdd-engineer the outer loop; docs-first governs only the library-syntax step inside it if one arises."
+    },
+    {
+      "id": "unknown-failure-goes-to-debugger",
+      "prompt": "Uploads started failing with 403s sometime last week and nobody knows why.",
+      "expected_skill": "systematic-debugger",
+      "should_not_trigger": ["docs-first-implementer"],
+      "reason": "Unknown-cause failure needs reproduce→isolate diagnosis first; docs-first may be handed the fix once the cause is a library API matter."
+    },
+    {
+      "id": "version-drift-symptom-still-implementer",
+      "prompt": "The build says 'createRoot is not exported' after I wrote the mount code the usual way — sort out the right API for what we actually have installed.",
+      "expected_skill": "docs-first-implementer",
+      "should_not_trigger": ["systematic-debugger"],
+      "reason": "The cause is already visible as version drift; the remedy is pin-and-read-docs, not a full diagnostic loop."
+    }
+  ]
+}

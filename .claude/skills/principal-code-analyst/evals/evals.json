@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "principal-code-analyst",
+  "description": "Trigger and behavior cases for principal-level analysis: findings laddered to systemic claims, honest credits, small-step remediation with validation signals.",
+  "cases": [
+    {
+      "id": "positive-fragile-subsystem",
+      "type": "should_trigger",
+      "prompt": "Every release, something in the notifications subsystem breaks, and changes there take forever. Give me a principal-level read: what's structurally wrong and what do we fix first with about two engineer-months?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "States the decision the analysis feeds and maps the as-is architecture from code, reading top flows end to end.",
+          "Ladders code findings to systemic claims with file:line or git-history evidence; marks confirmed vs suspected.",
+          "Includes what the current design gets right, and honest tradeoffs of remediation.",
+          "Sequences remediation into independently shippable steps sized to the stated two-month budget, each with an observable success signal."
+        ]
+      }
+    },
+    {
+      "id": "edge-cost-driven-question",
+      "type": "should_trigger",
+      "prompt": "Our database bill tripled in six months and engineering says 'it's the reporting code'. Assess whether the reporting area is actually the driver and what it would take to fix.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Ties cost claims to mechanisms (query patterns, data volume math) rather than adjectives.",
+          "Marks the attribution as confirmed or suspected depending on whether metrics were actually available.",
+          "Does not fabricate operational impact where evidence is inaccessible."
+        ]
+      }
+    },
+    {
+      "id": "negative-single-diff-verdict",
+      "type": "should_not_trigger",
+      "prompt": "Is PR #310 safe to merge? It touches the notifications retry logic.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "A merge verdict on one diff is code-reviewer's job, not a strategic analysis."
+        ]
+      }
+    },
+    {
+      "id": "stop-live-vulnerability-found",
+      "type": "should_trigger",
+      "prompt": "Do a strategic assessment of the admin-tools area — it's old contractor code.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "If a live exploitable issue is found mid-analysis (e.g., an unauthenticated admin route), pauses and surfaces it immediately through the approval boundary rather than filing it quietly in the eventual report.",
+          "Resumes or reschedules the remaining analysis after escalation."
+        ]
+      }
+    }
+  ]
+}

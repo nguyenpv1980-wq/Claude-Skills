@@ -1,0 +1,35 @@
+{
+  "skill": "code-reviewer",
+  "description": "Trigger discrimination for the Phase 2 review/audit cluster. Pins single-diff review apart from cleanup application, strategic analysis, and whole-repo audit.",
+  "overlaps_with": ["code-simplifier", "principal-code-analyst", "full-codebase-auditor"],
+  "cases": [
+    {
+      "id": "diff-review-wins-here",
+      "prompt": "Take a look at the diff on my feature branch before I open the PR — anything that would block merge?",
+      "expected_skill": "code-reviewer",
+      "should_not_trigger": ["full-codebase-auditor", "principal-code-analyst", "code-simplifier"],
+      "reason": "One change-set judged for mergeability with severity-ranked findings — the classic diff review."
+    },
+    {
+      "id": "apply-cleanup-goes-to-simplifier",
+      "prompt": "This module passed review but it's way more convoluted than it needs to be — simplify it without changing behavior.",
+      "expected_skill": "code-simplifier",
+      "should_not_trigger": ["code-reviewer"],
+      "reason": "The ask is to APPLY behavior-preserving edits, which is code-simplifier's side-effecting job, not a findings report."
+    },
+    {
+      "id": "whole-repo-goes-to-auditor",
+      "prompt": "We just inherited this repository from a contractor. What state is it actually in — architecture, tests, dependencies, everything?",
+      "expected_skill": "full-codebase-auditor",
+      "should_not_trigger": ["code-reviewer"],
+      "reason": "Whole-repository health with inventory-first discipline, not a single change-set."
+    },
+    {
+      "id": "strategic-read-goes-to-analyst",
+      "prompt": "Give me a principal-level assessment of the billing subsystem — where it's fragile architecturally, what it costs us, what to fix first.",
+      "expected_skill": "principal-code-analyst",
+      "should_not_trigger": ["code-reviewer", "full-codebase-auditor"],
+      "reason": "A subsystem-scoped strategic analysis connecting code to architecture/cost/risk — deeper than a diff, narrower than a repo audit."
+    }
+  ]
+}

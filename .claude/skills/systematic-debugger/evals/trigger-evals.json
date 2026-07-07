@@ -1,0 +1,28 @@
+{
+  "skill": "systematic-debugger",
+  "description": "Trigger discrimination for the Phase 2 implementation cluster. Pins unknown-cause diagnosis apart from test-first implementation and docs-first library work.",
+  "overlaps_with": ["tdd-engineer", "docs-first-implementer"],
+  "cases": [
+    {
+      "id": "unknown-cause-wins-here",
+      "prompt": "The nightly sync job hangs maybe once a week and has to be killed manually. No errors, it just stops. Figure it out.",
+      "expected_skill": "systematic-debugger",
+      "should_not_trigger": ["tdd-engineer", "docs-first-implementer"],
+      "reason": "Intermittent, unknown-cause failure — reproduce/amplify/isolate is the required loop before any fix or test exists."
+    },
+    {
+      "id": "isolated-cause-hands-to-tdd",
+      "prompt": "Confirmed: the hang is a deadlock between the sync lock and the metrics flusher, sync_service.py line 214. Fix it and lock it in with a failing-first test.",
+      "expected_skill": "tdd-engineer",
+      "should_not_trigger": ["systematic-debugger"],
+      "reason": "Diagnosis is complete with evidence; the reproduction becomes the regression test and the work is the red-green loop."
+    },
+    {
+      "id": "new-library-feature-goes-docs-first",
+      "prompt": "Replace the hand-rolled lock with the scheduler library's built-in mutex support.",
+      "expected_skill": "docs-first-implementer",
+      "should_not_trigger": ["systematic-debugger"],
+      "reason": "Feature work against a library API — the governing risk is version-correct usage, not diagnosis."
+    }
+  ]
+}

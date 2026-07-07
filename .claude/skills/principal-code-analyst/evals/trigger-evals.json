@@ -1,0 +1,35 @@
+{
+  "skill": "principal-code-analyst",
+  "description": "Trigger discrimination for the Phase 2 review/audit cluster. Pins subsystem-scoped strategic analysis apart from diff review, cleanup application, and whole-repo audit.",
+  "overlaps_with": ["code-reviewer", "code-simplifier", "full-codebase-auditor"],
+  "cases": [
+    {
+      "id": "strategic-subsystem-wins-here",
+      "prompt": "The sync engine is our scariest code — nobody wants to touch it. Assess it like a principal engineer would: risks, what it costs us, and a fix-first order.",
+      "expected_skill": "principal-code-analyst",
+      "should_not_trigger": ["full-codebase-auditor", "code-reviewer", "code-simplifier"],
+      "reason": "Subsystem-scoped, decision-feeding analysis connecting code to risk and cost — deeper than review, narrower than a repo audit, no edits."
+    },
+    {
+      "id": "whole-repo-inventory-goes-to-auditor",
+      "prompt": "Before the acquisition closes, we need a full technical due-diligence pass over their entire repository.",
+      "expected_skill": "full-codebase-auditor",
+      "should_not_trigger": ["principal-code-analyst"],
+      "reason": "Entire-repo scope demands the inventory-first audit discipline; the analyst may consume its output for specific subsystems afterward."
+    },
+    {
+      "id": "merge-gate-goes-to-reviewer",
+      "prompt": "Here's the diff refactoring the sync engine's queue handling — findings by severity before we merge, please.",
+      "expected_skill": "code-reviewer",
+      "should_not_trigger": ["principal-code-analyst"],
+      "reason": "One change-set with a merge decision attached — the diff reviewer's exact contract."
+    },
+    {
+      "id": "apply-fixes-goes-to-simplifier",
+      "prompt": "Per the analysis, start with the easy one: flatten the nested dispatch in sync/router.ts without changing behavior.",
+      "expected_skill": "code-simplifier",
+      "should_not_trigger": ["principal-code-analyst"],
+      "reason": "Applying a named behavior-preserving cleanup is the simplifier's side-effecting job; analysis is complete."
+    }
+  ]
+}

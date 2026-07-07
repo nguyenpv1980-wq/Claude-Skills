@@ -6,9 +6,10 @@ differ. The backlog below is derived from the **reconciled phase lists**
 and the **category backlogs** under [`docs/skills/`](skills/). `scripts/validate-skills.py`
 checks that every *implemented* skill is listed here and in `README.md`.
 
-> **Status:** Phase 0 (foundation) and Phase 1 (the 8-skill operating-discipline pack,
-> decision D4) are implemented. `_template` remains a reference template ignored by the
-> validator. Everything under "Backlog" is planned, not built.
+> **Status:** Phase 0 (foundation), Phase 1 (the 8-skill operating-discipline pack,
+> decision D4), and Phase 2 (the 10-skill core architecture & engineering pack) are
+> implemented. `_template` remains a reference template ignored by the validator.
+> Everything under "Backlog" is planned, not built.
 
 ---
 
@@ -84,6 +85,33 @@ context/truth (`agent-startup-context-gate`, `source-of-truth-reconciler`) and
 change governance (`change-classification-gate`, `human-approval-boundary`,
 `reviewable-diff-discipline`).
 
+### Skills (Phase 2 — core architecture & engineering pack)
+
+All under `.claude/skills/<name>/`; every one ships `evals/evals.json` **and**
+`evals/trigger-evals.json` (all ten sit in one of three overlap clusters).
+
+| Skill | Source (category doc) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `domain-modeler` | cat 01 #3 (Domain Model Discovery) | yes | Domain model from requirements/code — language, contexts, aggregates + invariants; ends at a hard "do not code yet" gate. |
+| `architecture-designer` | cat 01 #42/#55 | yes | Inspects CURRENT architecture first; component/dependency/data-ownership maps, tradeoffs, ADR draft, incremental migration plan. |
+| `adr-writer` | cat 01 #1 (ADR Authoring) | yes | ADR with honest alternatives, consequences, operational impact, mandatory rollback/reversal plan + review date. |
+| `docs-first-implementer` | cat 08 discipline (ex-`grill-with-docs`) | yes | Pin the EXACT installed version (lockfile), read matching docs, summarize task syntax, implement, verify; uncertainty declared, never guessed. |
+| `tdd-engineer` | cat 06 | yes | Strict red-green-refactor; confirms each test fails for the INTENDED reason before implementing the minimal change; exact commands reported. |
+| `systematic-debugger` | cat 06/08 | yes | Reproduce → reduce → isolate → fix ONE thing → verify → prevent; prediction-tested hypotheses, no shotgun fixes. |
+| `code-reviewer` | cat 08 #277 (AI Code Review Protocol) | yes | Reviews ACTUAL diffs only; severity-ranked findings with file:line evidence + remediation; no diff, no review. |
+| `code-simplifier` | cat 01 #11 adjacent | **no** (manual-only; edits working code) | Behavior-preserving simplification, green-before-and-after per move; coverage gate; "not done" list is a deliverable. |
+| `principal-code-analyst` | cat 01 | yes | Subsystem strategic read: findings laddered to architecture/security/cost claims; risk register; small-step remediation + validation plan. |
+| `full-codebase-auditor` | cat 06/08 #280 | yes | Whole-repo audit, inventory BEFORE findings; results filed as confirmed / likely / hypotheses / missing information; provable coverage. |
+
+Trigger-overlap coverage (`evals/trigger-evals.json`) ships for the three Phase 2 clusters:
+design (`domain-modeler`, `architecture-designer`, `adr-writer`), implementation
+(`docs-first-implementer`, `tdd-engineer`, `systematic-debugger`), and review/audit
+(`code-reviewer`, `code-simplifier`, `principal-code-analyst`, `full-codebase-auditor`).
+
+> Namespace note (intended, see Phase 6 note below): `full-codebase-auditor` exists as
+> both a **subagent** (`.claude/agents/`, the review lens) and this **skill**
+> (`.claude/skills/`, the procedure). The agent composes the skill.
+
 ---
 
 ## Backlog by phase (reconciled)
@@ -96,11 +124,15 @@ reconciliation doc §3 for merge/move notes and the per-phase "expansion backlog
 Source: [`docs/skills/08-ai-era-sdlc-agent-ops.md`](skills/08-ai-era-sdlc-agent-ops.md).
 
 ### Phase 2 — Core architecture & engineering (P0)
-`domain-modeler`, `architecture-designer`, `adr-writer`, `docs-first-implementer`,
-`tdd-engineer`, `systematic-debugger`, `code-reviewer`, `code-simplifier`,
-`principal-code-analyst`, `full-codebase-auditor`.
+✅ **Implemented** — all 10 first-pass skills moved to
+[Implemented → Skills (Phase 2)](#skills-phase-2--core-architecture--engineering-pack) above.
 Source: [`docs/skills/01-software-architecture-engineering.md`](skills/01-software-architecture-engineering.md),
 [`04-backend-api-data-engineering.md`](skills/04-backend-api-data-engineering.md).
+The Phase 2 **expansion backlog** (reconciliation §3: `api-contract-designer`,
+`idempotency-first-designer`, `validation-boundary-designer`, `observability-by-design`,
+`operational-runbook-author`, `system-context-mapper`, `bounded-context-identifier`,
+`dependency-direction-guard`, `refactor-safety-planner`) remains backlog, built in
+Phase 8 batches.
 
 ### Phase 3 — SaaS & tenant isolation (P0/P1)
 `saas-platform-architect`, `tenant-modeler`, `tenant-isolation-reviewer`,
@@ -129,7 +161,8 @@ Source: [`docs/skills/06-qa-test-engineering.md`](skills/06-qa-test-engineering.
 Source: [`docs/skills/07-devops-release-reliability.md`](skills/07-devops-release-reliability.md).
 
 > Note: `release-readiness-reviewer` and `full-codebase-auditor` exist as **subagents**
-> (review lens) and are also planned as **skills** (procedure). Different namespaces
+> (review lens) and also as **skills** (procedure) — `full-codebase-auditor` skill shipped
+> in Phase 2; `release-readiness-reviewer` skill is planned here. Different namespaces
 > (`.claude/agents/` vs `.claude/skills/`); the agent composes the skill.
 
 ### Phase 7 — AI security & LLM systems (P1)
