@@ -1,0 +1,42 @@
+{
+  "skill": "release-readiness-reviewer",
+  "description": "Trigger discrimination for the Phase 6 delivery cluster: the release gate vs pipeline design vs rollback authoring, against shipped code-reviewer / secure-migration-reviewer, and the skill-vs-subagent namespace boundary (the same-named read-only subagent COMPOSES this skill for delegated reviews — full-codebase-auditor pattern).",
+  "overlaps_with": ["ci-pipeline-architect", "rollback-runbook-author", "code-reviewer", "secure-migration-reviewer", "release-readiness-reviewer (subagent)"],
+  "cases": [
+    {
+      "id": "ship-gate-wins-here",
+      "prompt": "Run the release checklist for Friday's deploy — migrations, rollback, CI evidence, the lot. Go or no-go?",
+      "expected_skill": "release-readiness-reviewer",
+      "should_not_trigger": ["ci-pipeline-architect", "rollback-runbook-author"],
+      "reason": "A specific release's evidence-based go/no-go is exactly this gate; it demands the pipeline's outputs and the rollback artifact, designing neither."
+    },
+    {
+      "id": "gate-design-goes-to-pipeline-architect",
+      "prompt": "Add a release-readiness stage to our pipeline so every production deploy requires these checks automatically.",
+      "expected_skill": "ci-pipeline-architect",
+      "should_not_trigger": ["release-readiness-reviewer"],
+      "reason": "Building the standing gate into the pipeline is pipeline architecture; this skill is the per-release procedure that gate invokes."
+    },
+    {
+      "id": "rollback-authoring-goes-to-runbook-author",
+      "prompt": "The gate flagged that we have no rollback plan for the deploy — write one.",
+      "expected_skill": "rollback-runbook-author",
+      "should_not_trigger": ["release-readiness-reviewer"],
+      "reason": "The gate demands the rollback artifact but never authors the evidence it demands — authoring is rollback-runbook-author."
+    },
+    {
+      "id": "migration-detail-goes-to-secure-migration-reviewer",
+      "prompt": "Is this specific migration safe — lock behavior on the backfill, deploy order, reversibility?",
+      "expected_skill": "secure-migration-reviewer",
+      "should_not_trigger": ["release-readiness-reviewer"],
+      "reason": "Deep migration deploy-safety review is secure-migration-reviewer; the gate only verifies that review exists and passed for the release."
+    },
+    {
+      "id": "delegated-review-composes-subagent",
+      "prompt": "Spin up the release-readiness reviewer agent on this PR and give me its verdict while I keep working.",
+      "expected_skill": "release-readiness-reviewer (subagent)",
+      "should_not_trigger": [],
+      "reason": "Delegated, isolated review runs go to the same-named read-only SUBAGENT in .claude/agents/, which composes this skill as its procedure — the full-codebase-auditor namespace pattern; the skill itself is what runs inline."
+    }
+  ]
+}

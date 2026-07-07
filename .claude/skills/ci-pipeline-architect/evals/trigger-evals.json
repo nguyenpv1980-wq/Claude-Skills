@@ -1,0 +1,42 @@
+{
+  "skill": "ci-pipeline-architect",
+  "description": "Trigger discrimination for the Phase 6 delivery cluster: pipeline design vs release gate vs rollback authoring, and against the shipped qa-automation-architect, supply-chain-security-reviewer, and vite-build-qa-engineer.",
+  "overlaps_with": ["release-readiness-reviewer", "rollback-runbook-author", "qa-automation-architect", "supply-chain-security-reviewer", "vite-build-qa-engineer"],
+  "cases": [
+    {
+      "id": "pipeline-design-wins-here",
+      "prompt": "Design our CI/CD: what runs on PR vs merge vs nightly, how secrets reach deploy jobs, and where production approval sits.",
+      "expected_skill": "ci-pipeline-architect",
+      "should_not_trigger": ["qa-automation-architect", "release-readiness-reviewer"],
+      "reason": "The whole delivery pipeline — stage graph, secret governance, promotion gates — is this skill; qa-automation-architect only supplies the test-tier slice it hosts."
+    },
+    {
+      "id": "test-tiers-go-to-qa-automation-architect",
+      "prompt": "Decide which test suites run on PR versus nightly, the sharding, and the retry policy for flaky specs.",
+      "expected_skill": "qa-automation-architect",
+      "should_not_trigger": ["ci-pipeline-architect"],
+      "reason": "Test-suite CI placement, sharding, and retry/flake policy are the automation blueprint's territory; the pipeline architect consumes that blueprint as one stage family."
+    },
+    {
+      "id": "action-pinning-audit-goes-to-supply-chain",
+      "prompt": "Audit our GitHub Actions for supply-chain risk — unpinned third-party actions, token permissions, compromise paths.",
+      "expected_skill": "supply-chain-security-reviewer",
+      "should_not_trigger": ["ci-pipeline-architect"],
+      "reason": "The CI compromise-path audit is supply-chain-security-reviewer casework; the pipeline architect APPLIES its pinning/isolation rules when building."
+    },
+    {
+      "id": "ship-decision-goes-to-release-readiness",
+      "prompt": "CI is green on the release branch — are we actually ready to ship this to production?",
+      "expected_skill": "release-readiness-reviewer",
+      "should_not_trigger": ["ci-pipeline-architect"],
+      "reason": "A specific release's go/no-go is the readiness gate, which consumes the checks this skill designed — not a pipeline-design question."
+    },
+    {
+      "id": "bundle-secret-proof-goes-to-vite-build-qa",
+      "prompt": "Verify our production Vite build doesn't leak any VITE_ secrets into the dist bundle before we wire it as a CI gate.",
+      "expected_skill": "vite-build-qa-engineer",
+      "should_not_trigger": ["ci-pipeline-architect"],
+      "reason": "Running the build and proving dist-level secret absence is vite-build-qa-engineer; the pipeline architect only places that proof as a stage."
+    }
+  ]
+}

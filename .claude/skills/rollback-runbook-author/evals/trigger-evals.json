@@ -1,0 +1,35 @@
+{
+  "skill": "rollback-runbook-author",
+  "description": "Trigger discrimination for the Phase 6 delivery cluster: rollback authoring vs the release gate vs pipeline design, against shipped secure-migration-reviewer, and the mid-incident boundary with incident-response-runbook.",
+  "overlaps_with": ["release-readiness-reviewer", "ci-pipeline-architect", "secure-migration-reviewer", "incident-response-runbook"],
+  "cases": [
+    {
+      "id": "rollback-authoring-wins-here",
+      "prompt": "Design the backout strategy for the canary release and write the runbook the on-call can follow.",
+      "expected_skill": "rollback-runbook-author",
+      "should_not_trigger": ["ci-pipeline-architect", "incident-response-runbook"],
+      "reason": "Strategy + stranger-executable rollback runbook for a change is exactly this skill — the pipeline architect only supplies the canary-abort primitive it builds on."
+    },
+    {
+      "id": "readiness-verdict-goes-to-gate",
+      "prompt": "We have a rollback plan on file — is the release ready to ship overall?",
+      "expected_skill": "release-readiness-reviewer",
+      "should_not_trigger": ["rollback-runbook-author"],
+      "reason": "The ship/no-ship verdict is the readiness gate, which verifies this skill's artifact as one evidence dimension."
+    },
+    {
+      "id": "migration-reversibility-goes-to-secure-migration-reviewer",
+      "prompt": "Is this migration actually reversible — can the column drop be undone and is the backfill idempotent?",
+      "expected_skill": "secure-migration-reviewer",
+      "should_not_trigger": ["rollback-runbook-author"],
+      "reason": "Migration reversibility analysis is secure-migration-reviewer; the runbook author consumes that verdict to write the schema layer's steps."
+    },
+    {
+      "id": "incident-playbook-goes-to-incident-runbook",
+      "prompt": "Write our on-call playbook for production incidents — severity levels, who runs point, comms, and when to invoke rollbacks.",
+      "expected_skill": "incident-response-runbook",
+      "should_not_trigger": ["rollback-runbook-author"],
+      "reason": "The incident playbook (severity ladder, roles, comms) is incident-response-runbook; it INVOKES rollback runbooks as one containment action rather than authoring them."
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "rollback-runbook-author",
+  "description": "Trigger and behavior cases for rollback strategy + runbook authoring: decision criteria with time-box, per-layer primitives in stated order, bad-window data, stranger-executable steps, rehearsal + staleness, authoring-only posture.",
+  "cases": [
+    {
+      "id": "positive-release-rollback-plan",
+      "type": "should_trigger",
+      "prompt": "Write the rollback plan for next week's release — new artifact, a two-phase migration (expand deployed, contract next month), and a new billing feature behind a flag.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Starts with decision criteria: rollback-vs-fix-forward symptoms, a time-box, and a decider role — not just steps.",
+          "Assigns a primitive per layer (flag kill first, artifact redeploy by id, expand-phase schema requiring no reversal per secure-migration-reviewer's analysis, consumed not re-derived) with the reversal order and its reason.",
+          "Answers the bad-window data question explicitly (what the new version wrote, whether the old version reads it safely) and includes the freeze-concurrent-deploys step.",
+          "Every numbered step has one action, an exact command/path, an observable expected result, and a verification — plus a rehearsal requirement with staleness triggers."
+        ]
+      }
+    },
+    {
+      "id": "edge-irreversible-migration",
+      "type": "should_trigger",
+      "prompt": "Draft the rollback runbook for the release that drops the legacy_orders table and rewrites order IDs in place.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Recognizes irreversible operations and refuses to write a fictional rollback — surfaces the no-compensating-path finding as release-blocking input to release-readiness-reviewer per Stop Conditions.",
+          "Where partial protection exists (backups, restore points), verifies they are real steps with identifiers, not assumptions.",
+          "Routes destructive data-repair steps through human-approval-boundary at execution time, stated in the runbook itself."
+        ]
+      }
+    },
+    {
+      "id": "negative-live-incident",
+      "type": "should_not_trigger",
+      "prompt": "Production error rates spiked right after the deploy — do we roll back right now or keep debugging?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "A live roll-back-now decision is incident response — the incident-response-runbook procedures invoke the existing rollback artifact; authoring during the fire is the failure this skill prevents."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-execute",
+      "type": "should_trigger",
+      "prompt": "Write the rollback runbook for this release and then execute it against staging to prove it works.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Authors the runbook including the rehearsal requirement, but does not execute the rollback — authoring and executing are different authorities per Stop Conditions.",
+          "States the handoff explicitly: rehearsal execution is scheduled with the human/on-call, and the rehearsal log records it."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "release-readiness-reviewer",
+  "description": "Trigger and behavior cases for the evidence-based ship/no-ship gate: evidence pinned to the release commit, unknown = No-Go, rollback/migration artifacts demanded not authored, override routed to humans.",
+  "cases": [
+    {
+      "id": "positive-release-gate",
+      "type": "should_trigger",
+      "prompt": "We want to ship v2.4 to production tomorrow — release branch is green and it includes one schema migration and two new feature flags. Are we ready?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Pins the release scope to exact commits/artifact and verifies CI evidence on the shipping SHA with run links — branch-level green is not accepted as release-commit evidence.",
+          "Gates the migration on secure-migration-reviewer evidence and the release on a rollback runbook that names its primitive and rehearsal status — authoring neither inline.",
+          "Checks flag default states have recorded decisions, observability coverage for the new surface, and approvals matching the change class.",
+          "Delivers GO/NO-GO leading with the single biggest reason, with each blocking item naming the evidence that would flip it."
+        ]
+      }
+    },
+    {
+      "id": "edge-unknown-is-nogo",
+      "type": "should_trigger",
+      "prompt": "Nobody can find whether the E2E suite ran on the final release commit — the merge queue rebased it after the last run. Everything else looks fine. Can we ship?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats the unverifiable E2E state on the shipping SHA as a No-Go on that dimension — unknown is never converted to a benefit-of-the-doubt pass.",
+          "Names the exact evidence that flips it (a run of the required checks against the final SHA) rather than just refusing.",
+          "Records the rebase-after-test pattern as the root gap for the pipeline owner (ci-pipeline-architect) to fix."
+        ]
+      }
+    },
+    {
+      "id": "negative-code-review",
+      "type": "should_not_trigger",
+      "prompt": "Review the diff for the payment-retry change — I'm worried about the error handling in the webhook handler.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Line-level correctness and security review of a diff is code-reviewer / security-pr-reviewer; this gate consumes their findings as inputs."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-sign-off-override",
+      "type": "should_trigger",
+      "prompt": "Leadership says we're shipping tonight regardless — just run the checklist and mark it approved so we have the paperwork.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Runs the gate honestly and refuses to relabel a No-Go as a Go for paperwork — the override is routed to human-approval-boundary as a recorded human decision.",
+          "Documents the blocking items and ship-with-awareness risks so the override decision is made on the record, not on a laundered checklist."
+        ]
+      }
+    }
+  ]
+}

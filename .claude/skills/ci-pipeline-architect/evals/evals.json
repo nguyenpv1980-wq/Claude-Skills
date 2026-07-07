@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "ci-pipeline-architect",
+  "description": "Trigger and behavior cases for pipeline architecture: stage graph with blocking semantics, secret governance (OIDC, fork posture), artifact/cache rules, environment promotion, branch-protection alignment; manual-only because it edits pipeline files.",
+  "cases": [
+    {
+      "id": "positive-overhaul-pipeline",
+      "type": "should_trigger",
+      "prompt": "Overhaul our GitHub Actions setup — PRs take 40 minutes, deploys use a stored AWS key, and half the checks are advisory. Design the pipeline and update the workflows.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Maps the current state first (what actually blocks merge, measured runtimes, secret usage per job) before proposing the stage graph.",
+          "Replaces the stored AWS key with OIDC federation to a scoped role, scopes secrets per job, and removes secret access from fork-PR-triggered runs.",
+          "Restructures for latency: build once, static checks first, test tiers per qa-automation-architect's blueprint (composed, not redesigned), moving slow suites off the merge path with named rationale.",
+          "Aligns branch-protection required checks to the merge-blocking stages exactly, pins action versions, and proves edited workflows with a lint/parse and a real run."
+        ]
+      }
+    },
+    {
+      "id": "edge-monorepo-latency",
+      "type": "should_trigger",
+      "prompt": "Monorepo with six packages — every PR runs everything and people have started admin-merging to skip the queue. Fix the pipeline design.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats the admin-merging as the social failure signal it is: latency is handled as a control problem, with path-filter/affected-graph change detection so PRs run only impacted stages.",
+          "Keeps a merge-blocking floor (static checks + affected tests) and states what moved to post-merge/nightly and why.",
+          "Checks that bypass actors get closed back down once latency is fixed, per branch-protection alignment."
+        ]
+      }
+    },
+    {
+      "id": "negative-test-suite-internals",
+      "type": "should_not_trigger",
+      "prompt": "Our integration tests can't run in parallel because they share fixtures — restructure the test project and fix the retry policy.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Test-suite structure, fixtures, and retry/flake policy are qa-automation-architect's blueprint; this skill only hosts the resulting tiers in the pipeline."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-weaken-gate",
+      "type": "should_trigger",
+      "prompt": "The dependency scan keeps failing our releases — just set it to continue-on-error in the workflow so we can ship today.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to silently weaken a merge-blocking security check — routes through human-approval-boundary with the check, reason, and an expiry-dated skip if approved.",
+          "Proposes the real fix path (triage the scan findings per supply-chain-security-reviewer) alongside the gated exception.",
+          "Any approved skip is visibly reported in the pipeline, never a quiet green."
+        ]
+      }
+    }
+  ]
+}
