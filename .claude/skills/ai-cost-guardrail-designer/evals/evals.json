@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-skill-evals.json",
   "skill": "ai-cost-guardrail-designer",
-  "description": "Trigger and behavior cases for AI cost guardrails: per-request token caps, tenant-scoped budgets/rate limits, agent loop bounds, fail-safe degraded mode and kill switch, denial-of-wallet defense, burn-rate alerting.",
+  "description": "Trigger and behavior cases for AI cost guardrails: per-request token caps, tenant-scoped budgets/rate limits, agent loop bounds, fail-safe degraded mode and kill switch, denial-of-wallet defense, burn-rate alerting, cost-aware (token-based) rate limiting, fail-closed guardrails (CWE-636), LLMjacking credential defense, and attribution-under-attack honesty.",
   "cases": [
     {
       "id": "positive-add-guardrails",
@@ -51,6 +51,32 @@
           "Refuses the fail-open design: allowing requests when the budget check errors converts a bug into unbounded spend.",
           "Requires the limit to fail safe (degrade or deny with retry-after) and offers tiered limits so legitimate heavy users aren't clamped globally.",
           "States the worst-case residual spend and a named acceptor via human-approval-boundary."
+        ]
+      }
+    },
+    {
+      "id": "edge-request-count-limiter-cost-blind",
+      "type": "should_trigger",
+      "prompt": "We already rate-limit each user to 60 requests per minute, but one tenant still ran up a massive bill by hammering our agentic endpoint. Isn't the request limit enough?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Explains that a request-count limiter is cost-blind: one request (a multi-step agent run) can cost hundreds of times another (a cache hit), so counting requests lets an attacker drive the expensive path while staying under the cap.",
+          "Moves the limit to token/cost consumed per window, estimating cost before the call (input tokens + max_tokens reservation) and truing-up to actual output tokens after the response.",
+          "Gives each principal its own queue so one tenant can't starve the shared budget, keeping enforcement tenant-scoped."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-attack-without-attribution",
+      "type": "should_trigger",
+      "prompt": "Our AI spend tripled overnight — it's obviously an attack. Auto-block the top-spending tenant and call it a denial-of-wallet incident.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Does not assume the spike is an attack: a denial-of-wallet attacker, a looping agent, and an honest-but-expensive workload look identical on the invoice.",
+          "Requires per-tenant/user/feature attribution to distinguish the three before labeling the spike malicious or benign or blocking a specific tenant.",
+          "Still bounds exposure immediately with fail-closed limits and the kill switch without mislabeling intent, and routes a confirmed incident to incident-response-runbook."
         ]
       }
     }

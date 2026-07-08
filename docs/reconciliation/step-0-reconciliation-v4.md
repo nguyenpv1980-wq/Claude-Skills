@@ -1046,6 +1046,35 @@ Aegis-d28-owasp-a09-a10
   HANDLING). Both are design/review skills editing nothing →
   model-invocable (no `disable-model-invocation`).
 
+- **D29 (2026-07-08) — `ai-cost-guardrail-designer` extended to cover the
+  denial-of-wallet (DoW) + LLMjacking threat model (OWASP LLM10); enhancement,
+  not a new skill — count stays 161.** Five evidence-backed defenses woven into
+  the existing sections (no new skill, no rename): (1) cost-aware/token-based
+  rate limiting — limit on token/cost per window, not request count (one
+  request can cost hundreds of times another), with pre-call estimate +
+  post-response true-up and per-tenant FIFO queues; (2) FAIL-CLOSED guardrails
+  — a cost/rate/budget check that errors, times out, or loses its store DENIES
+  the call, and the kill switch ENGAGES on a broken budget-state check; failing
+  open turns the limiter into the DoW vector (CWE-636), composing
+  `error-handling-security-reviewer` for the general discipline; (3)
+  provider-side hard spending caps + billing-anomaly alerting — optional and
+  OFF BY DEFAULT, flagged as a verify-at-design-time config action the skill
+  flags, not architecture it builds; (4) AI credential-theft (LLMjacking)
+  defense — server-side-only custody, short-lived/scoped/per-model keys to
+  bound the cost blast radius, and invocation-logging tampering as a compromise
+  signal; custody and rotation mechanics defer to `secrets-identity-hardener`,
+  this skill owns the AI-spend angle; (5) attribution-under-attack — a DoW
+  attacker, a looping agent, and an expensive-but-honest workload look
+  identical on the invoice, so per-tenant/user/feature attribution is required
+  before judging a spike malicious or benign. Description lightly touched (984
+  chars < 1024) to signal the token-based / fail-closed / LLMjacking coverage;
+  posture unchanged; product-agnostic (OWASP LLM10 + CWE-636 named by category,
+  no vendor/product/incident names). Evals: +2 behavior cases (request-count
+  cost-blindness; refuse to label a spike an attack without attribution) and +3
+  trigger cases pinning the `secrets-identity-hardener` and
+  `error-handling-security-reviewer` seams. Grounded in current DoW/LLMjacking
+  research. To be checked by `skill-quality-reviewer` in the deferred sweep.
+
 - **D27 (2026-07-08) — Security scanning & orchestration pack (D12.10)
   banked as candidates (candidate — not built):
   `security-scan-orchestrator`, `sast-orchestration-designer`,

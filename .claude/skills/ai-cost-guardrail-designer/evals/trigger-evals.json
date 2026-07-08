@@ -1,7 +1,7 @@
 {
   "skill": "ai-cost-guardrail-designer",
-  "description": "Trigger discrimination for the Phase 7 AI-platform-ops cluster: AI consumption guardrails vs whole-product cost modeling vs plan gating vs alert implementation vs router logic, and against the shipped saas-cost-architect and observability-operator.",
-  "overlaps_with": ["saas-cost-architect", "plan-entitlement-architect", "observability-operator", "ai-router-architect"],
+  "description": "Trigger discrimination for the Phase 7 AI-platform-ops cluster: AI consumption guardrails vs whole-product cost modeling vs plan gating vs alert implementation vs router logic, and against the shipped saas-cost-architect and observability-operator, plus the D29 compose seams — key custody (secrets-identity-hardener) and error-path fail-closed review (error-handling-security-reviewer).",
+  "overlaps_with": ["saas-cost-architect", "plan-entitlement-architect", "observability-operator", "ai-router-architect", "secrets-identity-hardener", "error-handling-security-reviewer"],
   "cases": [
     {
       "id": "ai-guardrails-win-here",
@@ -37,6 +37,27 @@
       "expected_skill": "ai-router-architect",
       "should_not_trigger": ["ai-cost-guardrail-designer"],
       "reason": "Routing/fallback provider logic is ai-router-architect; this skill sets the budget and model-tier intent the router enforces, not the routing implementation."
+    },
+    {
+      "id": "key-custody-goes-to-secrets-identity-hardener",
+      "prompt": "Our LLM provider API key got committed to a public repo. Rotate it, move it out of the client bundle into a secret store, and lock down where it's read from.",
+      "expected_skill": "secrets-identity-hardener",
+      "should_not_trigger": ["ai-cost-guardrail-designer"],
+      "reason": "Key custody, rotation, storage, and client-bundle exposure are secrets-identity-hardener; ai-cost-guardrail-designer composes it and owns only the AI-spend blast radius and per-model invocation restriction of a leaked key, not the custody mechanics."
+    },
+    {
+      "id": "error-path-failclosed-review-goes-to-error-handling-reviewer",
+      "prompt": "Review our catch blocks and fallbacks across the service for any place a failed check defaults to allow instead of deny.",
+      "expected_skill": "error-handling-security-reviewer",
+      "should_not_trigger": ["ai-cost-guardrail-designer"],
+      "reason": "A general error-path fail-closed review across the codebase is error-handling-security-reviewer (OWASP A10); ai-cost-guardrail-designer sets the fail-closed requirement for AI-spend checks specifically but does not review arbitrary error paths."
+    },
+    {
+      "id": "ai-spend-blast-radius-stays-here",
+      "prompt": "If one of our model API keys leaks, how do we make sure it can't be used to run up a huge inference bill on the most expensive model?",
+      "expected_skill": "ai-cost-guardrail-designer",
+      "should_not_trigger": ["saas-cost-architect"],
+      "reason": "Bounding the COST blast radius of a leaked AI key — per-model/least-privilege invocation restriction plus provider-side spend caps — is this skill's AI-spend angle; it composes secrets-identity-hardener for custody/rotation but owns the spend containment, not saas-cost-architect's unit economics."
     }
   ]
 }
