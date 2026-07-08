@@ -1,0 +1,43 @@
+{
+  "skill": "product-analytics-instrumenter",
+  "description": "THREE-WAY trigger discrimination for 'instrumentation': USER-facing PRODUCT analytics (this skill) vs SYSTEM telemetry for engineers (observability-operator) vs the SKILL-LIBRARY usage signal (skill-usage-instrumenter); plus the schema-vs-firing seam with event-schema-architect.",
+  "overlaps_with": [
+    "observability-operator",
+    "skill-usage-instrumenter",
+    "event-schema-architect"
+  ],
+  "cases": [
+    {
+      "id": "product-analytics-instrumentation-wins-here",
+      "prompt": "Instrument our product analytics events: decide client vs server capture, set identity at capture, gate on consent, prevent double-counting, and QA that events fire per the tracking plan.",
+      "expected_skill": "product-analytics-instrumenter",
+      "should_not_trigger": ["observability-operator", "skill-usage-instrumenter"],
+      "note": "SEAM CASE (primary, three-way) — capturing user-behavior events with consent, de-dup, and tracking QA is product-analytics instrumentation. Not engineer telemetry, not library usage.",
+      "reason": "Firing and QAing user-behavior analytics events is this skill's core scope, distinct from system telemetry and from skill-usage measurement."
+    },
+    {
+      "id": "system-telemetry-goes-to-observability-operator",
+      "prompt": "Instrument our services with structured logs, metrics, and traces; wire health checks; and set up alerts and dashboards for on-call engineers.",
+      "expected_skill": "observability-operator",
+      "should_not_trigger": ["product-analytics-instrumenter", "skill-usage-instrumenter"],
+      "note": "SEAM CASE (three-way) — logs/metrics/traces, health checks, and alert/dashboard config are engineer-facing SYSTEM telemetry for operating the stack.",
+      "reason": "observability-operator operates the observability stack for engineers. This skill instruments USER behavior for product/growth decisions."
+    },
+    {
+      "id": "skill-usage-goes-to-skill-usage-instrumenter",
+      "prompt": "We want to know which skills in our skills library actually fire in practice, and which never do, without capturing prompt content.",
+      "expected_skill": "skill-usage-instrumenter",
+      "should_not_trigger": ["product-analytics-instrumenter", "observability-operator"],
+      "note": "SEAM CASE (three-way) — measuring which library SKILLS fire, under strict minimization (skill names/enums only), is the library's self-measurement.",
+      "reason": "skill-usage-instrumenter designs the skill-library usage-evidence layer. This skill instruments end-user product behavior, a different object and privacy stance."
+    },
+    {
+      "id": "schema-goes-to-event-schema-architect",
+      "prompt": "Define the analytics events themselves: names, property schemas, the identity model, and the tracking plan.",
+      "expected_skill": "event-schema-architect",
+      "should_not_trigger": ["product-analytics-instrumenter"],
+      "note": "SEAM CASE (within pack) — defining events/properties/identity is the schema, upstream of firing them.",
+      "reason": "event-schema-architect defines what events exist. This skill decides where/how they fire; it instruments against that schema."
+    }
+  ]
+}

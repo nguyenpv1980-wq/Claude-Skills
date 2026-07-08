@@ -1,0 +1,43 @@
+{
+  "skill": "funnel-definition-designer",
+  "description": "Trigger discrimination for DEFINING a funnel/conversion metric (this skill) vs designing the EVENT SCHEMA it consumes (event-schema-architect), vs INSTRUMENTING where events fire (product-analytics-instrumenter), vs a causal EXPERIMENT (ab-test-designer).",
+  "overlaps_with": [
+    "event-schema-architect",
+    "product-analytics-instrumenter",
+    "ab-test-designer"
+  ],
+  "cases": [
+    {
+      "id": "funnel-definition-wins-here",
+      "prompt": "Define our checkout conversion funnel: the steps, whether we count users or sessions, the denominator, and the conversion window.",
+      "expected_skill": "funnel-definition-designer",
+      "should_not_trigger": ["event-schema-architect", "product-analytics-instrumenter"],
+      "note": "SEAM CASE (primary) — steps, counting model, denominator, and window are a funnel definition. No event schema is being designed and no firing/instrumentation is asked.",
+      "reason": "Rigorously defining a conversion/retention metric over existing events is this skill's core scope."
+    },
+    {
+      "id": "event-schema-goes-to-event-schema-architect",
+      "prompt": "Our analytics events are inconsistently named and there's no tracking plan. Define the event taxonomy, properties, and identity model.",
+      "expected_skill": "event-schema-architect",
+      "should_not_trigger": ["funnel-definition-designer"],
+      "note": "SEAM CASE (within pack) — event names, property schemas, and identity are the schema, upstream of any funnel.",
+      "reason": "event-schema-architect defines the events. A funnel consumes them; it can't be trusted on an undefined schema."
+    },
+    {
+      "id": "instrumentation-goes-to-product-analytics-instrumenter",
+      "prompt": "Decide where in the app each funnel event fires, client vs server, and how we QA that they fire with the right properties.",
+      "expected_skill": "product-analytics-instrumenter",
+      "should_not_trigger": ["funnel-definition-designer"],
+      "note": "SEAM CASE (within pack) — firing points, client-vs-server, and tracking QA are instrumentation. Defining the funnel over those events is separate.",
+      "reason": "product-analytics-instrumenter owns where/how events fire. This skill defines the metric computed from them."
+    },
+    {
+      "id": "causal-test-goes-to-ab-test-designer",
+      "prompt": "We changed the checkout page. Design an experiment to prove whether the change actually improved conversion.",
+      "expected_skill": "ab-test-designer",
+      "should_not_trigger": ["funnel-definition-designer"],
+      "note": "SEAM CASE (within pack) — proving a change CAUSED a conversion difference needs a controlled experiment. A funnel measures state; it can't establish causation.",
+      "reason": "ab-test-designer establishes causal effect via randomized assignment. This skill defines and measures the funnel; it explicitly refuses causal claims."
+    }
+  ]
+}

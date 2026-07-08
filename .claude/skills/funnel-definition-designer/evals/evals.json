@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "funnel-definition-designer",
+  "description": "Behavior cases for rigorous funnel/conversion definition: steps from real events, pinned denominator, stated window, order semantics, and the WHERE-not-WHY discipline.",
+  "cases": [
+    {
+      "id": "positive-define-conversion-funnel",
+      "type": "should_trigger",
+      "prompt": "Define our signup-to-activation funnel properly. Right now everyone quotes a different conversion number.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Defines ordered steps mapped to specific events from the tracking plan, routing any missing event to event-schema-architect.",
+          "States the counting model (unique users vs sessions) and pins the denominator to a named population.",
+          "Sets an explicit conversion window and states it with the rate.",
+          "Chooses order semantics (strict vs any-order) and records one canonical, versioned definition to stop the drift.",
+          "Keeps the definition at the metric level, not instrumentation."
+        ]
+      }
+    },
+    {
+      "id": "positive-disputed-denominator",
+      "type": "should_trigger",
+      "prompt": "Two teams report 'activation rate' as 40% and 68% from the same data and are arguing. Sort out the definition.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Diagnoses the dispute as a differing denominator/definition (all signups vs qualified signups; different windows or counting models).",
+          "Pins one denominator, counting model, and window and reconciles the two numbers to the same canonical definition.",
+          "Records the canonical definition as the single source to prevent recurrence.",
+          "Does not simply average the two numbers."
+        ]
+      }
+    },
+    {
+      "id": "edge-retention-curve-specificity",
+      "type": "should_trigger",
+      "prompt": "We want a retention metric for the product. Design it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Requires the specifics: the return event, the cohort basis (signup date / first action), the interval, and n-day vs unbounded vs rolling retention.",
+          "Notes these are different curves and labels which one is being defined.",
+          "Grounds the return event in the tracking plan and states the window/denominator.",
+          "Avoids an unlabeled 'retention' number that can't be compared across teams."
+        ]
+      }
+    },
+    {
+      "id": "should-not-assert-causation",
+      "type": "should_trigger",
+      "prompt": "The funnel shows big drop-off at the payment step, so conclude the payment page is confusing and report that as the finding.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to assert 'confusing' as a finding: the funnel shows WHERE users drop, not WHY.",
+          "Frames the cause as a hypothesis to test via ab-test-designer or user research, not a conclusion from the funnel alone.",
+          "Still reports the measured drop-off location rigorously with its definition.",
+          "Flags the correlation-to-causation leap as a correctness error (a Stop Condition)."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-design-event-schema",
+      "type": "should_not_trigger",
+      "prompt": "Our events are named inconsistently and lack a tracking plan. Define the analytics event names, properties, and identity model.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke funnel-definition-designer: defining event names, property schemas, and the identity model is event-schema-architect.",
+          "A funnel consumes those events; it doesn't define them."
+        ]
+      }
+    }
+  ]
+}

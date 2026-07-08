@@ -28,7 +28,12 @@ checks that every *implemented* skill is listed here and in `README.md`.
 > data/performance/QA-validation batch (D23: the 7-skill D12.1 data
 > engineering pack, the 6-skill D12.3 performance engineering pack, and the
 > 2 D10 Tier 1 performance/load validation skills — D12.3 designs FOR
-> performance, D10 measures it).
+> performance, D10 measures it), and the product/PM/growth batch (D24: the
+> 5-skill D12.2 product-engineering craft pack, the 6-skill D12.5
+> PM/product-engineering interface pack, and the 4-skill D12.6
+> growth/analytics engineering pack — `product-spec-writer`≠`adr-writer`,
+> `sunset-deprecation-communicator`≠`skill-deprecation-planner`, and the two
+> three-way event/analytics seams pinned in trigger-evals).
 > `_template` remains a reference template ignored by the validator.
 > Everything under "Backlog" is planned, not built.
 
@@ -627,6 +632,68 @@ against production or live third parties without explicit human approval.
 | --- | --- | --- | --- |
 | `performance-test-harness` | reconciliation §3 Phase 5 Tier 1 (#205) | yes | The measurement instrument: per-surface measured set, environment contract stamped on every result (volume, tenant shape, pinned hardware, declared cache state), baselines + variance-derived noise bands (single-run diffs banned), thresholds CONSUMED from budget/SLO owners, CI tiers with advisory→blocking promotion, UNRUN as a first-class status. |
 | `load-test-planner` | reconciliation §3 Phase 5 Tier 1 (#206) | yes | The traffic plan: workload model from production evidence (write share explicit, open-vs-closed arrival model chosen), whale + long-tail tenant mix with the NOISY-NEIGHBOR scenario judged per-tenant, volumes with skew, load/stress/soak/spike by question, ramps with abort criteria, pass/fail citing owner-set numbers. |
+
+### Skills (D12.2 — product engineering craft pack)
+
+The 5-skill product-engineering craft pack (reconciliation §3 D12.2 table,
+built by D24, 2026-07-07): the API/UX craft INSIDE the contract that
+`api-event-architect` owns — the craft details (pagination cursors, error
+taxonomies, empty/loading/error states, notification/webhook UX, mobile
+viewport), never the contract itself. The `api-event-architect` seam is
+pinned in every skill's trigger-evals; `error-taxonomy-designer` (the error
+MODEL) and `edge-state-ux-designer` (rendering the error STATE) are pinned
+against each other both ways. All 5 ship `evals/evals.json` **and**
+`evals/trigger-evals.json`; all are design skills that edit nothing →
+**model-invocable**.
+
+| Skill | Source (D12.2 / D24) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `pagination-cursor-designer` | reconciliation §3 D12.2 | yes | The pagination MECHANISM inside a contract: cursor (keyset) vs offset with drift/deep-page costs stated, opaque versioned cursor (sort key + tiebreaker), strict total ordering, page-size bounds, honest end signaling, the tenant/permission predicate bound server-side (a cross-tenant paging boundary), surface pattern chosen. Contract/routes/rate-limits stay with `api-event-architect`. |
+| `error-taxonomy-designer` | reconciliation §3 D12.2 | yes | The error MODEL: a finite taxonomy with stable machine codes, one envelope (code/message/details/correlation-id/retryable), an honest client-vs-server-vs-retryable split, actionable messages, ONE exception→taxonomy boundary, and a disclosure rule keeping stack traces/internals/PII out. Rendering the error state is `edge-state-ux-designer`. |
+| `edge-state-ux-designer` | reconciliation §3 D12.2 | yes | The per-view non-happy-path state matrix: the three distinct empties (first-run/filtered/error), honest loading (skeleton vs spinner, delay threshold, optimistic rollback), error placement by blast radius, partial failure, refetch/offline, forbidden-not-empty. Renders `error-taxonomy-designer`'s codes; a11y verification is `accessibility-test-harness`. |
+| `notification-webhook-ux-designer` | reconciliation §3 D12.2 | yes | The human-facing UX of notifications (channels, per-category preferences, digest/dedup noise control, read-state, opt-out that works) and developer webhooks (delivery log, test-send, replay, secret rotation with an overlap window). The delivery CONTRACT (envelope/signing/retry/versioning/subscriptions) stays with `api-event-architect`. |
+| `mobile-viewport-craft` | reconciliation §3 D12.2 | yes | Mobile/responsive viewport correctness: content-driven breakpoints, touch-target sizing, safe-area/notch, the 100vh→dvh/svh/lvh fix, input/keyboard behavior, hover-absence and gestures, wide-table reflow. Page WEIGHT/network cost stays with `frontend-perf-engineer`; a11y verification with `accessibility-test-harness`. |
+
+### Skills (D12.5 — PM / product-engineering interface pack)
+
+The 6-skill PM/product-engineering interface pack (reconciliation §3 D12.5
+table, built by D24, 2026-07-07): the engineering/PM boundary. Two hard
+seams are pinned both ways in trigger-evals — `product-spec-writer` ≠
+`adr-writer` (a product spec is a user-facing feature spec, not an
+architecture decision record) and `sunset-deprecation-communicator` ≠
+`skill-deprecation-planner` (sunsetting a product FEATURE for external
+users vs retiring a library SKILL). `feature-flag-rollout-strategist` is
+pinned ≠ `plan-entitlement-architect`/`authorization-matrix-designer`
+(rollout vs entitlement/permission). All 6 ship both eval files; all are
+facilitation/design skills that edit nothing → **model-invocable**.
+
+| Skill | Source (D12.5 / D24) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `requirements-gathering-facilitator` | reconciliation §3 D12.5 | yes | Elicits requirements BEFORE a spec: separates the problem from stakeholders' solutions, draws out users/jobs and the current workaround, surfaces the implicit (assumptions, non-goals, constraints), reconciles conflict to a decider; produces a confidence-marked brief that feeds `product-spec-writer`. Facilitates; does not decide. |
+| `product-spec-writer` | reconciliation §3 D12.5 | yes | The PRODUCT spec: problem/job, goals and explicit non-goals, scenarios, functional requirements with TESTABLE acceptance criteria, edge/error behavior, rollout intent + success metrics, open questions. Pinned ≠ `adr-writer` (a product spec is not an architecture decision record); routes technical decisions there. |
+| `roadmap-under-uncertainty-planner` | reconciliation §3 D12.5 | yes | Horizon-based roadmap (now/next/later) over a false-precision dated Gantt: confidence decaying with distance, learning-first sequencing (retire uncertainty), outcomes over feature lists, capacity slack, a re-plan cadence. Consumes a ranking from `prioritization-frame-picker`; owns sequencing over TIME. |
+| `prioritization-frame-picker` | reconciliation §3 D12.5 | yes | Picks the RIGHT prioritization frame (RICE/WSJF/value-effort/Kano/MoSCoW) instead of defaulting, marks input reliability, refuses false rigor (buckets + a sensitivity check), and pulls must-dos out of the value formula. Ranks; sequencing over time is `roadmap-under-uncertainty-planner`'s. |
+| `feature-flag-rollout-strategist` | reconciliation §3 D12.5 | yes | The ROLLOUT strategy: flag classified by purpose, progressive stages with advance/rollback criteria, sticky targeting, guardrails + a tested kill switch, a fail-safe default, flag-debt removal. Pinned ≠ `plan-entitlement-architect`/`authorization-matrix-designer` (entitlement/permission) and ≠ `ab-test-designer` (experiment). |
+| `sunset-deprecation-communicator` | reconciliation §3 D12.5 | yes | Sunsetting a PRODUCT feature/API to users: rationale, impact, migration path, a firm timeline, an escalating multi-channel comms plan, grandfathering, and a tombstone (not a silent 404). Pinned ≠ `skill-deprecation-planner` (retiring a library SKILL) and ≠ `api-event-architect` (standing deprecation policy). |
+
+### Skills (D12.6 — growth / analytics engineering pack)
+
+The 4-skill growth/analytics engineering pack (reconciliation §3 D12.6
+table, built by D24, 2026-07-07): user-facing product analytics, distinct
+from system-facing telemetry. Two THREE-way seams are pinned in
+trigger-evals — `event-schema-architect` ≠ `api-event-architect`
+(external contract) ≠ `streaming-event-architect` (internal pipeline);
+and `product-analytics-instrumenter` ≠ `observability-operator` (system
+telemetry) ≠ `skill-usage-instrumenter` (library usage signal).
+`ab-test-designer` covers BOTH experiment design and result reading. All 4
+ship both eval files; all edit nothing → **model-invocable**.
+
+| Skill | Source (D12.6 / D24) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `event-schema-architect` | reconciliation §3 D12.6 | yes | The ANALYTICS event schema/tracking plan: naming taxonomy, typed properties, global properties, identity stitching (anonymous→identified), a registry as source of truth, additive versioning, PII minimization. THREE-way seam pinned ≠ `api-event-architect` (external contract) ≠ `streaming-event-architect` (internal pipeline). |
+| `funnel-definition-designer` | reconciliation §3 D12.6 | yes | Rigorous funnel/conversion/retention definition: steps from real events, a counting model with a pinned denominator, a stated window, order semantics, attribution, and WHERE-not-WHY discipline (causes need an experiment). Consumes `event-schema-architect`; ≠ `ab-test-designer` (causal test). |
+| `ab-test-designer` | reconciliation §3 D12.6 | yes | Designs AND reads experiments: falsifiable hypothesis, one primary metric + guardrails, power/sample-size from a practical MDE, a fixed horizon (no peeking), sticky assignment; readout with CIs, multiple-comparison/SRM/Simpson's/novelty checks, ship/kill/iterate with residual uncertainty. Pinned ≠ `feature-flag-rollout-strategist` (safety rollout). |
+| `product-analytics-instrumenter` | reconciliation §3 D12.6 | yes | The product-analytics INSTRUMENTATION: client-vs-server capture, identity at capture, consent-gating + PII minimization at the source, capture reliability, de-dup, tracking QA. THREE-way seam pinned ≠ `observability-operator` (system telemetry) ≠ `skill-usage-instrumenter` (library usage). |
 
 ---
 

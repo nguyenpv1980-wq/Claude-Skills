@@ -1,0 +1,42 @@
+{
+  "skill": "ab-test-designer",
+  "description": "Trigger discrimination for a causal EXPERIMENT (this skill: design + readout) vs a safety ROLLOUT (feature-flag-rollout-strategist), vs DEFINING the metric measured (funnel-definition-designer), vs INSTRUMENTING the events (product-analytics-instrumenter).",
+  "overlaps_with": [
+    "feature-flag-rollout-strategist",
+    "funnel-definition-designer",
+    "product-analytics-instrumenter"
+  ],
+  "cases": [
+    {
+      "id": "experiment-wins-here",
+      "prompt": "Design and later read an A/B test to prove whether the new onboarding causes higher activation — hypothesis, one primary metric, sample size, duration, and how we'll judge significance.",
+      "expected_skill": "ab-test-designer",
+      "should_not_trigger": ["feature-flag-rollout-strategist", "funnel-definition-designer"],
+      "note": "SEAM CASE (primary) — hypothesis, one primary metric, power/sample size, and significance readout are experiment design + analysis. No safety ramp and no metric definition is asked.",
+      "reason": "Establishing a causal effect via randomized assignment and reading it honestly is this skill's core scope."
+    },
+    {
+      "id": "safety-rollout-goes-to-feature-flag-rollout-strategist",
+      "prompt": "Ship this risky change gradually behind a flag: internal → 5% → 25% → GA, guardrail metrics that auto-roll-back, and a kill switch.",
+      "expected_skill": "feature-flag-rollout-strategist",
+      "should_not_trigger": ["ab-test-designer"],
+      "note": "SEAM CASE (cross-pack, reverse) — staged %s, auto-rollback, and a kill switch are a safety rollout, not a hypothesis test. They may share a flag but are different jobs.",
+      "reason": "feature-flag-rollout-strategist de-risks a change. This skill measures whether a change causes an effect; it doesn't ramp for safety."
+    },
+    {
+      "id": "metric-definition-goes-to-funnel-definition-designer",
+      "prompt": "Before we test anything, we need to pin down what 'activation' even means as a metric — the steps, denominator, and window.",
+      "expected_skill": "funnel-definition-designer",
+      "should_not_trigger": ["ab-test-designer"],
+      "note": "SEAM CASE (within pack) — defining the funnel/metric (steps, denominator, window) is upstream of testing a change against it.",
+      "reason": "funnel-definition-designer defines the metric. The experiment consumes that definition; a test on a fuzzy metric yields a fuzzy verdict."
+    },
+    {
+      "id": "instrumentation-goes-to-product-analytics-instrumenter",
+      "prompt": "Make sure the events the experiment relies on actually fire correctly in both variants — where they fire, client vs server, and how we QA them.",
+      "expected_skill": "product-analytics-instrumenter",
+      "should_not_trigger": ["ab-test-designer"],
+      "reason": "product-analytics-instrumenter owns where/how events fire and tracking QA. This skill designs and analyzes the experiment over correctly-fired events."
+    }
+  ]
+}

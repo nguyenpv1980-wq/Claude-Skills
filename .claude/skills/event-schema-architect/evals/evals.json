@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "event-schema-architect",
+  "description": "Behavior cases for the analytics tracking plan: question-driven event derivation, one naming taxonomy, typed property schemas, identity stitching, a registry as source of truth, and PII minimization.",
+  "cases": [
+    {
+      "id": "positive-standardize-tracking-plan",
+      "type": "should_trigger",
+      "prompt": "Our analytics events are a mess — three names for signup, properties spelled differently everywhere, and nobody trusts the numbers. Design a proper tracking plan.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Derives the needed events from the funnels/metrics/experiments the business must answer, not by logging everything.",
+          "Defines one naming taxonomy (object-action, consistent case/tense, controlled vocabulary) from which any new event's name is derivable.",
+          "Specifies typed property schemas per event with required/optional and enums for categoricals, plus a standardized global-property set.",
+          "Establishes a tracking plan/registry as the single source of truth that instrumentation and QA check against.",
+          "Sets additive versioning with a deprecation path and treats a property meaning-change as breaking."
+        ]
+      }
+    },
+    {
+      "id": "positive-identity-stitching",
+      "type": "should_trigger",
+      "prompt": "Our signup funnel undercounts because anonymous pre-login events never connect to the identified user. Fix the analytics identity model.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs anonymous-to-identified stitching (identify/alias) so top-of-funnel anonymous events join to the identified conversion.",
+          "Specifies the keys events carry (user/account/tenant) and their stability, guaranteeing tenant context for multi-tenant analytics.",
+          "Explains that broken identity is why the funnel undercounts and that stitching must exist before the funnel is trusted.",
+          "Keeps the fix at the schema/plan level and hands funnel definition to funnel-definition-designer."
+        ]
+      }
+    },
+    {
+      "id": "edge-cross-platform-consistency",
+      "type": "should_trigger",
+      "prompt": "Web, iOS, and our backend all emit the 'purchase' event differently with different property names. Standardize the schema across platforms.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Defines one canonical event and property schema all platforms conform to, resolving the divergent names.",
+          "Standardizes global properties (platform/device, timestamp, ids) so cross-platform events join.",
+          "Notes that server-vs-client emission is an instrumentation concern for product-analytics-instrumenter, while the schema is defined here.",
+          "Puts the canonical definitions in the registry as the source of truth."
+        ]
+      }
+    },
+    {
+      "id": "should-not-log-everything-with-pii",
+      "type": "should_trigger",
+      "prompt": "Let's just capture every user action with the full user object — name, email, address — on every analytics event so we never lack data.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses 'log everything with full PII': it is a privacy liability and an analysis swamp, not thoroughness.",
+          "Scopes events to the questions analytics must answer and minimizes PII at the schema, preferring ids and coarse enums over raw personal fields.",
+          "Flags any sensitive property and defers its handling/retention to pii-lifecycle-designer, and consent to a human (a Stop Condition).",
+          "Keeps the schema small, defensible, and derived from metrics."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-external-webhook-contract",
+      "type": "should_not_trigger",
+      "prompt": "Design the public webhook contract for partners: a versioned signed envelope, tenant-scoped subscriptions, and at-least-once retry.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke event-schema-architect: signed versioned envelopes, subscriptions, and delivery retry for external integrators are the api-event-architect contract.",
+          "This skill designs behavioral analytics events for measurement, not a contract offered to outside consumers."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "ab-test-designer",
+  "description": "Behavior cases for experiment design and analysis: one primary metric, power/sample-size from a practical MDE, fixed horizon and no peeking, and honest reads (practical vs statistical significance, underpowered nulls, validity checks).",
+  "cases": [
+    {
+      "id": "positive-design-powered-experiment",
+      "type": "should_trigger",
+      "prompt": "We want to A/B test a new pricing page. Design the experiment.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Writes a falsifiable, directional hypothesis tied to a decision, and picks ONE primary metric plus guardrails (e.g. revenue, refund rate).",
+          "Chooses the randomization unit for independence, sticky assignment, and notes contamination risk.",
+          "Computes required sample size from a practically-meaningful minimum detectable effect and baseline/variance, and derives duration over full weekly cycles.",
+          "Fixes the horizon up front and forbids peeking-to-significance (or specifies a sequential method with its correction).",
+          "Grounds the primary metric in funnel-definition-designer / event-schema-architect definitions."
+        ]
+      }
+    },
+    {
+      "id": "positive-read-results-honestly",
+      "type": "should_trigger",
+      "prompt": "Our test finished. Variant B is +0.4% on the primary metric with p=0.03. Should we ship it? Read the results.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Reports the effect with a confidence interval, not just the p-value, and contrasts statistical vs practical significance against the pre-set MDE.",
+          "Runs validity checks: sample-ratio mismatch, whether the horizon was respected, and guardrail status.",
+          "Flags a statistically-significant-but-tiny lift as possibly not practically meaningful, and asks whether +0.4% clears the bar set for a reason.",
+          "Gives a ship/kill/iterate recommendation with residual uncertainty stated rather than a bare 'it won'."
+        ]
+      }
+    },
+    {
+      "id": "edge-underpowered-test",
+      "type": "should_trigger",
+      "prompt": "We get about 200 conversions a week and want to detect a 1% relative lift in a couple of weeks. Set up the test.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Computes that the traffic cannot power a 1% MDE in the requested window and states the test would be badly underpowered.",
+          "Explains that a non-significant result would then be uninformative (can't distinguish null from missed effect).",
+          "Offers alternatives: target a larger effect, run much longer, or reconsider whether an experiment is the right tool (a Stop Condition).",
+          "Does not proceed to run an underpowered test as if it could answer the question."
+        ]
+      }
+    },
+    {
+      "id": "should-not-peek-and-stop-early",
+      "type": "should_trigger",
+      "prompt": "It's day 3 of a planned 2-week test and variant B just crossed p<0.05. Let's call it a win and ship now. Also slice by device to find where it wins best.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to stop early on an interim significant result: continuous peeking inflates the false-positive rate far above 5%.",
+          "Declines the post-hoc device slicing as p-hacking (multiple comparisons / segment fishing) that generates hypotheses, not findings.",
+          "Holds the decision to the fixed horizon and pre-registered primary metric (a Stop Condition).",
+          "Explains the correct path: wait for the horizon, or use a sequential method declared in advance with its correction."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-safety-rollout",
+      "type": "should_not_trigger",
+      "prompt": "Roll this change out safely behind a flag: internal, then 5%, then 25%, with guardrail metrics that auto-roll-back and a kill switch.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke ab-test-designer: staged percentages, guardrail auto-rollback, and a kill switch are a safety rollout owned by feature-flag-rollout-strategist.",
+          "An experiment tests a hypothesis; this request is de-risking a change, not measuring a causal effect."
+        ]
+      }
+    }
+  ]
+}

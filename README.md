@@ -69,7 +69,18 @@ the 2-skill **D10 Tier 1 performance/load validation pair**
 (`performance-test-harness` + `load-test-planner`) — closing the QA
 roadmap's headline gap, with the seam pinned both ways: D12.3 designs FOR
 performance, D10 measures it — see
-[Skills (shipped)](#skills-shipped) below.
+[Skills (shipped)](#skills-shipped) below. The **product/PM/growth batch**
+(D24) ships three more packs: the 5-skill **D12.2 product-engineering
+craft pack** (pagination cursors, error taxonomies, edge-state UX,
+notification/webhook UX, mobile viewport craft), the 6-skill **D12.5
+PM/product-engineering interface pack** (requirements facilitation,
+product specs, uncertainty-aware roadmaps, prioritization frames,
+feature-flag rollout, and product-sunset communication), and the 4-skill
+**D12.6 growth/analytics engineering pack** (the analytics event schema,
+funnel definitions, A/B testing, and product-analytics instrumentation) —
+with `product-spec-writer`≠`adr-writer` and
+`sunset-deprecation-communicator`≠`skill-deprecation-planner` pinned hard,
+plus the two three-way event/analytics seams.
 
 ## What this is
 
@@ -127,7 +138,7 @@ entry in the reconciliation doc.
 
 ## Map of the system
 
-- **Skills** ([`.claude/skills/`](.claude/skills/)) — the ~125 shipped procedures,
+- **Skills** ([`.claude/skills/`](.claude/skills/)) — the ~140 shipped procedures,
   grouped by the phase categories in the catalog: operating discipline, AI-SDLC
   governance, core architecture & engineering, SaaS & tenant isolation, security &
   supply chain, QA & evidence, cloud & reliability & release, AI/LLM security, agentic
@@ -191,6 +202,7 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | D13 | Library meta / self-application (5 = `skill-quality-reviewer`, D18, + the 4 completing the scope: `library-diff-reviewer`, `eval-runner-designer`, `skill-usage-instrumenter`, `skill-deprecation-planner`, D22) | P1 | ✅ shipped (D18 + D22) |
 | D12.8 | Operational workflow patterns (10 evidence-extracted skills — the concrete rules of the Zero-Trust Engineering Discipline, D16/D21; sourced from the workflow extraction report) | P1 | ✅ shipped (D21) |
 | D23 | Data + performance + QA-validation batch (15 = D12.1 data engineering 7 + D12.3 performance engineering 6 + D10 Tier 1 perf/load validation 2; D12.3 designs FOR performance, D10 measures it — seam pinned both sides) | P1 | ✅ shipped (D23) |
+| D24 | Product / PM / growth batch (15 = D12.2 product-engineering craft 5 + D12.5 PM/product-engineering interface 6 + D12.6 growth/analytics engineering 4; two hard seams — `product-spec-writer`≠`adr-writer`, `sunset-deprecation-communicator`≠`skill-deprecation-planner` — and the two three-way event/analytics seams pinned in trigger-evals) | P1/P2 | ✅ shipped (D24) |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
 
 ## Subagents (read-only reviewers)
@@ -459,6 +471,47 @@ production without explicit human approval:
 |---|---|---|
 | `performance-test-harness` | The measurement instrument: per-surface measured set, environment contract stamped on every result, baselines + variance-derived noise bands (single-run diffs banned), thresholds CONSUMED from budget/SLO owners, CI tiers with advisory→blocking promotion, UNRUN as a first-class status. | auto + manual |
 | `load-test-planner` | The traffic plan: workload model from production evidence (write share explicit, arrival model chosen), whale + long-tail tenant mix with the noisy-neighbor scenario judged per-tenant, volumes with skew, load/stress/soak/spike by question, ramps with abort criteria, owner-cited pass/fail. | auto + manual |
+
+D12.2 — product engineering craft (D24): the API/UX craft INSIDE the
+contract that `api-event-architect` owns (the craft details, not the
+contract itself):
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `pagination-cursor-designer` | The pagination MECHANISM inside a contract: cursor (keyset) vs offset with drift/deep-page costs stated, opaque versioned cursor (sort key + tiebreaker), strict total ordering, page-size bounds, honest end signaling, the tenant/permission predicate bound server-side (a cross-tenant paging boundary), surface pattern chosen. | auto + manual |
+| `error-taxonomy-designer` | The error MODEL: a finite taxonomy with stable machine codes, one envelope (code/message/details/correlation-id/retryable), an honest client-vs-server-vs-retryable split, actionable messages, ONE exception→taxonomy boundary, and a disclosure rule keeping stack traces/internals/PII out. | auto + manual |
+| `edge-state-ux-designer` | The per-view non-happy-path state matrix: the three distinct empties (first-run/filtered/error), honest loading (skeleton vs spinner, delay threshold, optimistic rollback), error placement by blast radius, partial failure, refetch/offline, forbidden-not-empty. Renders `error-taxonomy-designer`'s codes. | auto + manual |
+| `notification-webhook-ux-designer` | The human-facing UX of notifications (channels, per-category preferences, digest/dedup noise control, read-state, opt-out that works) and developer webhooks (delivery log, test-send, replay, secret rotation with an overlap window); the delivery CONTRACT stays with `api-event-architect`. | auto + manual |
+| `mobile-viewport-craft` | Mobile/responsive viewport correctness: content-driven breakpoints, touch-target sizing, safe-area/notch, the 100vh→dvh/svh/lvh fix, input/keyboard behavior, hover-absence and gestures, wide-table reflow; page WEIGHT stays with `frontend-perf-engineer`. | auto + manual |
+
+D12.5 — PM / product-engineering interface (D24): the engineering/PM
+boundary. Two hard seams pinned both ways in trigger-evals —
+`product-spec-writer` ≠ `adr-writer` (product spec vs architecture
+decision) and `sunset-deprecation-communicator` ≠
+`skill-deprecation-planner` (product-feature sunset vs library-skill
+retirement):
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `requirements-gathering-facilitator` | Elicits requirements BEFORE a spec: separates the problem from stakeholders' solutions, draws out users/jobs and the current workaround, surfaces the implicit (assumptions, non-goals, constraints), reconciles conflict to a decider; produces a confidence-marked brief that feeds `product-spec-writer`. Facilitates; does not decide. | auto + manual |
+| `product-spec-writer` | The PRODUCT spec: problem/job, goals and explicit non-goals, scenarios, functional requirements with TESTABLE acceptance criteria, edge/error behavior, rollout intent + success metrics, open questions. Pinned ≠ `adr-writer` (a product spec is not an architecture decision record). | auto + manual |
+| `roadmap-under-uncertainty-planner` | Horizon-based roadmap (now/next/later) over a false-precision dated Gantt: confidence decaying with distance, learning-first sequencing (retire uncertainty), outcomes over feature lists, capacity slack, a re-plan cadence. Consumes a ranking from `prioritization-frame-picker`. | auto + manual |
+| `prioritization-frame-picker` | Picks the RIGHT prioritization frame (RICE/WSJF/value-effort/Kano/MoSCoW) instead of defaulting, marks input reliability, refuses false rigor (buckets + a sensitivity check), and pulls must-dos out of the value formula. Ranks; sequencing over time is `roadmap-under-uncertainty-planner`'s. | auto + manual |
+| `feature-flag-rollout-strategist` | The ROLLOUT strategy: flag classified by purpose, progressive stages with advance/rollback criteria, sticky targeting, guardrails + a tested kill switch, a fail-safe default, flag-debt removal. Pinned ≠ `plan-entitlement-architect`/`authorization-matrix-designer` (entitlement/permission) and ≠ `ab-test-designer` (experiment). | auto + manual |
+| `sunset-deprecation-communicator` | Sunsetting a PRODUCT feature/API to users: rationale, impact, migration path, a firm timeline, an escalating multi-channel comms plan, grandfathering, and a tombstone (not a silent 404). Pinned ≠ `skill-deprecation-planner` (retiring a library SKILL) and ≠ `api-event-architect` (standing policy). | auto + manual |
+
+D12.6 — growth / analytics engineering (D24): user-facing product
+analytics, distinct from system telemetry. The two three-way seams pinned
+in trigger-evals — `event-schema-architect` ≠ `api-event-architect` ≠
+`streaming-event-architect`, and `product-analytics-instrumenter` ≠
+`observability-operator` ≠ `skill-usage-instrumenter`:
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `event-schema-architect` | The ANALYTICS event schema/tracking plan: naming taxonomy, typed properties, global properties, identity stitching, a registry as source of truth, additive versioning, PII minimization. THREE-way seam pinned ≠ `api-event-architect` (external contract) ≠ `streaming-event-architect` (internal pipeline). | auto + manual |
+| `funnel-definition-designer` | Rigorous funnel/conversion/retention definition: steps from real events, a counting model with a pinned denominator, a stated window, order semantics, attribution, and WHERE-not-WHY discipline (causes need an experiment). Consumes `event-schema-architect`; ≠ `ab-test-designer`. | auto + manual |
+| `ab-test-designer` | Designs AND reads experiments: falsifiable hypothesis, one primary metric + guardrails, power/sample-size from a practical MDE, a fixed horizon (no peeking), sticky assignment; readout with CIs, multiple-comparison/SRM/Simpson's/novelty checks, ship/kill/iterate with residual uncertainty. Pinned ≠ `feature-flag-rollout-strategist`. | auto + manual |
+| `product-analytics-instrumenter` | The product-analytics INSTRUMENTATION: client-vs-server capture, identity at capture, consent-gating + PII minimization at the source, capture reliability, de-dup, tracking QA. THREE-way seam pinned ≠ `observability-operator` (system telemetry) ≠ `skill-usage-instrumenter` (library usage). | auto + manual |
 
 ## Authoring a new skill
 

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "product-analytics-instrumenter",
+  "description": "Behavior cases for product-analytics instrumentation: client-vs-server capture, identity-at-capture, consent gating and PII minimization at the source, reliability, de-duplication, and tracking QA.",
+  "cases": [
+    {
+      "id": "positive-instrument-the-plan",
+      "type": "should_trigger",
+      "prompt": "We have a tracking plan. Now instrument it — decide where each event fires, make sure it's reliable, and QA that it matches the plan.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Targets the event-schema-architect tracking plan and chooses capture location per event (server-side for accuracy-critical, client-side for UI interactions) with reasons.",
+          "Routes tracking through one instrumentation wrapper and sets identity/session at capture with identify/alias at the right moment.",
+          "Designs reliability (flush on unload, retry, offline) and de-duplication so events don't double-count.",
+          "Builds a tracking-QA test that verifies events fire with the right name and typed properties, plus a regression guard.",
+          "Gates capture on consent and minimizes PII at the source."
+        ]
+      }
+    },
+    {
+      "id": "positive-server-side-for-accuracy",
+      "type": "should_trigger",
+      "prompt": "Our revenue and purchase numbers in analytics are always lower than what billing reports. We track those events in the browser. Fix the instrumentation.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Diagnoses client-side capture of money events as the cause: ad blockers, crashes, and closed tabs silently eat them.",
+          "Moves purchase/revenue events server-side where they're authoritative and tamper-resistant.",
+          "Ensures a single authoritative source so the same purchase isn't counted from both client and server.",
+          "Adds tracking QA / reconciliation against the billing source of truth."
+        ]
+      }
+    },
+    {
+      "id": "edge-double-counting",
+      "type": "should_trigger",
+      "prompt": "A conversion event fires twice on some page loads and our funnel now shows impossible >100% step conversion. Fix it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies double-firing (re-renders / client retries) as silent metric inflation.",
+          "Adds fire-once guards / idempotency keys and ensures one authoritative source per event.",
+          "Verifies the fix with a tracking-QA assertion that the event fires exactly once per real occurrence.",
+          "Does not mask the inflation downstream in the funnel definition."
+        ]
+      }
+    },
+    {
+      "id": "should-not-capture-before-consent",
+      "type": "should_trigger",
+      "prompt": "Let's fire all analytics events immediately on page load before the cookie/consent banner is answered, and capture full IP and email on each, so we don't lose any data.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to capture before consent where consent is required, and to ignore opt-out/DNT — that is a compliance violation, not data completeness.",
+          "Minimizes PII at the source (drops full IP/email unless there is a lawful basis) rather than scrubbing downstream.",
+          "Gates capture on consent and routes the consent/PII posture to pii-lifecycle-designer and a human (a Stop Condition).",
+          "Explains that pre-consent capture can't be undone by later deletion."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-system-telemetry",
+      "type": "should_not_trigger",
+      "prompt": "Instrument our services with structured logs, metrics, and traces, wire health checks, and set up the alerts and dashboards for on-call.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke product-analytics-instrumenter: engineer-facing logs/metrics/traces, health checks, and alert/dashboard config are observability-operator.",
+          "This skill instruments USER-behavior analytics, not system telemetry."
+        ]
+      }
+    }
+  ]
+}

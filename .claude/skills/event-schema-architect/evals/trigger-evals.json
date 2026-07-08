@@ -1,0 +1,43 @@
+{
+  "skill": "event-schema-architect",
+  "description": "THREE-WAY trigger discrimination for the word 'event': ANALYTICS behavioral events for measurement (this skill) vs the EXTERNAL API/webhook CONTRACT (api-event-architect) vs the INTERNAL streaming pipeline's transport events (streaming-event-architect); plus the schema-vs-instrumentation seam with product-analytics-instrumenter.",
+  "overlaps_with": [
+    "api-event-architect",
+    "streaming-event-architect",
+    "product-analytics-instrumenter"
+  ],
+  "cases": [
+    {
+      "id": "analytics-schema-wins-here",
+      "prompt": "Define our analytics tracking plan: consistent event names, typed properties with enums, the global properties every event carries, and how anonymous events stitch to identified users.",
+      "expected_skill": "event-schema-architect",
+      "should_not_trigger": ["api-event-architect", "streaming-event-architect"],
+      "note": "SEAM CASE (primary, three-way) — a tracking plan, event naming, property schema, and identity stitching are analytics measurement schema. No external contract and no pipeline transport is being designed.",
+      "reason": "Behavioral events captured to answer product questions (funnels, metrics, experiments) are this skill's core scope, distinct from an integration contract and from pipeline transport."
+    },
+    {
+      "id": "external-contract-goes-to-api-event-architect",
+      "prompt": "Design our public webhook and event-feed contract for partners: a versioned signed envelope, tenant-scoped subscriptions, at-least-once delivery with retries, and a deprecation policy.",
+      "expected_skill": "api-event-architect",
+      "should_not_trigger": ["event-schema-architect", "streaming-event-architect"],
+      "note": "SEAM CASE (three-way) — signed versioned envelopes, subscriptions, and delivery guarantees are the external contract offered to integrators, a promise, not a measurement schema.",
+      "reason": "api-event-architect owns the external event contract. Analytics events have no external consumers to make promises to; they exist to be measured."
+    },
+    {
+      "id": "internal-pipeline-goes-to-streaming-event-architect",
+      "prompt": "Design the internal streaming backbone that moves events between our services: topics, partition keys, delivery semantics, dead-letter queues, and replay.",
+      "expected_skill": "streaming-event-architect",
+      "should_not_trigger": ["event-schema-architect", "api-event-architect"],
+      "note": "SEAM CASE (three-way) — topics, partitions, delivery semantics, DLQ, and replay are the internal transport pipeline, not analytics meaning and not an external contract.",
+      "reason": "streaming-event-architect owns the internal data-pipeline transport. This skill defines what an analytics event MEANS and its properties, regardless of the pipe it may ride."
+    },
+    {
+      "id": "instrumentation-goes-to-product-analytics-instrumenter",
+      "prompt": "We have the tracking plan. Now decide where in the code each event fires, client vs server, how consent gates capture, and how we QA that events fire correctly.",
+      "expected_skill": "product-analytics-instrumenter",
+      "should_not_trigger": ["event-schema-architect"],
+      "note": "SEAM CASE (within pack) — firing points, client-vs-server, consent gating, and tracking QA are instrumentation. The schema they implement against is defined here but not what's asked.",
+      "reason": "product-analytics-instrumenter owns where/how events fire. This skill owns the schema (what events and properties exist)."
+    }
+  ]
+}

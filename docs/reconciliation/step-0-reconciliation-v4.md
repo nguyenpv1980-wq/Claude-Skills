@@ -432,11 +432,11 @@ pack is pulled forward.
 | Pack | Candidate skills *(all: candidate — not built)* | Pack rationale |
 |---|---|---|
 | **D12.1 Data engineering (P1) — ✅ all 7 built (D23, 2026-07-07)** | `schema-evolution-planner`, `streaming-event-architect`, `data-quality-monitor-designer`, `operational-vs-analytical-splitter`, `warehouse-lake-architect`, `pii-lifecycle-designer`, `data-migration-runbook-author` | Multi-tenant SaaS operational + analytical data as a first-class discipline. The `streaming-event-architect` ↔ `api-event-architect` internal-pipeline-vs-external-contract seam is pinned in trigger-evals on both directions. |
-| **D12.2 Product engineering craft (P1)** | `pagination-cursor-designer`, `error-taxonomy-designer`, `edge-state-ux-designer`, `notification-webhook-ux-designer`, `mobile-viewport-craft` | API/UX craft distinct from contract design (Phase 3 `api-event-architect` owns the contract; these own the craft inside it). |
+| **D12.2 Product engineering craft (P1) — ✅ all 5 built (D24, 2026-07-07)** | `pagination-cursor-designer`, `error-taxonomy-designer`, `edge-state-ux-designer`, `notification-webhook-ux-designer`, `mobile-viewport-craft` | API/UX craft distinct from contract design (Phase 3 `api-event-architect` owns the contract; these own the craft inside it). The `api-event-architect` seam is pinned in every skill's trigger-evals; `error-taxonomy-designer` (error MODEL) ↔ `edge-state-ux-designer` (rendering the error STATE) pinned both ways. |
 | **D12.3 Performance engineering (P1) — ✅ all 6 built (D23, 2026-07-07)** | `profiling-methodology-designer`, `query-plan-reader`, `n-plus-one-detector`, `caching-strategy-designer`, `latency-budget-architect`, `frontend-perf-engineer` | Performance as an engineering discipline — distinct from the load-testing VALIDATION in D10 Tier 1 (`performance-test-harness` + `load-test-planner`, built in the same D23 batch): D12.3 designs for performance, D10 measures it — the seam is pinned in trigger-evals on BOTH sides. `latency-budget-architect` consumes (never sets) `slo-reliability-architect` targets. |
 | **D12.4 Technical writing / docs engineering (P1)** | `readme-craftsman`, `adr-sequencer` (extends shipped `adr-writer` with longitudinal ADR management), `diataxis-doc-organizer`, `docs-as-code-architect`, `api-doc-generator-designer`, `contribution-guide-author`, `onboarding-doc-designer`, `docs-retention-index` (report P1, added by D15: numbered index governing every workflow doc's lifecycle — retention category, reason-to-keep, superseded-by, cleanup rule — mirrored by per-doc retention frontmatter; documentation retirement as an approvable operation) | Durable documentation as its own discipline. |
-| **D12.5 PM / product engineering interface (P2)** | `requirements-gathering-facilitator`, `product-spec-writer` (a product spec, distinct from an ADR), `roadmap-under-uncertainty-planner`, `prioritization-frame-picker`, `feature-flag-rollout-strategist`, `sunset-deprecation-communicator` | The engineering/PM boundary. |
-| **D12.6 Growth / analytics engineering (P2)** | `event-schema-architect` (analytics counterpart to `api-event-architect`), `funnel-definition-designer`, `ab-test-designer` (design AND reading of results), `product-analytics-instrumenter` | User-facing product analytics, distinct from system-facing observability (Phase 6 `observability-operator` / `slo-reliability-architect`). |
+| **D12.5 PM / product engineering interface (P2) — ✅ all 6 built (D24, 2026-07-07)** | `requirements-gathering-facilitator`, `product-spec-writer` (a product spec, distinct from an ADR), `roadmap-under-uncertainty-planner`, `prioritization-frame-picker`, `feature-flag-rollout-strategist`, `sunset-deprecation-communicator` | The engineering/PM boundary. Two hard seams pinned both ways in trigger-evals: `product-spec-writer`≠`adr-writer`, and `sunset-deprecation-communicator`≠`skill-deprecation-planner` (product-feature sunset vs library-skill retirement). `feature-flag-rollout-strategist`≠`plan-entitlement-architect`/`authorization-matrix-designer`. |
+| **D12.6 Growth / analytics engineering (P2) — ✅ all 4 built (D24, 2026-07-07)** | `event-schema-architect` (analytics counterpart to `api-event-architect`), `funnel-definition-designer`, `ab-test-designer` (design AND reading of results), `product-analytics-instrumenter` | User-facing product analytics, distinct from system-facing observability (Phase 6 `observability-operator` / `slo-reliability-architect`). Two THREE-way seams pinned in trigger-evals: `event-schema-architect`≠`api-event-architect`≠`streaming-event-architect`; `product-analytics-instrumenter`≠`observability-operator`≠`skill-usage-instrumenter`. |
 | **D12.7 Staff+ IC craft (P2)** | `tech-spec-writer` (broader than an ADR), `design-review-facilitator`, `cross-team-dependency-negotiator`, `roadmap-to-commitments-translator`, `staff-scope-selector`, `promotion-packet-writer`, `phased-work-handoff-designer` (multi-stage sequenced work with binding decisions carried forward as evidence — distinct from `ai-closeout-reporter`, which reports ONE turn, and from `ai-sdlc-operating-model`, which frames the whole lifecycle) (build spec substantiated by report P9: decision-ID register carried across stages, changed-files + explicit not-touched lists, proven-invocation-command sections with tell-tale output, deviation flags) | Technical leadership without management authority. |
 
 **D12.8 Operational workflow patterns — evidence-extracted (P1)** *(pack added by D15,
@@ -893,6 +893,38 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   could touch live systems (profiling, harness, load) carry Stop Conditions forbidding
   execution against production without human approval. Embedded commands follow the D19
   corrections. To be checked by `skill-quality-reviewer` before final trust.
+- **D24 (2026-07-07) — Product engineering craft (D12.2, 5 skills),
+  PM/product-engineering interface (D12.5, 6 skills), and Growth/analytics
+  engineering (D12.6, 4 skills) built.** 125→140 skills, one PR (three pack
+  commits: D12.2, D12.5, D12.6 — clean split boundaries; the batch was NOT
+  split into multiple PRs). D12.2: `pagination-cursor-designer`,
+  `error-taxonomy-designer`, `edge-state-ux-designer`,
+  `notification-webhook-ux-designer`, `mobile-viewport-craft` — the API/UX
+  craft INSIDE the contract `api-event-architect` owns (pinned in every
+  D12.2 trigger-eval). D12.5: `requirements-gathering-facilitator`,
+  `product-spec-writer`, `roadmap-under-uncertainty-planner`,
+  `prioritization-frame-picker`, `feature-flag-rollout-strategist`,
+  `sunset-deprecation-communicator`. D12.6: `event-schema-architect`,
+  `funnel-definition-designer`, `ab-test-designer` (design AND result
+  reading), `product-analytics-instrumenter`. Key seams pinned in
+  trigger-evals: `product-spec-writer`≠`adr-writer` (product spec vs
+  architecture decision record);
+  `event-schema-architect`≠`api-event-architect`≠`streaming-event-architect`
+  (analytics schema vs external contract vs internal pipeline — a three-way
+  seam); `product-analytics-instrumenter`≠`observability-operator`≠`skill-usage-instrumenter`
+  (product analytics vs system telemetry vs skill-library usage — a
+  three-way seam); `sunset-deprecation-communicator`≠`skill-deprecation-planner`
+  (product-feature sunset communication vs library-skill retirement);
+  `feature-flag-rollout-strategist`≠`plan-entitlement-architect`/`authorization-matrix-designer`
+  (rollout vs entitlement/permission). Product-agnostic (no product/company/
+  personal names or live identifiers; placeholder paths/ids only). All 15
+  are design/facilitation/analysis skills producing specs/plans/verdicts and
+  editing nothing → model-invocable (no `disable-model-invocation`); none
+  performs side effects. Embedded commands (few — these are design skills)
+  follow the D19 squash-merge corrections. The two three-way seams
+  (`event-schema-architect`, `product-analytics-instrumenter`) are the
+  highest mutual-overlap risks flagged for the reviewer pass. To be checked
+  by `skill-quality-reviewer` before final trust.
 
 ---
 
