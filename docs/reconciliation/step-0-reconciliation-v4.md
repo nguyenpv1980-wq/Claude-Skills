@@ -532,6 +532,40 @@ gap:
     `architecture-designer`, `cloud-architecture-decider`, `saas-platform-architect`, and
     `domain-modeler`.
 
+**D12.10 Security scanning & orchestration** *(pack added by D27, 2026-07-08; all 3:
+candidate — not built; build DEFERRED until AFTER the library-wide `skill-quality-reviewer`
+sweep and its corrections are complete)*: the library's existing security skills are
+JUDGMENT skills — `static-analysis-reviewer` triages scanner findings it is handed,
+`supply-chain-security-reviewer` covers dependencies/provenance — but nothing ORCHESTRATES
+the scanning itself: running a SAST suite over a repo, dynamic testing against a running
+app, or aggregating a whole-repo security scan into one report. This pack fills that gap.
+Core principle for all three (per the Zero-Trust Engineering Discipline, D16, and
+`agent-authorization-matrix`): orchestrate-and-REPORT — an AI security scanner may READ a
+repo and run scanners, but must never autonomously fix, open PRs, or change settings; every
+action is handed to a human.
+
+- `security-scan-orchestrator` *(candidate — not built)* — guides an assistant to
+  clone/access a repo (READ-ONLY) and run the full security-scan suite (SAST +
+  dependency/SCA + secret scanning + IaC/config scanning), then AGGREGATE findings into one
+  prioritized report. Orchestrates and REPORTS; recommends fixes but NEVER applies them,
+  opens no PRs, changes no settings — any action is handed to a human (per Zero-Trust
+  Engineering Discipline / `agent-authorization-matrix`). Composes with
+  `static-analysis-reviewer` (which does the true-positive/false-positive judgment on the
+  SAST output) and `supply-chain-security-reviewer` (dependency/provenance). Tool-agnostic
+  (references scanner CATEGORIES, not one vendor's CLI).
+- `sast-orchestration-designer` *(candidate — not built)* — selects and configures the
+  right static-analysis approach for a codebase/language, runs it, and hands findings to
+  `static-analysis-reviewer` for triage. Compose-don't-duplicate:
+  `static-analysis-reviewer` JUDGES findings; this one PRODUCES them.
+- `dast-safety-harness-designer` *(candidate — not built)* — designs dynamic (running-app)
+  security testing with MANDATORY guardrails: only against systems the user owns and has
+  WRITTEN authorization to test, never production without explicit human sign-off, scoped
+  target allowlists, rate limits, and a documented blast-radius/rollback. DAST sends attack
+  traffic at live software — treat it as a side-effecting operation requiring
+  authorization; the skill DESIGNS the harness/plan, it does not autonomously attack
+  anything. Discriminate from `multi-tenant-security-tester` (which tests tenant-isolation
+  specifically).
+
 ### Library meta / self-application (D13) — candidate skills
 
 **BANKED scope (D13, 2026-07-07) — 5 candidate skills; SCOPE COMPLETED: `skill-quality-reviewer`
@@ -989,6 +1023,7 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   `source-currency-auditor` all gate any real change behind human review
   (Stop Conditions). To be checked by `skill-quality-reviewer` before final
   trust.
+Aegis-d28-owasp-a09-a10
 - **D28 (2026-07-08) — OWASP Web-App Top 10:2025 gap closed:
   `security-logging-alerting-architect` (A09) and
   `error-handling-security-reviewer` (A10) built, the two remaining
@@ -1010,6 +1045,22 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   `error-taxonomy-designer` (the error MODEL vs the security of its
   HANDLING). Both are design/review skills editing nothing →
   model-invocable (no `disable-model-invocation`).
+
+- **D27 (2026-07-08) — Security scanning & orchestration pack (D12.10)
+  banked as candidates (candidate — not built):
+  `security-scan-orchestrator`, `sast-orchestration-designer`,
+  `dast-safety-harness-designer`.** Fills a real gap (SAST
+  tool-running/orchestration, DAST against running apps, whole-repo
+  security scan aggregation) distinct from the existing JUDGMENT skills
+  (`static-analysis-reviewer` triages findings;
+  `supply-chain-security-reviewer` covers deps). Core principle:
+  orchestrate-and-REPORT, human approves any action — an AI security
+  scanner may READ a repo but must not autonomously fix/PR/configure
+  (Zero-Trust Engineering Discipline). DAST requires written authorization
+  + no-prod-without-sign-off guardrails. Build DEFERRED until AFTER the
+  library-wide `skill-quality-reviewer` sweep and its corrections are
+  complete. Not built.
+main
 
 ---
 
