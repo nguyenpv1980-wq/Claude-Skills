@@ -1,0 +1,50 @@
+{
+  "skill": "performance-test-harness",
+  "description": "Trigger discrimination for the designs-vs-measures seam: the measurement instrument (this skill) vs traffic planning (load-test-planner, the sibling), designing FOR performance (latency-budget-architect / frontend-perf-engineer — D12.3), production SLO monitoring (slo-reliability-architect), and functional automation architecture (qa-automation-architect).",
+  "overlaps_with": [
+    "load-test-planner",
+    "latency-budget-architect",
+    "frontend-perf-engineer",
+    "slo-reliability-architect",
+    "qa-automation-architect"
+  ],
+  "cases": [
+    {
+      "id": "measurement-instrument-wins-here",
+      "prompt": "Build the performance regression detection: baselines per endpoint and key page, repeat-run comparison against noise, thresholds pulled from our existing budgets, and gates in CI per PR and nightly.",
+      "expected_skill": "performance-test-harness",
+      "should_not_trigger": ["load-test-planner", "latency-budget-architect", "slo-reliability-architect"],
+      "reason": "Baselines, variance-aware comparison, threshold consumption, and CI gate placement are the measurement instrument's whole anatomy. The budgets already exist (consumed, not set), and no workload modeling is requested."
+    },
+    {
+      "id": "traffic-plan-goes-to-load-test-planner",
+      "prompt": "Model the traffic for the big test: realistic endpoint mix from production logs, a tenant mix with two whale tenants and a thousand small ones, ramp profiles, and a 12-hour soak plus a spike scenario.",
+      "expected_skill": "load-test-planner",
+      "should_not_trigger": ["performance-test-harness"],
+      "note": "SEAM CASE (sibling) — workload models, tenant mix, ramps, and soak/spike scenario design are the traffic PLAN. The harness is the instrument that executes such plans and measures the result; nothing here designs measurement, baselines, or gates.",
+      "reason": "Everything requested is scenario/workload realism — the planner's scope; the harness would have nothing to add until this plan exists."
+    },
+    {
+      "id": "designing-for-performance-goes-to-d123",
+      "prompt": "Allocate our 400ms p95 target across the gateway, services, and database, and derive the timeouts from the split.",
+      "expected_skill": "latency-budget-architect",
+      "should_not_trigger": ["performance-test-harness"],
+      "note": "SEAM CASE (designs-vs-measures, primary) — allocating the target and deriving timeouts is engineering FOR performance (D12.3). The harness later ASSERTS these budgets as gate thresholds; it never performs the allocation.",
+      "reason": "Budget decomposition is design-side work whose output becomes the harness's cited thresholds — the direction of consumption is the seam."
+    },
+    {
+      "id": "production-slo-monitoring-goes-to-slo-reliability-architect",
+      "prompt": "Define what we promise users for availability and latency in production, with error budgets and burn-rate alerts that page the on-call.",
+      "expected_skill": "slo-reliability-architect",
+      "should_not_trigger": ["performance-test-harness"],
+      "reason": "Production targets, error budgets, and paging are the SLO catalog — continuous production reliability governance. The harness is PRE-release validation evidence; it consumes SLO targets as thresholds but owns no production alerting."
+    },
+    {
+      "id": "functional-test-architecture-goes-to-qa-automation-architect",
+      "prompt": "Design our test automation architecture: runner choice per layer, fixture and factory structure, parallelization, and what runs on PR versus nightly for the functional suites.",
+      "expected_skill": "qa-automation-architect",
+      "should_not_trigger": ["performance-test-harness"],
+      "reason": "Functional suite architecture (runners, fixtures, parallelization, CI placement for correctness tests) is qa-automation-architect's blueprint. The perf harness is a sibling instrument with its own variance/environment disciplines — 'what runs on PR vs nightly' alone does not route here when the subject is functional suites."
+    }
+  ]
+}

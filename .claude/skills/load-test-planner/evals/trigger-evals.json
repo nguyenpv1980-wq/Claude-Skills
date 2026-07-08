@@ -1,0 +1,49 @@
+{
+  "skill": "load-test-planner",
+  "description": "Trigger discrimination: the traffic/scenario PLAN (this skill) vs the measuring instrument (performance-test-harness, the sibling), target setting (slo-reliability-architect), test-data generation (test-data-architect), and overall QA strategy (qa-strategy-architect).",
+  "overlaps_with": [
+    "performance-test-harness",
+    "slo-reliability-architect",
+    "test-data-architect",
+    "qa-strategy-architect"
+  ],
+  "cases": [
+    {
+      "id": "traffic-plan-wins-here",
+      "prompt": "Plan the load for our pre-release validation: realistic endpoint mix with the right write share, our two whale tenants plus the long tail, a soak overnight, and a spike scenario for launch morning — with abort criteria.",
+      "expected_skill": "load-test-planner",
+      "should_not_trigger": ["performance-test-harness", "qa-strategy-architect", "slo-reliability-architect"],
+      "reason": "Workload realism, tenant mix, soak/spike scenario selection, and abort profiles are the traffic plan's anatomy. No measurement mechanics, no strategy-level layer decisions, no target setting requested."
+    },
+    {
+      "id": "instrument-goes-to-performance-test-harness",
+      "prompt": "Design how results get judged run over run: environment pinning, baseline storage, repeat-run noise bands, and which gates block a release in CI.",
+      "expected_skill": "performance-test-harness",
+      "should_not_trigger": ["load-test-planner"],
+      "note": "SEAM CASE (sibling, reverse direction) — judging results (baselines, noise bands, gates, environment contracts) is the INSTRUMENT. The planner supplies what load runs; everything in this ask is about how measurement executes and decides.",
+      "reason": "Baseline lifecycle and regression gating are harness design; no scenario or workload content appears."
+    },
+    {
+      "id": "target-setting-goes-to-slo-reliability-architect",
+      "prompt": "What latency and availability should we actually be promising at peak, and how much error budget do we have to spend on launches?",
+      "expected_skill": "slo-reliability-architect",
+      "should_not_trigger": ["load-test-planner"],
+      "reason": "The promises and error budgets are the SLO catalog's to set. The load plan CITES those numbers as pass/fail; a plan asked to invent them hits its own stop condition and routes here."
+    },
+    {
+      "id": "data-generation-goes-to-test-data-architect",
+      "prompt": "Generate the seed data for the perf environment: a few million synthetic orders shaped like production including the big customer's skew, PII-safe, rebuildable between runs.",
+      "expected_skill": "test-data-architect",
+      "should_not_trigger": ["load-test-planner"],
+      "note": "SEAM CASE — the plan STATES volumes and shapes it needs; generating them (synthetic data, PII-safe paths, rebuild determinism) is test-data-architect's whole discipline.",
+      "reason": "Everything requested is data-generation mechanics; the load plan is upstream demand, not the generator."
+    },
+    {
+      "id": "qa-strategy-goes-to-qa-strategy-architect",
+      "prompt": "Define our overall testing strategy — what gets unit, integration, E2E, and manual coverage, who owns each layer, and what evidence gates a release.",
+      "expected_skill": "qa-strategy-architect",
+      "should_not_trigger": ["load-test-planner", "performance-test-harness"],
+      "reason": "Product-level layer split and evidence-per-change-class is QA strategy. Performance/load validation is one slice that strategy may commission — the planner enters only when a load scenario is actually being designed."
+    }
+  ]
+}

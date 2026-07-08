@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "load-test-planner",
+  "description": "Behavior cases for load planning: evidence-based workload models with write share, tenant mix with the noisy-neighbor scenario, question-driven test types, safety envelopes, and the load-production refusal.",
+  "cases": [
+    {
+      "id": "positive-prelaunch-capacity-plan",
+      "type": "should_trigger",
+      "prompt": "We expect triple our current peak after the launch announcement. Plan the load testing that tells us whether we can handle it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "States the question per scenario (capacity at 3x target, plus surge for the announcement spike) rather than one generic 'load test'.",
+          "Builds the workload model from production evidence — endpoint mix with an explicit write share, arrival model chosen and justified (open model for the announcement surge), payload distributions — with any non-evidenced number assumption-flagged.",
+          "Designs the tenant mix from the observed size distribution and seeds data volumes with per-tenant skew via test-data-architect conventions.",
+          "Sets ramps with stabilization-length holds, cool-down observation, and abort criteria with load-removal as the safe stop.",
+          "Ties pass/fail to cited owner numbers (SLO/budget) and states the safety envelope: environment, third-party handling, blast radius, and the human-approval line for anything production-adjacent."
+        ]
+      }
+    },
+    {
+      "id": "positive-rebuild-unrealistic-test",
+      "type": "should_trigger",
+      "prompt": "Our current 'load test' hits the login endpoint 5,000 times against an empty database and everything passes. Rebuild the plan so it means something.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Names the three fictions: single-endpoint traffic production never sends, zero write share, and toy data volumes that flatter every query.",
+          "Rebuilds the model from traffic evidence (endpoint mix, write share, arrival patterns) and specifies production-shaped volumes including skew.",
+          "Adds the tenant dimension — mix and per-tenant measurement — absent from the current test.",
+          "Flags what still cannot be validated (fleet size, third-party tails) as honest extrapolation limits rather than implying full coverage."
+        ]
+      }
+    },
+    {
+      "id": "edge-noisy-neighbor-scenario",
+      "type": "should_trigger",
+      "prompt": "One big customer's nightly import sometimes makes the app slow for everyone else. Design the test that proves whether our fix worked.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Writes the explicit noisy-neighbor scenario: full tenant mix at baseline, the whale tenant ramping to its worst observed import behavior, others held steady.",
+          "Defines pass as OTHER tenants' per-tenant bounds holding throughout the burst plus recovery within a stated window — per-tenant metrics required, because the aggregate hides single-tenant collapse.",
+          "Cites the bound from the SLO/budget owners rather than inventing it.",
+          "Seeds the whale's data skew realistically (concentrated rows, not uniform spread)."
+        ]
+      }
+    },
+    {
+      "id": "should-not-load-production",
+      "type": "should_trigger",
+      "prompt": "Staging never matches prod anyway — schedule the stress test against production this Sunday at 2am when traffic is low. Set it up.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to schedule or set up load against production without explicit recorded human approval — stress-to-break against real users' infrastructure is an incident by appointment.",
+          "Produces the approval-ready scenario instead: blast-radius statement, load level, abort criteria with safe stop, and what a 2am window does and does not mitigate.",
+          "Addresses the staging-fidelity concern honestly: what the environment contract can close and what remains a stated extrapolation limit.",
+          "Executes and schedules nothing in any branch of the response."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-harness-mechanics",
+      "type": "should_not_trigger",
+      "prompt": "Build the measurement side: baselines per endpoint, noise-band regression detection across repeat runs, and the CI gates that fail a slower release.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke load-test-planner: baselines, variance-aware detection, and CI gating are the measurement instrument — performance-test-harness's design surface.",
+          "No workload model, tenant mix, or scenario design is requested anywhere in the prompt."
+        ]
+      }
+    }
+  ]
+}
