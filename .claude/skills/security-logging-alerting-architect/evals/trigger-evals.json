@@ -1,0 +1,50 @@
+{
+  "skill": "security-logging-alerting-architect",
+  "description": "Trigger discrimination for security-event DETECTION/ALERTING design (this skill) vs the audit RECORD (audit-log-architect), telemetry/alert-config implementation (observability-operator), reliability SLOs/paging (slo-reliability-architect), and the post-alert playbook (incident-response-runbook).",
+  "overlaps_with": [
+    "audit-log-architect",
+    "observability-operator",
+    "slo-reliability-architect",
+    "incident-response-runbook"
+  ],
+  "cases": [
+    {
+      "id": "security-detection-alerting-wins-here",
+      "prompt": "What security events should we be logging and alerting on, and who should each alert go to? I want to know we'd notice an attack.",
+      "expected_skill": "security-logging-alerting-architect",
+      "should_not_trigger": ["audit-log-architect", "observability-operator", "slo-reliability-architect"],
+      "note": "SEAM CASE (primary) — detection coverage + alerting rules + response wiring for SECURITY events is this skill.",
+      "reason": "Designing what security events to detect, what alerts fire, and where they route is this skill's core scope — not the record, not the implementation, not reliability paging."
+    },
+    {
+      "id": "audit-record-goes-to-audit-log-architect",
+      "prompt": "Design the audit log: event taxonomy, append-only record schema, tamper evidence, retention, and tenant-scoped access to it.",
+      "expected_skill": "audit-log-architect",
+      "should_not_trigger": ["security-logging-alerting-architect"],
+      "note": "SEAM CASE (primary, reverse) — the durable RECORD is audit-log-architect; it records but never detects or alerts.",
+      "reason": "audit-log-architect owns the record's taxonomy/schema/integrity/retention. This skill consumes those records to design detection and alerting on top."
+    },
+    {
+      "id": "alert-config-implementation-goes-to-observability-operator",
+      "prompt": "Here's the approved alerting spec — create the alert rules and dashboards in the monitoring stack and verify they fire.",
+      "expected_skill": "observability-operator",
+      "should_not_trigger": ["security-logging-alerting-architect"],
+      "reason": "Editing live alert/dashboard config and verifying telemetry is observability-operator (manual-only). This skill produces the spec being implemented and changes nothing itself."
+    },
+    {
+      "id": "reliability-paging-goes-to-slo-reliability-architect",
+      "prompt": "Define our SLOs and error budgets and decide which reliability symptoms should page versus ticket.",
+      "expected_skill": "slo-reliability-architect",
+      "should_not_trigger": ["security-logging-alerting-architect"],
+      "reason": "SLOs/SLIs and error-budget paging are reliability alerting on user-visible symptoms. This skill's alerts fire on attacker behavior, which may be invisible to users — different signal, different design."
+    },
+    {
+      "id": "post-alert-playbook-goes-to-incident-response-runbook",
+      "prompt": "Write the runbook for what on-call does when the credential-stuffing alert fires — triage, containment, comms, postmortem.",
+      "expected_skill": "incident-response-runbook",
+      "should_not_trigger": ["security-logging-alerting-architect"],
+      "note": "SEAM CASE — this skill designs what FIRES the alert and links each alert to a runbook; authoring the runbook itself is incident-response-runbook.",
+      "reason": "The reactive procedure AFTER an alert is incident-response-runbook. This skill is the upstream detection/alerting design that fires it."
+    }
+  ]
+}

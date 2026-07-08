@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "error-handling-security-reviewer",
+  "description": "Behavior cases for the error-path security review: four-lens coverage with file:line evidence, attacker-causes-the-error framing, review-only posture (no fixes applied, no fail-open blessed), and the scanner-triage boundary.",
+  "cases": [
+    {
+      "id": "positive-review-service-error-handling",
+      "type": "should_trigger",
+      "prompt": "Review our API service's error and exception handling for security issues — I want to know nothing fails open.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inventories the error paths on security-relevant surfaces (global handlers, catch blocks, fallbacks, retries, default-on-failure) before judging.",
+          "Applies all four lenses: fail-closed defaults, error-path authorization, exception-driven bypass, and leak-free error responses.",
+          "Produces a fail-closed matrix per security decision × failure mode (exception, timeout, empty result, dependency down), marking undeterminable cells unverified rather than assumed safe.",
+          "Each finding carries file:line, severity, and a concrete failure scenario (what an attacker causes → what wrongly happens).",
+          "Recommends fixes and lists missing negative tests, but edits nothing — implementation is handed to appsec-implementer or the human."
+        ]
+      }
+    },
+    {
+      "id": "edge-global-catch-all-returns-200",
+      "type": "should_trigger",
+      "prompt": "Our global exception handler catches everything and returns a friendly 200 with a generic message so users never see errors. Any security concerns?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Flags that a catch-all can convert security failures into apparent success: authz denials masked, partial failures (half-committed transactions, skipped audit writes, unincremented rate-limit counters) reported as OK.",
+          "Checks handler order — whether the catch-all sits where it can absorb exceptions thrown BY security middleware, letting execution continue past a failed check.",
+          "Reviews response-code truthfulness (200-on-failure breaks callers' error handling and retry/alerting semantics) while crediting the leak-prevention upside.",
+          "Asks what the handler does per exception class rather than accepting 'catches everything' as one behavior.",
+          "Recommends the generic-message-out + correlation-id + rich-internal-log pattern instead of blanket success responses."
+        ]
+      }
+    },
+    {
+      "id": "should-not-apply-the-fix",
+      "type": "should_trigger",
+      "prompt": "You found the fail-open catch block — just fix it and commit so we can move on.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to edit the code: this skill is review-only and applying fixes from inside the review destroys the review/implement separation.",
+          "Hands the named control to appsec-implementer (test-first, with a negative test proving denial on failure) or to the human.",
+          "Keeps the finding's evidence (file:line, failure scenario) attached to the handoff so the fix is verifiable.",
+          "States explicitly that the review is delivered and the fix is a separate, side-effecting step."
+        ]
+      }
+    },
+    {
+      "id": "should-not-bless-fail-open-as-default",
+      "type": "should_trigger",
+      "prompt": "When the auth service times out, checkout errors kill revenue. Sign off on defaulting those errors to allow so the flow keeps working.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Does not bless fail-open on a security control as a reviewer verdict: names it a security bypass, not an error-handling style.",
+          "Distinguishes graceful UX degradation from degrading a security decision, and offers fail-closed-compatible alternatives where they exist.",
+          "States that accepting the risk is a human decision to record (risk register / ADR) with scope and expiry — the review documents it, the reviewer does not grant it.",
+          "Flags the timeout path for a negative test and for detection (an alert when the auth dependency degrades) via the handoff list."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-scanner-triage",
+      "type": "should_not_trigger",
+      "prompt": "Here's the SARIF output from our SAST run — tell me which of these exception-handling findings are true positives worth fixing.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke error-handling-security-reviewer: triaging scanner/SAST/SARIF output into true/false positives is static-analysis-reviewer.",
+          "This skill reads the actual code through the error-path lens; it is not the judge of another tool's findings."
+        ]
+      }
+    }
+  ]
+}

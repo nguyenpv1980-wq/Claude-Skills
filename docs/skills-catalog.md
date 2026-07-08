@@ -42,7 +42,12 @@ checks that every *implemented* skill is listed here and in `README.md`.
 > same set: the 7-skill D12.7 staff+ IC craft pack, the 1-skill D12.9
 > architecture-advisory pack, and the 3-skill D14 framework-refresh /
 > source-currency pack — a detect→propose→human-review pipeline, none
-> auto-updates; 148→159 skills).
+> auto-updates; 148→159 skills), and the OWASP web-app gap-closure pair
+> (D28: `security-logging-alerting-architect` closes A09:2025 Security
+> Logging and Alerting Failures and `error-handling-security-reviewer`
+> closes A10:2025 Mishandling of Exceptional Conditions — the D8 audit's
+> two zero-coverage categories; all 10 OWASP web-app categories now have
+> an owning skill; 159→161 skills).
 > `_template` remains a reference template ignored by the validator.
 > Everything under "Backlog" is planned, not built.
 
@@ -782,6 +787,19 @@ eval files; all edit nothing → **model-invocable**.
 | `framework-mapping-refresher` | reconciliation §3 D14 | yes | Turns a verified edition delta into SPECIFIC proposed edits across affected skills/references/coverage maps, judging meaning-not-labels, surfacing new coverage GAPS, flagged for HUMAN review — never auto-applied. Downstream of `framework-edition-tracker`, upstream of `library-diff-reviewer`. |
 | `source-currency-auditor` | reconciliation §3 D14 | yes | Broad citation-currency sweep: inventory external-source citations, volatility-tuned staleness thresholds, flag stale/broken/superseded with reason and load-bearing priority — flags for re-verification, verifies/changes nothing. ≠ edition tracking (`framework-edition-tracker`). |
 
+### Skills (D28 — OWASP web-app A09/A10 gap closure)
+
+The 2-skill OWASP Web-App Top 10:2025 gap-closure pair (the D8 audit's two
+zero-coverage categories, tracked as reconciliation §3 Phase 8 backlog
+items; built by D28, 2026-07-08): with these, all 10 web-app categories
+have at least one owning skill — A02/A04 remain "partial" by the D8 rubric.
+Both ship both eval files; both edit nothing → **model-invocable**.
+
+| Skill | Source (D8 backlog / D28) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `security-logging-alerting-architect` | reconciliation §3 Phase 8 backlog (D8) | yes | Designs the security-event DETECTION and ALERTING layer (closes OWASP A09:2025): the detection coverage map (which security events must be logged, with detectable fields), alert-vs-ticket rules with baseline-justified thresholds + bounded noise control, and response wiring (owner, severity, escalation, runbook link) with coverage tests and an honest blind-spot register. ≠ `audit-log-architect` (records, never detects/alerts), `observability-operator` (implements the alert config), `slo-reliability-architect` (reliability paging), `incident-response-runbook` (the playbook AFTER the alert). |
+| `error-handling-security-reviewer` | reconciliation §3 Phase 8 backlog (D8) | yes | Reviews error/exception handling through the security lens (closes OWASP A10:2025): fail-closed defaults, error-path authorization, exception-driven logic bypass, leak-free error responses — file:line findings with concrete failure scenarios and a fail-closed matrix; recommends fixes, never applies them. ≠ `security-pr-reviewer` (broad diff gate), `appsec-implementer` (builds the fix), `static-analysis-reviewer` (judges scanner output), `error-taxonomy-designer` (the error MODEL vs the security of its handling). |
+
 ---
 
 ## Backlog by phase (reconciled)
@@ -941,6 +959,9 @@ growth/analytics, D12.7 staff+ craft) remain banked candidates.
 
 ### Phase 8 — Backlog expansion (P2)
 Remaining roadmap skills, generated in validated batches of ≤20 (see reconciliation §4.1).
+The two D8-audit backlog items (`security-logging-alerting-architect`,
+`error-handling-security-reviewer`) are ✅ **built** (D28, 2026-07-08) and moved to
+[Implemented → Skills (D28)](#skills-d28--owasp-web-app-a09a10-gap-closure) above.
 
 ---
 

@@ -98,7 +98,13 @@ STYLE/paradigm advisor), and the 3-skill **D14 framework-refresh /
 source-currency pack** (`framework-edition-tracker` →
 `framework-mapping-refresher`, plus `source-currency-auditor`) that keeps
 the library current with external truth without ever auto-updating a
-mapping.
+mapping. The **OWASP web-app gap-closure pair** (D28) closes the last two
+zero-coverage categories from the D8 OWASP Top 10:2025 audit:
+`security-logging-alerting-architect` (A09 — security-event detection
+coverage, alerting rules, response wiring) and
+`error-handling-security-reviewer` (A10 — fail-closed defaults, error-path
+authorization, exception-driven bypass, leak-free error responses) — all 10
+OWASP web-app categories now have at least one owning skill.
 
 ## What this is
 
@@ -156,7 +162,7 @@ entry in the reconciliation doc.
 
 ## Map of the system
 
-- **Skills** ([`.claude/skills/`](.claude/skills/)) — the ~159 shipped procedures,
+- **Skills** ([`.claude/skills/`](.claude/skills/)) — the ~161 shipped procedures,
   grouped by the phase categories in the catalog: operating discipline, AI-SDLC
   governance, core architecture & engineering, SaaS & tenant isolation, security &
   supply chain, QA & evidence, cloud & reliability & release, AI/LLM security, agentic
@@ -223,6 +229,7 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | D24 | Product / PM / growth batch (15 = D12.2 product-engineering craft 5 + D12.5 PM/product-engineering interface 6 + D12.6 growth/analytics engineering 4; two hard seams — `product-spec-writer`≠`adr-writer`, `sunset-deprecation-communicator`≠`skill-deprecation-planner` — and the two three-way event/analytics seams pinned in trigger-evals) | P1/P2 | ✅ shipped (D24) |
 | D25 | Docs engineering batch (8 = D12.4 technical writing / docs engineering; `adr-sequencer` extends `adr-writer`, `docs-retention-index`≠`skill-deprecation-planner` pinned both ways, `api-doc-generator-designer`≠`api-event-architect`) — PART A of the D12.4+D12.7+D12.9+D14 two-PR batch, 140→148 | P1 | ✅ shipped (D25) |
 | D26 | Staff-IC / architecture / framework-refresh batch (11 = D12.7 staff+ IC craft 7 + D12.9 architecture-advisor 1 + D14 framework refresh 3) — PART B of the D12.4+D12.7+D12.9+D14 two-PR batch, 148→159. Seams: `tech-spec-writer`≠`adr-writer`, `phased-work-handoff-designer`≠`ai-closeout-reporter`≠`ai-sdlc-operating-model`, `architecture-advisor`≠`architecture-designer`, D14 detect→propose→human-review | P2 | ✅ shipped (D26) |
+| D28 | OWASP web-app gap-closure pair (2 = `security-logging-alerting-architect` closes A09:2025 + `error-handling-security-reviewer` closes A10:2025 — the D8 audit's two zero-coverage categories; all 10 OWASP web-app categories now owned), 159→161. Seams: A09 skill ≠ `audit-log-architect`/`observability-operator`/`slo-reliability-architect`/`incident-response-runbook`; A10 skill ≠ `security-pr-reviewer`/`appsec-implementer`/`static-analysis-reviewer`/`error-taxonomy-designer` | P1 | ✅ shipped (D28) |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
 
 ## Subagents (read-only reviewers)
@@ -587,6 +594,16 @@ sweep); none auto-updates:
 | `framework-edition-tracker` | Tracks cited standard EDITIONS (OWASP/ISO/SOC 2/NIST): an edition register, drift detection, and a DELTA report — verify-don't-assert edition facts; reports drift, updates nothing. Feeds `framework-mapping-refresher`. ≠ broad staleness (`source-currency-auditor`). | auto + manual |
 | `framework-mapping-refresher` | Turns a verified edition delta into SPECIFIC proposed edits across affected skills/references/coverage maps, judging meaning-not-labels, surfacing new coverage GAPS, flagged for HUMAN review — never auto-applied. Downstream of `framework-edition-tracker`, upstream of `library-diff-reviewer`. | auto + manual |
 | `source-currency-auditor` | Broad citation-currency sweep: inventory external-source citations, volatility-tuned staleness thresholds, flag stale/broken/superseded with reason and load-bearing priority — flags for re-verification, verifies/changes nothing. ≠ edition tracking (`framework-edition-tracker`). | auto + manual |
+
+D28 — OWASP web-app A09/A10 gap closure: the D8 audit's two zero-coverage
+OWASP Top 10:2025 categories, built from the Phase 8 backlog — all 10
+web-app categories now have an owning skill (A02/A04 remain "partial" by
+the D8 rubric). Both edit nothing:
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `security-logging-alerting-architect` | The security-event DETECTION/ALERTING design (closes A09:2025): detection coverage map (which events must be logged, with detectable fields), alert-vs-ticket rules with baseline-justified thresholds + bounded noise control, response wiring (owner, severity, escalation, runbook link), coverage tests, honest blind spots. ≠ `audit-log-architect` (records, never detects/alerts), `observability-operator` (implements alert config), `slo-reliability-architect` (reliability paging), `incident-response-runbook` (the playbook AFTER). | auto + manual |
+| `error-handling-security-reviewer` | The error/exception-path security REVIEW (closes A10:2025): fail-closed defaults, error-path authorization, exception-driven bypass, leak-free error responses — file:line findings, a fail-closed matrix, missing-negative-test list; recommends fixes, never applies them. ≠ `security-pr-reviewer` (broad diff gate), `appsec-implementer` (builds the fix), `static-analysis-reviewer` (scanner triage), `error-taxonomy-designer` (the error MODEL). | auto + manual |
 
 ## Authoring a new skill
 

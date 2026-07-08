@@ -1,0 +1,50 @@
+{
+  "skill": "error-handling-security-reviewer",
+  "description": "Trigger discrimination for the error/exception-path security REVIEW lens (this skill) vs broad diff security review (security-pr-reviewer), building a named control (appsec-implementer), triaging scanner output (static-analysis-reviewer), and designing the error model (error-taxonomy-designer).",
+  "overlaps_with": [
+    "security-pr-reviewer",
+    "appsec-implementer",
+    "static-analysis-reviewer",
+    "error-taxonomy-designer"
+  ],
+  "cases": [
+    {
+      "id": "error-path-security-review-wins-here",
+      "prompt": "Go through our exception handling and fallbacks — do we fail open anywhere, does anything skip an auth check when it throws, and do our error responses leak internals?",
+      "expected_skill": "error-handling-security-reviewer",
+      "should_not_trigger": ["security-pr-reviewer", "appsec-implementer", "error-taxonomy-designer"],
+      "note": "SEAM CASE (primary) — the specific security lens on error/exception handling is this skill: fail-closed, error-path authz, exception bypass, leak-free responses.",
+      "reason": "Reviewing how the code behaves under exceptional conditions, security-wise, is this skill's core scope — not a whole-diff gate, not building the fix, not the error model."
+    },
+    {
+      "id": "broad-diff-gate-goes-to-security-pr-reviewer",
+      "prompt": "Security-review this PR before merge — it touches auth, a new upload endpoint, and some config.",
+      "expected_skill": "security-pr-reviewer",
+      "should_not_trigger": ["error-handling-security-reviewer"],
+      "note": "SEAM CASE (primary, reverse) — the broad security gate on an actual diff is security-pr-reviewer; it may compose this skill's lens when the diff's risk is in error paths.",
+      "reason": "security-pr-reviewer owns the severity-ranked security review of a whole change. This skill is the deep single lens on error/exception handling, invoked directly or composed within that gate."
+    },
+    {
+      "id": "building-the-control-goes-to-appsec-implementer",
+      "prompt": "Make this permission check fail closed — implement the deny-on-exception behavior with a negative test proving it.",
+      "expected_skill": "appsec-implementer",
+      "should_not_trigger": ["error-handling-security-reviewer"],
+      "reason": "Implementing a named, decided control test-first is appsec-implementer (manual-only, side-effecting). This skill produces the finding and the fix direction; it never edits code."
+    },
+    {
+      "id": "scanner-output-goes-to-static-analysis-reviewer",
+      "prompt": "Our SAST tool flagged 40 'improper exception handling' findings — triage which are real and rank them.",
+      "expected_skill": "static-analysis-reviewer",
+      "should_not_trigger": ["error-handling-security-reviewer"],
+      "reason": "Sorting scanner findings into true/false positives and ranking them is static-analysis-reviewer. This skill reviews the actual code, not another tool's output."
+    },
+    {
+      "id": "error-model-design-goes-to-error-taxonomy-designer",
+      "prompt": "Design our API's error taxonomy — the error codes, the response envelope, retryability semantics, and how errors map across layers.",
+      "expected_skill": "error-taxonomy-designer",
+      "should_not_trigger": ["error-handling-security-reviewer"],
+      "note": "SEAM CASE — the error MODEL (codes, envelope, semantics) is error-taxonomy-designer; this skill reviews whether the HANDLING is secure, whatever the model.",
+      "reason": "Designing what errors ARE is error-taxonomy-designer. Reviewing what error paths DO to security (fail-open, bypass, leaks) is this skill."
+    }
+  ]
+}

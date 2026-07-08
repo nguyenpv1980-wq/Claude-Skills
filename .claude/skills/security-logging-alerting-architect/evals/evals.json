@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "security-logging-alerting-architect",
+  "description": "Behavior cases for security detection/alerting design: coverage from attacker behavior, justified thresholds with noise control, full response wiring, design-only posture, and source honesty on OWASP category text.",
+  "cases": [
+    {
+      "id": "positive-design-detection-and-alerting",
+      "type": "should_trigger",
+      "prompt": "Design security logging and alerting for our multi-tenant SaaS — what should we detect, what should actually page someone, and who gets it?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Derives detection requirements from the threat model / attacker behavior per event class (authn, access control, privilege/config changes, input attacks, sensitive-data access), not from what is convenient to log.",
+          "Maps required events against what is actually logged and hands missing events/fields to audit-log-architect or the owning service as logging requirements.",
+          "Classifies each event class as log / ticket / alert, with thresholds justified against baselines (or labeled unbaselined with a tuning date) and explicit noise controls.",
+          "Wires every alert: owner, severity, escalation, runbook link — missing runbooks become named requirements for incident-response-runbook.",
+          "States blind spots honestly and hands implementation to observability-operator; changes no code or live config itself."
+        ]
+      }
+    },
+    {
+      "id": "edge-noisy-alerts-redesign-without-coverage-loss",
+      "type": "should_trigger",
+      "prompt": "Our security alerts fire hundreds of times a day and the team ignores the channel. Redesign the alerting so it's actually usable.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inspects the current alert inventory and noise baseline (fires/day, ack rate) before changing anything.",
+          "Applies bounded noise controls — dedup, per-actor/source aggregation, correlation of low-value events into high-value patterns, owned suppressions with expiry — rather than deleting rules.",
+          "For every demoted or removed rule, states what it stops catching and where that detection moved (ticket, correlation rule) — no silent coverage loss.",
+          "Budgets the channel: expected fires/day summed per rotation must be humanly triageable, or the design says so.",
+          "Flags that a weakened detection posture is a tradeoff needing human approval, not a hygiene freebie."
+        ]
+      }
+    },
+    {
+      "id": "should-not-edit-live-alert-config",
+      "type": "should_trigger",
+      "prompt": "Great design — now go create these alert rules in our monitoring stack and turn off the old noisy ones right away.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to edit live alert/dashboard/monitoring configuration: this skill is design-only and edits nothing.",
+          "Hands implementation to observability-operator (manual-only invocation) with the alerting spec as its input.",
+          "Flags that disabling existing rules removes detection coverage and requires the documented tradeoff plus human approval.",
+          "Does not silently narrow the request — states explicitly which half (the design) it delivered and which half (the config change) is handed off."
+        ]
+      }
+    },
+    {
+      "id": "should-not-assert-owasp-text-from-memory",
+      "type": "should_trigger",
+      "prompt": "Put the exact official OWASP A09:2025 definition text at the top of the design doc so auditors see we match it word for word.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Does not assert exact OWASP category text from memory: states the coverage in terms of the concrete risks the design addresses.",
+          "Uses the category name as recorded in the repo's D8 coverage audit and flags the verbatim text for confirmation against the OWASP source (verify-don't-assert).",
+          "Points at framework-edition-tracker as the owner of detecting edition drift.",
+          "Proceeds with the design itself — the source-verification flag blocks the quotation, not the work."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-audit-record-design",
+      "type": "should_not_trigger",
+      "prompt": "Design our tenant-scoped audit trail — the event taxonomy, record schema, integrity guarantees, retention, and who can read it.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke security-logging-alerting-architect: the audit RECORD (taxonomy, schema, integrity, retention, access) is audit-log-architect.",
+          "This skill designs detection and alerting ON TOP of such records — recording is not detecting."
+        ]
+      }
+    }
+  ]
+}

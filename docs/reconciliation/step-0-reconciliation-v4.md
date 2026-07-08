@@ -119,8 +119,8 @@ work and tracks gaps as Phase 8 backlog items; it creates no skills and changes 
 | A06:2025 Insecure Design | `threat-modeler` (trust boundaries, STRIDE enumeration, abuse cases, mitigations each with a negative test); `appsec-implementer` builds the decided controls | covered |
 | A07:2025 Authentication Failures | `secrets-identity-hardener` (session/token expiry, refresh, storage flags, revocation), `security-pr-reviewer` (authn gaps in diffs), `threat-modeler` (auth is a named design surface) | covered |
 | A08:2025 Software or Data Integrity Failures | `supply-chain-security-reviewer` (CI/CD integrity, unpinned Actions, artifact provenance), `security-pr-reviewer` (unsafe deserialization) | covered |
-| A09:2025 Security Logging and Alerting Failures | — no Phase 4 skill | gap |
-| A10:2025 Mishandling of Exceptional Conditions | — no Phase 4 skill | gap |
+| A09:2025 Security Logging and Alerting Failures | `security-logging-alerting-architect` (detection coverage, alerting rules, response wiring — built from the Phase 8 backlog, D28) | covered |
+| A10:2025 Mishandling of Exceptional Conditions | `error-handling-security-reviewer` (fail-closed defaults, error-path authorization, exception-driven bypass, leak-free error responses — built from the Phase 8 backlog, D28) | covered |
 
 - **Rubric:** *covered* = the category's core risk is named in at least one shipped Phase 4
   skill contract; *partial* = only a slice is named (residue listed below); *gap* = no
@@ -135,9 +135,12 @@ work and tracks gaps as Phase 8 backlog items; it creates no skills and changes 
   Phase 6 expansion backlog); the app-config slice remains open residue.
 - **A04 residue:** encryption-in-transit/at-rest design and algorithm/library review are
   unowned; coverage today is custody of keys/credentials plus SAST-finding triage only.
-- **A09/A10 gaps:** tracked as named candidate skills in the Phase 8 backlog per D8. Nearest
-  existing mitigation for A09 is Phase 3 `audit-log-architect`, which records tenant-scoped
-  audit trails but does not design detection or alerting.
+- **A09/A10 gaps: CLOSED (D28, 2026-07-08).** Both categories now have an owning skill,
+  built from the Phase 8 backlog items D8 recorded: `security-logging-alerting-architect`
+  (A09) and `error-handling-security-reviewer` (A10). They are Phase-8-backlog builds, not
+  additions to the Phase 4 list — the map cells cite them as D28 builds. Phase 3
+  `audit-log-architect` remains the RECORD layer that A09 detection consumes (it records,
+  but does not detect or alert).
 - **Framework distinction:** this is a third OWASP framework, distinct from the OWASP LLM
   Top 10 (Phase 7 map below, D6) and from the separate OWASP Agentic framework (Phase 7.5
   map below, D7).
@@ -605,11 +608,11 @@ Phases 0–7.5 validate cleanly.
 
 **Tracked backlog items — Phase 4 × OWASP Top 10:2025 (web app) gap audit (D8):**
 
-- `security-logging-alerting-architect` *(candidate — not built)* — closes A09:2025 Security
+- `security-logging-alerting-architect` *(✅ built, D28, 2026-07-08)* — closes A09:2025 Security
   Logging and Alerting Failures: security-event detection coverage, alerting rules, and
   response wiring; complements Phase 3 `audit-log-architect` (which records, but does not
   detect or alert).
-- `error-handling-security-reviewer` *(candidate — not built)* — closes A10:2025 Mishandling
+- `error-handling-security-reviewer` *(✅ built, D28, 2026-07-08)* — closes A10:2025 Mishandling
   of Exceptional Conditions: fail-closed defaults, error-path authorization, exception-driven
   logic bypass, leak-free error responses.
 
@@ -1020,6 +1023,29 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   `source-currency-auditor` all gate any real change behind human review
   (Stop Conditions). To be checked by `skill-quality-reviewer` before final
   trust.
+Aegis-d28-owasp-a09-a10
+- **D28 (2026-07-08) — OWASP Web-App Top 10:2025 gap closed:
+  `security-logging-alerting-architect` (A09) and
+  `error-handling-security-reviewer` (A10) built, the two remaining
+  zero-coverage categories from the D8 audit. 159→161.** All 10 OWASP
+  web-app categories now have at least one owning skill; A02/A04 remain
+  "partial" by the D8 rubric (a slice covered, not the whole category —
+  noted, not a gap). OWASP LLM (D6) and Agentic (D7) lists already
+  complete. Category definitions per OWASP Top 10:2025 source.
+  Product-agnostic. To be checked by `skill-quality-reviewer` in the
+  deferred sweep. Seams pinned in trigger-evals:
+  `security-logging-alerting-architect` ≠ `audit-log-architect` (records,
+  never detects/alerts) ≠ `observability-operator` (system telemetry +
+  alert-config implementation) ≠ `slo-reliability-architect` (reliability
+  paging) ≠ `incident-response-runbook` (the playbook AFTER the alert this
+  skill designs the firing of); `error-handling-security-reviewer` ≠
+  `security-pr-reviewer` (broad diff gate vs the error-path lens) ≠
+  `appsec-implementer` (builds the fix; the reviewer never edits) ≠
+  `static-analysis-reviewer` (judges scanner output, not code directly) ≠
+  `error-taxonomy-designer` (the error MODEL vs the security of its
+  HANDLING). Both are design/review skills editing nothing →
+  model-invocable (no `disable-model-invocation`).
+
 - **D27 (2026-07-08) — Security scanning & orchestration pack (D12.10)
   banked as candidates (candidate — not built):
   `security-scan-orchestrator`, `sast-orchestration-designer`,
@@ -1034,6 +1060,7 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   + no-prod-without-sign-off guardrails. Build DEFERRED until AFTER the
   library-wide `skill-quality-reviewer` sweep and its corrections are
   complete. Not built.
+main
 
 ---
 
