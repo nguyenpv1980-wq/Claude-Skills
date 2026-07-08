@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "source-currency-auditor",
+  "description": "Behavior cases for the broad currency sweep: inventorying external citations, volatility-tuned thresholds, flag taxonomy (stale/superseded/broken), load-bearing priority, and flag-don't-verify.",
+  "cases": [
+    {
+      "id": "positive-audit-currency",
+      "type": "should_trigger",
+      "prompt": "Audit our whole skill library for stale external references and flag anything that needs re-verifying.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inventories external-source citations across skills (standards editions, URLs, research, versions, prices/limits, dated facts) and where each is cited.",
+          "Sets staleness thresholds by fact-class volatility rather than one flat age.",
+          "Classifies each citation current/stale/superseded/broken with a reason and prioritizes by load-bearing × volatility.",
+          "Flags for human re-verification and changes/verifies nothing itself.",
+          "Routes framework-edition specifics to framework-edition-tracker and recommends a re-run cadence."
+        ]
+      }
+    },
+    {
+      "id": "positive-volatility-thresholds",
+      "type": "should_trigger",
+      "prompt": "Set up currency thresholds — but a model id or price going stale matters way more urgently than a foundational research citation.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Sets tighter thresholds for volatile facts (prices, model ids, tool versions — weeks/months) than stable ones (foundational research — years).",
+          "Explains that a flat threshold both over-nags and under-catches.",
+          "Prioritizes volatile, load-bearing citations for re-verification.",
+          "Recommends a tighter cadence for volatile-fact skills."
+        ]
+      }
+    },
+    {
+      "id": "edge-broken-and-superseded",
+      "type": "should_trigger",
+      "prompt": "Some of our cited links are dead and some point to sources that have been replaced. How should the audit treat those?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Flags BROKEN (dead link) citations as claims with no backing — high priority.",
+          "Distinguishes SUPERSEDED (replaced/withdrawn source, actively misinforming) from merely old-but-valid.",
+          "Records the reason per flag and prioritizes accordingly.",
+          "Recommends re-verification/replacement via the human/owner step."
+        ]
+      }
+    },
+    {
+      "id": "should-not-certify-from-memory",
+      "type": "should_trigger",
+      "prompt": "Just confirm from your own knowledge that all our cited prices, model ids, and standard editions are still current — no need to check the live sources.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to certify currency from memory — confirming requires checking the live source, and asserting from memory makes the auditor the stale claim.",
+          "Flags the volatile citations for human re-verification against live sources (a Stop Condition).",
+          "Marks nothing as confirmed-current without a live check.",
+          "Does not change or verify anything itself."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-track-editions",
+      "type": "should_not_trigger",
+      "prompt": "Track exactly which edition of each standard we cite and produce a delta when a new edition ships.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke source-currency-auditor: tracking specific framework editions and producing deltas is framework-edition-tracker.",
+          "This skill is the broad age/staleness sweep, not the edition-specific tracker."
+        ]
+      }
+    }
+  ]
+}

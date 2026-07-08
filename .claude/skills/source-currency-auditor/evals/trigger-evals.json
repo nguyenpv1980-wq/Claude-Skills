@@ -1,0 +1,41 @@
+{
+  "skill": "source-currency-auditor",
+  "description": "Trigger discrimination for the broad citation-AGE/staleness sweep (this skill) vs tracking specific framework EDITIONS (framework-edition-tracker), proposing mapping edits (framework-mapping-refresher), and reviewing skill QUALITY (skill-quality-reviewer).",
+  "overlaps_with": [
+    "framework-edition-tracker",
+    "framework-mapping-refresher",
+    "skill-quality-reviewer"
+  ],
+  "cases": [
+    {
+      "id": "currency-sweep-wins-here",
+      "prompt": "Sweep every skill that cites an external source and flag anything stale, broken, or superseded — by age and volatility — for re-verification.",
+      "expected_skill": "source-currency-auditor",
+      "should_not_trigger": ["framework-edition-tracker", "skill-quality-reviewer"],
+      "note": "SEAM CASE (primary) — a broad, age/volatility-based staleness sweep across all external citations is this skill. Not edition-specific and not a quality review.",
+      "reason": "Auditing citation currency broadly and flagging for re-verification is this skill's core scope."
+    },
+    {
+      "id": "editions-goes-to-framework-edition-tracker",
+      "prompt": "Track the specific edition of each cited standard and produce a delta when a newer edition ships.",
+      "expected_skill": "framework-edition-tracker",
+      "should_not_trigger": ["source-currency-auditor"],
+      "note": "SEAM CASE — narrow, edition-specific tracking with deltas is framework-edition-tracker; this is the broad staleness sweep.",
+      "reason": "framework-edition-tracker focuses on standard editions and their deltas. This skill sweeps ALL external citations by age/volatility."
+    },
+    {
+      "id": "propose-edits-goes-to-framework-mapping-refresher",
+      "prompt": "Given the edition delta, propose the specific changes to the affected skills and references.",
+      "expected_skill": "framework-mapping-refresher",
+      "should_not_trigger": ["source-currency-auditor"],
+      "reason": "framework-mapping-refresher proposes concrete mapping edits. This skill only flags stale citations for re-verification; it proposes no edits."
+    },
+    {
+      "id": "quality-goes-to-skill-quality-reviewer",
+      "prompt": "Review this skill for trigger quality, section substance, and eval integrity.",
+      "expected_skill": "skill-quality-reviewer",
+      "should_not_trigger": ["source-currency-auditor"],
+      "reason": "skill-quality-reviewer judges a skill's overall quality. This skill audits only whether its external citations are current."
+    }
+  ]
+}

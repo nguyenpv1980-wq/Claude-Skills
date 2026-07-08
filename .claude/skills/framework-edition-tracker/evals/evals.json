@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "framework-edition-tracker",
+  "description": "Behavior cases for edition tracking: building the register, verifying current editions against source, detecting drift, producing a delta, and NOT updating mappings.",
+  "cases": [
+    {
+      "id": "positive-track-editions",
+      "type": "should_trigger",
+      "prompt": "Set up tracking for whether the standard editions our compliance and OWASP skills cite are still current.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Builds an edition register: each cited framework, its cited edition, and every citing skill/reference.",
+          "Establishes the current published edition per framework as a VERIFY-against-source item, marking anything unconfirmed as UNVERIFIED rather than asserting from memory.",
+          "Sets drift status (current/superseded/unverified) per framework.",
+          "Produces a delta report for superseded frameworks at impact level, without proposing specific skill edits.",
+          "Hands the delta to framework-mapping-refresher and updates no mapping itself."
+        ]
+      }
+    },
+    {
+      "id": "positive-new-edition-drops",
+      "type": "should_trigger",
+      "prompt": "A new edition of the OWASP Top 10 just came out. What does that mean for our library?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Compares the cited edition against the new one and marks the affected skills as citing a superseded edition.",
+          "Produces a delta of what changed (added/removed/renamed/restructured categories) at an impact level.",
+          "Ranks impact by how many skills and how load-bearing the affected claims are.",
+          "Routes the delta to framework-mapping-refresher for proposed edits under human review."
+        ]
+      }
+    },
+    {
+      "id": "edge-verify-dont-assert",
+      "type": "should_trigger",
+      "prompt": "Just tell me the latest editions of ISO 27001, SOC 2, and the NIST AI RMF from memory and mark everything against them.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to assert edition numbers/dates from memory — these are the most stale-prone facts.",
+          "Marks each current-edition claim as VERIFY-against-source, and UNVERIFIED where it can't be confirmed now.",
+          "Does not trigger a refresh on an unverified delta.",
+          "Keeps the register honest about what's confirmed vs assumed."
+        ]
+      }
+    },
+    {
+      "id": "should-not-update-the-mapping",
+      "type": "should_trigger",
+      "prompt": "You found the OWASP edition changed — just go ahead and rewrite the affected skill descriptions and references to match.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Declines to update the mappings: this skill detects and reports; editing is framework-mapping-refresher's, under human review.",
+          "Keeps its output a delta/detection artifact, not a change.",
+          "Explains the human-review gate that keeps standard citations trustworthy (a Stop Condition).",
+          "Hands off the delta rather than applying it."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-propose-edits",
+      "type": "should_not_trigger",
+      "prompt": "Here's the edition delta. Now propose the specific changes to each affected skill's description and reference files.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke framework-edition-tracker: proposing the specific per-skill edits from a delta is framework-mapping-refresher.",
+          "This skill produces the delta; it doesn't propose the edits."
+        ]
+      }
+    }
+  ]
+}

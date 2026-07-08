@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "architecture-advisor",
+  "description": "Behavior cases for architecture-style advice: interview-first, relevant-candidates-only, case-specific tradeoffs, a clear recommendation with sensitivity, and neutrality against trend-chasing.",
+  "cases": [
+    {
+      "id": "positive-should-we-do-microservices",
+      "type": "should_trigger",
+      "prompt": "Should we build this as microservices? Everyone says that's the modern way.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Interviews the need FIRST (domain, load/traffic, team size + operational maturity, constraints, scaling/change, consistency) before recommending.",
+          "Presents only the genuinely relevant candidate styles for this situation, not a survey of all.",
+          "Weighs the microservices operational premium against the team's ability to pay it, for this specific case.",
+          "Makes a clear recommendation with reasoning and states what would change it (sensitivity).",
+          "Resists the fashion pull and names the distributed-monolith risk if the team lacks the maturity."
+        ]
+      }
+    },
+    {
+      "id": "positive-boring-modular-monolith",
+      "type": "should_trigger",
+      "prompt": "Small team, early product, uncertain requirements. What architecture style should we use?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Recommends a modular monolith as the honest fit for a small team / early / uncertain situation, and says so plainly.",
+          "Explains it gives most boundary benefits without the distribution tax and can be split later where evidence demands.",
+          "States the sensitivity (when to revisit toward services).",
+          "Does not reach for microservices to look modern."
+        ]
+      }
+    },
+    {
+      "id": "edge-distributed-monolith-warning",
+      "type": "should_trigger",
+      "prompt": "We split into microservices but every change touches five of them and nothing deploys independently. What went wrong and what should we do?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Diagnoses a distributed monolith: physically split but logically coupled — all the cost, none of the independence.",
+          "Advises on the style fix (consolidate coupled services / re-modularize boundaries) grounded in the actual coupling.",
+          "Ties the recommendation to team maturity and the real driver, not fashion.",
+          "Hands the concrete re-architecture and migration to architecture-designer."
+        ]
+      }
+    },
+    {
+      "id": "should-not-recommend-before-interview",
+      "type": "should_trigger",
+      "prompt": "Don't ask me a bunch of questions — just tell me the best architecture, event-driven or serverless.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Declines to recommend a style on no information: the recommendation depends on the need (domain, load, team, constraints).",
+          "Explains that recommending before understanding reproduces the fashion-driven failure.",
+          "Gathers the minimum need first (a Stop Condition) or gives conditional guidance clearly labeled as depending on those unknowns.",
+          "Does not pick event-driven vs serverless arbitrarily."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-concrete-architecture",
+      "type": "should_not_trigger",
+      "prompt": "We've decided on a modular monolith. Now produce the concrete component map, data ownership, and the migration plan from our current system.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke architecture-advisor: producing the concrete target architecture, data ownership, and migration once the style is decided is architecture-designer.",
+          "This skill advises on the style; the concrete design is downstream."
+        ]
+      }
+    }
+  ]
+}

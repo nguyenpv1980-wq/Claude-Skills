@@ -1,0 +1,42 @@
+{
+  "skill": "framework-edition-tracker",
+  "description": "Trigger discrimination for DETECTING edition drift + delta (this skill) vs PROPOSING the mapping edits (framework-mapping-refresher), broad citation-AGE staleness (source-currency-auditor), and owning the mapping content (multi-framework-crosswalk).",
+  "overlaps_with": [
+    "framework-mapping-refresher",
+    "source-currency-auditor",
+    "multi-framework-crosswalk"
+  ],
+  "cases": [
+    {
+      "id": "edition-detection-wins-here",
+      "prompt": "Track which standard editions our skills cite, detect when a newer edition exists, and produce a delta of what changed.",
+      "expected_skill": "framework-edition-tracker",
+      "should_not_trigger": ["framework-mapping-refresher", "source-currency-auditor"],
+      "note": "SEAM CASE (primary) — register + drift detection + delta, without proposing edits, is edition tracking.",
+      "reason": "Pinning cited editions and detecting drift with a delta report is this skill's core scope; it hands the delta onward."
+    },
+    {
+      "id": "propose-edits-goes-to-framework-mapping-refresher",
+      "prompt": "Given this edition delta, propose the specific updates to each affected skill's description, references, and coverage map.",
+      "expected_skill": "framework-mapping-refresher",
+      "should_not_trigger": ["framework-edition-tracker"],
+      "note": "SEAM CASE (primary, reverse — sequential) — proposing the concrete per-site edits from a delta is the next step.",
+      "reason": "framework-mapping-refresher turns a delta into proposed edits for review. This skill only detects and reports the delta."
+    },
+    {
+      "id": "broad-staleness-goes-to-source-currency-auditor",
+      "prompt": "Audit all our skills that cite external sources and flag any citation older than 18 months for re-verification.",
+      "expected_skill": "source-currency-auditor",
+      "should_not_trigger": ["framework-edition-tracker"],
+      "note": "SEAM CASE — a broad age/staleness sweep across sources is source-currency-auditor; this tracks specific framework EDITIONS.",
+      "reason": "source-currency-auditor flags stale citations by age across all sources. This skill tracks specific standard editions and their deltas."
+    },
+    {
+      "id": "mapping-content-goes-to-multi-framework-crosswalk",
+      "prompt": "Build the crosswalk mapping controls across ISO 27001, SOC 2, and NIST AI RMF.",
+      "expected_skill": "multi-framework-crosswalk",
+      "should_not_trigger": ["framework-edition-tracker"],
+      "reason": "multi-framework-crosswalk authors the mapping content. This skill tracks the currency of the editions such mappings cite; it doesn't write them."
+    }
+  ]
+}

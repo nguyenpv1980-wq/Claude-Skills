@@ -1,0 +1,41 @@
+{
+  "skill": "framework-mapping-refresher",
+  "description": "Trigger discrimination for PROPOSING mapping edits from a delta (this skill) vs DETECTING the delta (framework-edition-tracker), broad citation-age staleness (source-currency-auditor), and REVIEWING the resulting PR (library-diff-reviewer).",
+  "overlaps_with": [
+    "framework-edition-tracker",
+    "source-currency-auditor",
+    "library-diff-reviewer"
+  ],
+  "cases": [
+    {
+      "id": "propose-edits-wins-here",
+      "prompt": "Given the verified edition delta, propose the specific edits to every affected skill and reference, flag scope changes, and surface any new coverage gap — for human review.",
+      "expected_skill": "framework-mapping-refresher",
+      "should_not_trigger": ["framework-edition-tracker", "library-diff-reviewer"],
+      "note": "SEAM CASE (primary) — turning a delta into concrete per-site proposed edits is this skill. Not detecting the delta and not reviewing the PR.",
+      "reason": "Proposing precise mapping updates from a delta, for human review, is this skill's core scope."
+    },
+    {
+      "id": "detect-delta-goes-to-framework-edition-tracker",
+      "prompt": "Track which editions we cite and detect when a newer one exists, producing the delta.",
+      "expected_skill": "framework-edition-tracker",
+      "should_not_trigger": ["framework-mapping-refresher"],
+      "note": "SEAM CASE (primary, reverse — sequential) — detecting drift and producing the delta is upstream.",
+      "reason": "framework-edition-tracker detects and reports the delta. This skill consumes it to propose edits."
+    },
+    {
+      "id": "broad-staleness-goes-to-source-currency-auditor",
+      "prompt": "Sweep all skills citing external sources and flag any citation older than 18 months.",
+      "expected_skill": "source-currency-auditor",
+      "should_not_trigger": ["framework-mapping-refresher"],
+      "reason": "source-currency-auditor flags stale citations by age across sources. This skill proposes edits for a specific framework's edition delta."
+    },
+    {
+      "id": "review-pr-goes-to-library-diff-reviewer",
+      "prompt": "Review the PR that applies these mapping refresh edits before it merges.",
+      "expected_skill": "library-diff-reviewer",
+      "should_not_trigger": ["framework-mapping-refresher"],
+      "reason": "library-diff-reviewer reviews the library-changing PR. This skill proposes the edits that such a PR would contain; it doesn't review them."
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "framework-mapping-refresher",
+  "description": "Behavior cases for proposing mapping updates from an edition delta: exhaustive site sweep, concrete per-site edits, meaning-not-label judgment, new-gap surfacing, and human-review-before-landing.",
+  "cases": [
+    {
+      "id": "positive-propose-updates",
+      "type": "should_trigger",
+      "prompt": "framework-edition-tracker gave us the delta for the new OWASP edition. Propose the specific updates across our affected skills and references.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Locates every affected site (descriptions, references, coverage maps, edition strings) citing the old edition.",
+          "Proposes a concrete edit per site for each changed item, preserving the skill's voice and structure.",
+          "Judges meaning (renamed/merged/split scope changes), flagging ambiguous scope shifts for a human call rather than blind string-swapping.",
+          "Surfaces any new-edition category the library doesn't cover as a GAP finding, not an invented mapping.",
+          "Packages the proposal for human review / library-diff-reviewer and does not apply it."
+        ]
+      }
+    },
+    {
+      "id": "positive-exhaustive-site-sweep",
+      "type": "should_trigger",
+      "prompt": "Make sure the edition refresh doesn't leave some skills on the old edition and others on the new one.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Sweeps exhaustively for every citing site so the library isn't left half-migrated and internally contradictory.",
+          "Includes reference files and coverage maps, not just skill descriptions.",
+          "Updates the edition string everywhere it appears.",
+          "Flags any site where the correct new mapping is a judgment call."
+        ]
+      }
+    },
+    {
+      "id": "edge-new-coverage-gap",
+      "type": "should_trigger",
+      "prompt": "The new edition added a category we have no skill for. How should the refresh handle that?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Surfaces the uncovered new category as a coverage GAP finding.",
+          "Refuses to invent a mapping to make coverage look complete.",
+          "Recommends the gap be addressed (new skill / explicit not-covered note) via human decision.",
+          "Keeps the honest coverage picture intact."
+        ]
+      }
+    },
+    {
+      "id": "should-not-apply-or-refresh-unverified",
+      "type": "should_trigger",
+      "prompt": "We think maybe the edition changed — just go ahead and apply the refresh directly to save a round trip.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to refresh on an unverified/suspected delta — route back to framework-edition-tracker for a verified delta first (a Stop Condition).",
+          "Refuses to apply edits directly: this skill proposes; landing goes through human review / library-diff-reviewer.",
+          "Explains that applying on an unverified delta multiplies a wrong claim across files.",
+          "Keeps its output a proposal."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-detect-delta",
+      "type": "should_not_trigger",
+      "prompt": "Figure out whether the editions our skills cite are still current and produce the delta.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke framework-mapping-refresher: detecting drift and producing the delta is framework-edition-tracker.",
+          "This skill consumes a delta to propose edits; it doesn't detect it."
+        ]
+      }
+    }
+  ]
+}

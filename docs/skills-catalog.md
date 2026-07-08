@@ -37,7 +37,12 @@ checks that every *implemented* skill is listed here and in `README.md`.
 > docs-engineering batch (D25, PART A of a two-PR set: the 8-skill D12.4
 > technical writing / docs engineering pack — `adr-sequencer` extends
 > `adr-writer`, `docs-retention-index`≠`skill-deprecation-planner` pinned
-> both ways, `api-doc-generator-designer`≠`api-event-architect`).
+> both ways, `api-doc-generator-designer`≠`api-event-architect`), and the
+> staff-IC / architecture / framework-refresh batch (D26, PART B of the
+> same set: the 7-skill D12.7 staff+ IC craft pack, the 1-skill D12.9
+> architecture-advisory pack, and the 3-skill D14 framework-refresh /
+> source-currency pack — a detect→propose→human-review pipeline, none
+> auto-updates; 148→159 skills).
 > `_template` remains a reference template ignored by the validator.
 > Everything under "Backlog" is planned, not built.
 
@@ -725,6 +730,57 @@ gates actual doc DELETION behind human approval).
 | `contribution-guide-author` | reconciliation §3 D12.4 | yes | The zero-to-merged CONTRIBUTING guide: verified setup, the real workflow, automated standards, honest review expectations, governance + PRIVATE security disclosure, and first-contribution on-ramps. Product-agnostic. |
 | `onboarding-doc-designer` | reconciliation §3 D12.4 | yes | New-hire onboarding: the day1/week1/month1 ramp, verified setup, a mental-model orientation (not the manual), how-we-work incl. unwritten norms, a glossary + who-to-ask, an early-win first task, and a self-heal currency plan. |
 | `docs-retention-index` | reconciliation §3 D12.4 | yes | The numbered DOC-lifecycle index: retention category + reason-to-keep + superseded-by + cleanup rule per doc (mirrored in frontmatter), reverse-reference sweep, staged mark→redirect→remove with human-approved deletion. DOC counterpart to `skill-deprecation-planner` (pinned both ways). |
+
+### Skills (D12.7 — staff+ IC craft pack)
+
+The 7-skill staff+ IC craft pack (reconciliation §3 D12.7 table, built by
+D26, 2026-07-07 — PART B of the D12.4+D12.7+D12.9+D14 two-PR batch):
+technical leadership without management authority. Seams pinned in
+trigger-evals: `tech-spec-writer` ≠ `adr-writer` (whole design vs one
+decision) ≠ `product-spec-writer`; `phased-work-handoff-designer` ≠
+`ai-closeout-reporter` (one turn) ≠ `ai-sdlc-operating-model` (lifecycle);
+`staff-scope-selector` ≠ `promotion-packet-writer` (future scope vs past
+impact, both ways). All 7 ship both eval files; all produce specs/plans/
+verdicts and edit nothing → **model-invocable**.
+
+| Skill | Source (D12.7 / D26) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `tech-spec-writer` | reconciliation §3 D12.7 | yes | The whole-design tech spec / RFC: problem/goals/non-goals, proposed design (data model, APIs, components), alternatives, cross-cutting concerns (security/perf/observability/migration/testing), risks, sign-off. Composes `adr-writer` + `architecture-designer`. ≠ one ADR, ≠ product spec. |
+| `design-review-facilitator` | reconciliation §3 D12.7 | yes | Facilitates the design review: pre-read + right reviewers, importance-first discussion, actively elicited dissent, an EXPLICIT outcome, captured decisions — countering rubber-stamp/bikeshed/HiPPO/no-decision. Reviews a design; doesn't write it. |
+| `cross-team-dependency-negotiator` | reconciliation §3 D12.7 | yes | Cross-team dependencies: two-way map, early surfacing, CONCRETE commitments (deliverable+date+owner both sides), de-risking (stub/flag/parallel), honest accounting for the other team's priorities, and a pre-agreed escalation trigger. The interface contract is `api-event-architect`'s. |
+| `roadmap-to-commitments-translator` | reconciliation §3 D12.7 | yes | Extracts the firm-promise subset from a roadmap: commit-able vs aspirational, capacity-grounded (velocity minus maintenance, buffered), dependency-gated, honest date RANGES, and the not-committed gap named. The inverse of `roadmap-under-uncertainty-planner`. |
+| `staff-scope-selector` | reconciliation §3 D12.7 | yes | Chooses a staff+ IC's highest-leverage FUTURE scope: level-relative leverage, under-owned problems, matched to strengths, screened against the traps (only-fun/firefighting/too-narrow/invisible-glue/over-reach), with a rationale + explicit NOT-doing list. ≠ `promotion-packet-writer`. |
+| `promotion-packet-writer` | reconciliation §3 D12.7 | yes | Assembles the promotion case: impact-not-activity, mapped to every rubric dimension, a sustained pattern, honest gap analysis, corroboration, committee language — no inflation. ≠ `staff-scope-selector` (future scope), ≠ `ai-closeout-reporter` (one task). |
+| `phased-work-handoff-designer` | reconciliation §3 D12.7 | yes | The cross-stage handoff protocol: a decision-ID register carried across stages, per-stage changed/NOT-touched lists, proven-invocation evidence (tell-tale output), deviation flags, and a cold-start continuation contract. ≠ `ai-closeout-reporter` (one turn), ≠ `ai-sdlc-operating-model` (lifecycle). |
+
+### Skills (D12.9 — architecture advisory pack)
+
+The 1-skill architecture advisory pack (reconciliation §3 D12.9, added by
+D20, built by D26, 2026-07-07): the architecture STYLE/paradigm advisor
+that filled the gap between `architecture-designer` (concrete architecture)
+and `cloud-architecture-decider` (cloud posture). Ships both eval files;
+edits nothing → **model-invocable**.
+
+| Skill | Source (D12.9 / D26) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `architecture-advisor` | reconciliation §3 D12.9 | yes | Advises the architecture STYLE (monolith/modular-monolith/microservices/event-driven/serverless/SOA/hybrid): interviews the need FIRST, relevant candidates only, case-specific tradeoffs, a clear recommendation + sensitivity; resists trend-chasing both ways (willing to say "boring modular monolith"). ≠ `architecture-designer` (concrete), `cloud-architecture-decider`, `saas-platform-architect`, `domain-modeler`. |
+
+### Skills (D14 — framework refresh / source-currency pack)
+
+The 3-skill framework refresh / source-currency pack (reconciliation §3 D14,
+built by D26, 2026-07-07): keeping the library current with EXTERNAL truth,
+distinct from D12 (breadth) and D13 (self-quality). A pipeline —
+`framework-edition-tracker` (detect edition drift + delta) →
+`framework-mapping-refresher` (propose the edits, human review) — plus
+`source-currency-auditor` (the broad staleness sweep). NONE auto-updates:
+all detect/propose/flag and hand changes to human review. All 3 ship both
+eval files; all edit nothing → **model-invocable**.
+
+| Skill | Source (D14 / D26) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `framework-edition-tracker` | reconciliation §3 D14 | yes | Tracks cited standard EDITIONS (OWASP/ISO/SOC 2/NIST): an edition register, drift detection, and a DELTA report — verify-don't-assert edition facts; reports drift, updates nothing. Feeds `framework-mapping-refresher`. ≠ broad staleness (`source-currency-auditor`). |
+| `framework-mapping-refresher` | reconciliation §3 D14 | yes | Turns a verified edition delta into SPECIFIC proposed edits across affected skills/references/coverage maps, judging meaning-not-labels, surfacing new coverage GAPS, flagged for HUMAN review — never auto-applied. Downstream of `framework-edition-tracker`, upstream of `library-diff-reviewer`. |
+| `source-currency-auditor` | reconciliation §3 D14 | yes | Broad citation-currency sweep: inventory external-source citations, volatility-tuned staleness thresholds, flag stale/broken/superseded with reason and load-bearing priority — flags for re-verification, verifies/changes nothing. ≠ edition tracking (`framework-edition-tracker`). |
 
 ---
 

@@ -437,7 +437,7 @@ pack is pulled forward.
 | **D12.4 Technical writing / docs engineering (P1) — ✅ all 8 built (D25, 2026-07-07)** | `readme-craftsman`, `adr-sequencer` (extends shipped `adr-writer` with longitudinal ADR management), `diataxis-doc-organizer`, `docs-as-code-architect`, `api-doc-generator-designer`, `contribution-guide-author`, `onboarding-doc-designer`, `docs-retention-index` (report P1, added by D15: numbered index governing every workflow doc's lifecycle — retention category, reason-to-keep, superseded-by, cleanup rule — mirrored by per-doc retention frontmatter; documentation retirement as an approvable operation) | Durable documentation as its own discipline. Three seams pinned in trigger-evals: `adr-sequencer` EXTENDS `adr-writer` (composes, no duplicate); `docs-retention-index`↔`skill-deprecation-planner` (DOC vs SKILL retirement, both ways); `api-doc-generator-designer`↔`api-event-architect` (generated reference vs contract). PART A of the D12.4+D12.7+D12.9+D14 two-PR batch. |
 | **D12.5 PM / product engineering interface (P2) — ✅ all 6 built (D24, 2026-07-07)** | `requirements-gathering-facilitator`, `product-spec-writer` (a product spec, distinct from an ADR), `roadmap-under-uncertainty-planner`, `prioritization-frame-picker`, `feature-flag-rollout-strategist`, `sunset-deprecation-communicator` | The engineering/PM boundary. Two hard seams pinned both ways in trigger-evals: `product-spec-writer`≠`adr-writer`, and `sunset-deprecation-communicator`≠`skill-deprecation-planner` (product-feature sunset vs library-skill retirement). `feature-flag-rollout-strategist`≠`plan-entitlement-architect`/`authorization-matrix-designer`. |
 | **D12.6 Growth / analytics engineering (P2) — ✅ all 4 built (D24, 2026-07-07)** | `event-schema-architect` (analytics counterpart to `api-event-architect`), `funnel-definition-designer`, `ab-test-designer` (design AND reading of results), `product-analytics-instrumenter` | User-facing product analytics, distinct from system-facing observability (Phase 6 `observability-operator` / `slo-reliability-architect`). Two THREE-way seams pinned in trigger-evals: `event-schema-architect`≠`api-event-architect`≠`streaming-event-architect`; `product-analytics-instrumenter`≠`observability-operator`≠`skill-usage-instrumenter`. |
-| **D12.7 Staff+ IC craft (P2)** | `tech-spec-writer` (broader than an ADR), `design-review-facilitator`, `cross-team-dependency-negotiator`, `roadmap-to-commitments-translator`, `staff-scope-selector`, `promotion-packet-writer`, `phased-work-handoff-designer` (multi-stage sequenced work with binding decisions carried forward as evidence — distinct from `ai-closeout-reporter`, which reports ONE turn, and from `ai-sdlc-operating-model`, which frames the whole lifecycle) (build spec substantiated by report P9: decision-ID register carried across stages, changed-files + explicit not-touched lists, proven-invocation-command sections with tell-tale output, deviation flags) | Technical leadership without management authority. |
+| **D12.7 Staff+ IC craft (P2) — ✅ all 7 built (D26, 2026-07-07)** | `tech-spec-writer` (broader than an ADR), `design-review-facilitator`, `cross-team-dependency-negotiator`, `roadmap-to-commitments-translator`, `staff-scope-selector`, `promotion-packet-writer`, `phased-work-handoff-designer` (multi-stage sequenced work with binding decisions carried forward as evidence — distinct from `ai-closeout-reporter`, which reports ONE turn, and from `ai-sdlc-operating-model`, which frames the whole lifecycle) (build spec substantiated by report P9: decision-ID register carried across stages, changed-files + explicit not-touched lists, proven-invocation-command sections with tell-tale output, deviation flags) | Technical leadership without management authority. |
 
 **D12.8 Operational workflow patterns — evidence-extracted (P1)** *(pack added by D15,
 2026-07-07; **all 10 built 2026-07-07, D21** — the concrete, invocable rules of the
@@ -495,7 +495,7 @@ touched — report §4 end + P15):
 - cross-cutting certainty-label convention (confirmed / inferred / unknown /
   unverified-recommend-confirming) as a candidate shared writing rule
 
-**D12.9 Architecture advisory** *(pack added by D20, 2026-07-07)*: the library's
+**D12.9 Architecture advisory** *(pack added by D20, 2026-07-07; ✅ `architecture-advisor` built (D26, 2026-07-07))*: the library's
 `architecture-designer` produces a concrete target architecture and migration plan once the
 rough shape is known, and `cloud-architecture-decider` advises on cloud provider/posture —
 but nothing advises on the architecture STYLE/PARADIGM itself (monolith vs modular monolith
@@ -550,7 +550,7 @@ satisfied ahead of any D12 pull (built 2026-07-07, D18).
 
 ### Framework refresh & source-currency discipline (D14) — candidate skills
 
-**BANKED scope (D14, 2026-07-07) — 3 candidate skills; nothing in it is built now.** The
+**BANKED scope (D14, 2026-07-07) — 3 candidate skills; ✅ all 3 built (D26, 2026-07-07): `framework-edition-tracker`, `framework-mapping-refresher`, `source-currency-auditor`.** The
 framework mappings banked and shipped so far (D6/D7/D8 OWASP maps, D9 compliance batch) are
 point-in-time snapshots of external standards that revise on their own cadence. These
 candidates give the library a refresh discipline so external-truth drift is detected instead
@@ -952,6 +952,40 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   separate PR branched off main-as-it-is; it does not depend on this PR
   merging but should land after it for the count arithmetic. To be checked
   by `skill-quality-reviewer` before final trust.
+- **D26 (2026-07-07) — Staff+ IC craft (D12.7, 7 skills), Architecture
+  advisory (D12.9, 1 skill), and Framework refresh / source-currency
+  (D14, 3 skills) built. PART B of the D12.4+D12.7+D12.9+D14 two-PR
+  batch — 148→159 skills.** D12.7: `tech-spec-writer`, `design-review-facilitator`,
+  `cross-team-dependency-negotiator`, `roadmap-to-commitments-translator`,
+  `staff-scope-selector`, `promotion-packet-writer`,
+  `phased-work-handoff-designer`. D12.9: `architecture-advisor` (the
+  STYLE/paradigm advisor, per D20 — must discriminate from
+  `architecture-designer`/`cloud-architecture-decider`/`saas-platform-architect`/
+  `domain-modeler`, pinned all four). D14: `framework-edition-tracker`,
+  `framework-mapping-refresher`, `source-currency-auditor` (a
+  detect→propose→human-review pipeline; NONE auto-updates a mapping). Key
+  seams pinned in trigger-evals: `tech-spec-writer`≠`adr-writer` (whole
+  design vs one decision)≠`product-spec-writer`;
+  `phased-work-handoff-designer`≠`ai-closeout-reporter` (one turn)≠`ai-sdlc-operating-model`
+  (lifecycle); `staff-scope-selector`≠`promotion-packet-writer` (future
+  scope vs past impact, both ways); `roadmap-to-commitments-translator`
+  inverse of `roadmap-under-uncertainty-planner`;
+  `framework-edition-tracker`≠`framework-mapping-refresher`≠`source-currency-auditor`
+  (detect vs propose vs broad-staleness). **Build/count note:** built in
+  parallel with PART A (D25/D12.4) off main@140, then REBASED onto the
+  merged D25 (main@148) with the README/catalog/reconciliation
+  pack-block, phase-table, count, and callout regions reconciled to
+  include BOTH packs — 148→159 skills, decision log D25 then D26 in order.
+  Merge order was PART A (D25) then PART B (D26). Product-agnostic (no product/company/
+  personal names or live identifiers; placeholder paths/ids only; edition/
+  price/model facts treated as verify-don't-assert per D14). All 11 are
+  design/facilitation/advisory skills producing specs/plans/verdicts/
+  reports and editing nothing → model-invocable;
+  `framework-mapping-refresher` and `docs-retention-index`-style deletion
+  is not in scope here, but `framework-edition-tracker`/`-mapping-refresher`/
+  `source-currency-auditor` all gate any real change behind human review
+  (Stop Conditions). To be checked by `skill-quality-reviewer` before final
+  trust.
 
 ---
 

@@ -1,0 +1,42 @@
+{
+  "skill": "architecture-advisor",
+  "description": "Trigger discrimination for advising the architecture STYLE/paradigm (this skill) vs producing the concrete target architecture (architecture-designer), deciding cloud provider/posture (cloud-architecture-decider), designing tenancy (saas-platform-architect), and modeling the domain (domain-modeler).",
+  "overlaps_with": [
+    "architecture-designer",
+    "cloud-architecture-decider",
+    "saas-platform-architect",
+    "domain-modeler"
+  ],
+  "cases": [
+    {
+      "id": "style-advice-wins-here",
+      "prompt": "Help us decide whether to build this as a monolith, a modular monolith, or microservices — with the tradeoffs for our situation and a recommendation.",
+      "expected_skill": "architecture-advisor",
+      "should_not_trigger": ["architecture-designer", "cloud-architecture-decider"],
+      "note": "SEAM CASE (primary) — recommending a style/paradigm with case-specific tradeoffs is this skill. Not the concrete architecture and not the cloud decision.",
+      "reason": "Advising the architecture style by fit, after interviewing the need, is this skill's core scope."
+    },
+    {
+      "id": "concrete-architecture-goes-to-architecture-designer",
+      "prompt": "The style is decided. Produce the concrete component and dependency map, data ownership, and the migration plan from the current system.",
+      "expected_skill": "architecture-designer",
+      "should_not_trigger": ["architecture-advisor"],
+      "note": "SEAM CASE (primary, reverse) — the concrete target architecture and migration, once the style is known, is architecture-designer.",
+      "reason": "architecture-designer produces the concrete structure and migration. This skill advises which style to build in the first place."
+    },
+    {
+      "id": "cloud-posture-goes-to-cloud-architecture-decider",
+      "prompt": "Which cloud should we use and should we run this managed or self-hosted?",
+      "expected_skill": "cloud-architecture-decider",
+      "should_not_trigger": ["architecture-advisor"],
+      "reason": "cloud-architecture-decider decides provider and managed-vs-self-hosted posture — where it runs. This skill decides the architecture style — what shape it is."
+    },
+    {
+      "id": "tenancy-goes-to-saas-platform-architect",
+      "prompt": "Design our multi-tenant model: silo vs pool, tenant isolation, and the tenancy structure.",
+      "expected_skill": "saas-platform-architect",
+      "should_not_trigger": ["architecture-advisor"],
+      "reason": "saas-platform-architect designs tenancy structure and isolation. This skill advises the overall architecture style, a different decision."
+    }
+  ]
+}

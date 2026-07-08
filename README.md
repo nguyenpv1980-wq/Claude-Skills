@@ -88,7 +88,17 @@ contribution guides, new-hire onboarding, and doc-retention governance) —
 `adr-sequencer` extends `adr-writer`, `docs-retention-index` is the
 doc-lifecycle counterpart to `skill-deprecation-planner` (pinned both
 ways), and `api-doc-generator-designer` documents the contract
-`api-event-architect` owns.
+`api-event-architect` owns. The **staff-IC / architecture /
+framework-refresh batch** (D26, PART B of the same set) ships the 7-skill
+**D12.7 staff+ IC craft pack** (tech specs, design-review facilitation,
+cross-team dependency negotiation, roadmap-to-commitments translation,
+staff scope selection, promotion packets, and phased-work handoffs), the
+1-skill **D12.9 architecture-advisory pack** (`architecture-advisor` — the
+STYLE/paradigm advisor), and the 3-skill **D14 framework-refresh /
+source-currency pack** (`framework-edition-tracker` →
+`framework-mapping-refresher`, plus `source-currency-auditor`) that keeps
+the library current with external truth without ever auto-updating a
+mapping.
 
 ## What this is
 
@@ -146,7 +156,7 @@ entry in the reconciliation doc.
 
 ## Map of the system
 
-- **Skills** ([`.claude/skills/`](.claude/skills/)) — the ~148 shipped procedures,
+- **Skills** ([`.claude/skills/`](.claude/skills/)) — the ~159 shipped procedures,
   grouped by the phase categories in the catalog: operating discipline, AI-SDLC
   governance, core architecture & engineering, SaaS & tenant isolation, security &
   supply chain, QA & evidence, cloud & reliability & release, AI/LLM security, agentic
@@ -211,7 +221,8 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | D12.8 | Operational workflow patterns (10 evidence-extracted skills — the concrete rules of the Zero-Trust Engineering Discipline, D16/D21; sourced from the workflow extraction report) | P1 | ✅ shipped (D21) |
 | D23 | Data + performance + QA-validation batch (15 = D12.1 data engineering 7 + D12.3 performance engineering 6 + D10 Tier 1 perf/load validation 2; D12.3 designs FOR performance, D10 measures it — seam pinned both sides) | P1 | ✅ shipped (D23) |
 | D24 | Product / PM / growth batch (15 = D12.2 product-engineering craft 5 + D12.5 PM/product-engineering interface 6 + D12.6 growth/analytics engineering 4; two hard seams — `product-spec-writer`≠`adr-writer`, `sunset-deprecation-communicator`≠`skill-deprecation-planner` — and the two three-way event/analytics seams pinned in trigger-evals) | P1/P2 | ✅ shipped (D24) |
-| D25 | Docs engineering batch (8 = D12.4 technical writing / docs engineering; `adr-sequencer` extends `adr-writer`, `docs-retention-index`≠`skill-deprecation-planner` pinned both ways, `api-doc-generator-designer`≠`api-event-architect`) — PART A of the D12.4+D12.7+D12.9+D14 two-PR batch | P1 | ✅ shipped (D25) |
+| D25 | Docs engineering batch (8 = D12.4 technical writing / docs engineering; `adr-sequencer` extends `adr-writer`, `docs-retention-index`≠`skill-deprecation-planner` pinned both ways, `api-doc-generator-designer`≠`api-event-architect`) — PART A of the D12.4+D12.7+D12.9+D14 two-PR batch, 140→148 | P1 | ✅ shipped (D25) |
+| D26 | Staff-IC / architecture / framework-refresh batch (11 = D12.7 staff+ IC craft 7 + D12.9 architecture-advisor 1 + D14 framework refresh 3) — PART B of the D12.4+D12.7+D12.9+D14 two-PR batch, 148→159. Seams: `tech-spec-writer`≠`adr-writer`, `phased-work-handoff-designer`≠`ai-closeout-reporter`≠`ai-sdlc-operating-model`, `architecture-advisor`≠`architecture-designer`, D14 detect→propose→human-review | P2 | ✅ shipped (D26) |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
 
 ## Subagents (read-only reviewers)
@@ -539,6 +550,43 @@ ways); `api-doc-generator-designer` documents the contract
 | `contribution-guide-author` | The zero-to-merged CONTRIBUTING guide: verified setup, the real workflow, automated standards, honest review expectations, governance + private security disclosure, and first-contribution on-ramps. Product-agnostic. | auto + manual |
 | `onboarding-doc-designer` | New-hire onboarding: the day1/week1/month1 ramp, verified setup, a mental-model orientation (not the manual), how-we-work incl. unwritten norms, a glossary + who-to-ask, an early-win first task, and a self-heal currency plan. | auto + manual |
 | `docs-retention-index` | The numbered DOC-lifecycle index: retention category + reason-to-keep + superseded-by + cleanup rule per doc (mirrored in frontmatter), reverse-reference sweep, staged mark→redirect→remove with human-approved deletion. DOC counterpart to `skill-deprecation-planner` (pinned both ways). | auto + manual |
+
+D12.7 — staff+ IC craft (D26): technical leadership without management
+authority. `tech-spec-writer` ≠ `adr-writer` (whole design vs one
+decision) ≠ `product-spec-writer`; `phased-work-handoff-designer` ≠
+`ai-closeout-reporter` (one turn) ≠ `ai-sdlc-operating-model` (lifecycle);
+`staff-scope-selector` ≠ `promotion-packet-writer` (future scope vs past
+impact, both ways):
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `tech-spec-writer` | The whole-design tech spec / RFC: problem/goals/non-goals, proposed design (data model, APIs, components), alternatives, cross-cutting concerns (security/perf/observability/migration/testing), risks, sign-off. Composes `adr-writer` (decisions) + `architecture-designer` (structure). ≠ one ADR, ≠ product spec. | auto + manual |
+| `design-review-facilitator` | Facilitates the design review: pre-read + right reviewers, importance-first discussion, actively elicited dissent, an EXPLICIT outcome (approved/changes/rework/blocked), captured decisions — countering rubber-stamp/bikeshed/HiPPO/no-decision. Reviews a design; doesn't write it. | auto + manual |
+| `cross-team-dependency-negotiator` | Cross-team dependencies: two-way map, early surfacing, CONCRETE commitments (deliverable+date+owner both sides), de-risking (stub/flag/parallel), honest accounting for the other team's priorities, and a pre-agreed escalation trigger. The org side; the contract is `api-event-architect`'s. | auto + manual |
+| `roadmap-to-commitments-translator` | Extracts the firm-promise subset from a roadmap: commit-able vs aspirational, capacity-grounded (velocity minus maintenance, buffered), dependency-gated, honest date RANGES, and the not-committed gap named. The inverse of `roadmap-under-uncertainty-planner`. | auto + manual |
+| `staff-scope-selector` | Chooses a staff+ IC's highest-leverage FUTURE scope: level-relative leverage, under-owned problems, matched to strengths, screened against the traps (only-fun/firefighting/too-narrow/invisible-glue/over-reach), with a rationale + explicit NOT-doing list. ≠ `promotion-packet-writer` (past impact). | auto + manual |
+| `promotion-packet-writer` | Assembles the promotion case: impact-not-activity, mapped to every rubric dimension, a sustained pattern, honest gap analysis, corroboration, committee language — no inflation. ≠ `staff-scope-selector` (future scope), ≠ `ai-closeout-reporter` (one task). | auto + manual |
+| `phased-work-handoff-designer` | The cross-stage handoff protocol: a decision-ID register carried across stages, per-stage changed/NOT-touched lists, proven-invocation evidence (tell-tale output), deviation flags, and a cold-start continuation contract. ≠ `ai-closeout-reporter` (one turn), ≠ `ai-sdlc-operating-model` (lifecycle). | auto + manual |
+
+D12.9 — architecture advisory (D26): the STYLE/paradigm advisor that filled
+the gap between `architecture-designer` (concrete architecture) and
+`cloud-architecture-decider` (cloud posture):
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `architecture-advisor` | Advises the architecture STYLE (monolith/modular-monolith/microservices/event-driven/serverless/SOA/hybrid): interviews the need FIRST, relevant candidates only, case-specific tradeoffs, a clear recommendation + sensitivity; resists trend-chasing both ways (willing to say "boring modular monolith"). ≠ `architecture-designer` (concrete), `cloud-architecture-decider`, `saas-platform-architect`, `domain-modeler`. | auto + manual |
+
+D14 — framework refresh / source-currency discipline (D26): keeping the
+library current with EXTERNAL truth. A pipeline — `framework-edition-tracker`
+(detect edition drift + delta) → `framework-mapping-refresher` (propose
+edits, human review) — plus `source-currency-auditor` (broad staleness
+sweep); none auto-updates:
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `framework-edition-tracker` | Tracks cited standard EDITIONS (OWASP/ISO/SOC 2/NIST): an edition register, drift detection, and a DELTA report — verify-don't-assert edition facts; reports drift, updates nothing. Feeds `framework-mapping-refresher`. ≠ broad staleness (`source-currency-auditor`). | auto + manual |
+| `framework-mapping-refresher` | Turns a verified edition delta into SPECIFIC proposed edits across affected skills/references/coverage maps, judging meaning-not-labels, surfacing new coverage GAPS, flagged for HUMAN review — never auto-applied. Downstream of `framework-edition-tracker`, upstream of `library-diff-reviewer`. | auto + manual |
+| `source-currency-auditor` | Broad citation-currency sweep: inventory external-source citations, volatility-tuned staleness thresholds, flag stale/broken/superseded with reason and load-bearing priority — flags for re-verification, verifies/changes nothing. ≠ edition tracking (`framework-edition-tracker`). | auto + manual |
 
 ## Authoring a new skill
 
