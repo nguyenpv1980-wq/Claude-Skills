@@ -811,8 +811,8 @@ production SaaS patterns. All are design/review skills editing nothing →
 `offline-first-sync-architect`) carry Stop Conditions forbidding execution
 against production without human approval. `usage-metering-and-cost-attribution-pipeline-designer`
 resolved **STANDALONE** (not an extension of `saas-cost-architect`). The 4
-low-priority D12.11 candidates remain candidate — not built (Build B). All
-ship both eval files.
+low-priority D12.11 candidates were the deferred Build B, since built by D32
+(below). All ship both eval files.
 
 | Skill | Source (D12.11 / D31) | Model-invocable? | Trigger summary |
 | --- | --- | --- | --- |
@@ -826,6 +826,28 @@ ship both eval files.
 | `synthetic-monitoring-architect` | reconciliation §3 D12.11 | yes | Black-box PRODUCTION monitoring: incident-value probe catalog (journey/dependency/heartbeat), a HARD prod-safety contract (no mutation, ring-fenced synthetic accounts, no fixture leak, cleanup), synthetic SLIs feeding SLOs, sustained-failure alerting. DESIGNS probes; does not run them against prod. ≠ `performance-test-harness`/`load-test-planner` (pre-release), `playwright-e2e-engineer` (CI E2E), `slo-reliability-architect` (targets), `observability-operator` (white-box). |
 | `offline-first-sync-architect` | reconciliation §3 D12.11 | yes | The client OFFLINE data layer: durable ordered write queue with client-id idempotency, optimistic apply + rollback on reject, version-based conflict detection + eyes-open resolution (LWW/merge/CRDT/manual — refuses silent data loss), background sync (dedup), reconciliation integrity. ≠ `edge-state-ux-designer` (UX states), `caching-strategy-designer` (server cache), `realtime-subscription-architect` (live online push — in-batch seam). |
 | `admin-console-architect` | reconciliation §3 D12.11 (HIGH/pull-forward) | yes | The internal ops/support/superadmin CONSOLE: least-privilege tiers, audited-by-construction cross-tenant access (reads too), bounded/marked/consented/time-boxed impersonation, break-glass elevation (approved, auto-expiring), gated + reversible control-plane actions. ≠ `authorization-matrix-designer` (the policy it ENFORCES), `observability-operator` (telemetry vs action surface), `agent-authorization-matrix` (AI-agent vs human), `incident-response-runbook` (the playbook it serves). |
+
+### Skills (D32 — SaaS architecture depth, D12.11 low-priority set)
+
+The 4-skill D12.11 LOW-PRIORITY set (reconciliation §3 D12.11; built by D32,
+2026-07-08) — the deferred Build B, completing the D12.11 pack (all 14
+candidates resolved: 10 strong D31 + 4 low-priority D32). These are
+scale-stage or possibly-extension surfaces. Two carried a
+standalone-vs-extension flag resolved at build time: `intra-tenant-scope-architect`
+and `share-link-access-architect` both shipped **STANDALONE** (each ~60%
+distinct from its candidate parent). All are design/review skills editing
+nothing → **model-invocable**; the three that DESIGN a production-reshaping
+change (`cell-based-architecture-designer` cell migration/rebalancing,
+`data-partitioning-sharding-strategist` reshard, `intra-tenant-scope-architect`
+add-a-scope-axis migration) carry Stop Conditions forbidding execution against
+production without human approval. All ship both eval files.
+
+| Skill | Source (D12.11 / D32) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `cell-based-architecture-designer` | reconciliation §3 D12.11 (LOW) | yes | Cell (blast-radius) partitioning: a self-contained full-stack cell per tenant-subset, tenant→cell mapping + placement, a THIN cell-router, cell-by-cell deploy/canary, global-concern enumeration, migration/rebalancing (designed, not run). SCALE-STAGE — tests the premise first and recommends NOT adopting cells when a cheaper lever suffices. ≠ `saas-platform-architect` (per-component pooled/siloed isolation, not whole-stack cells), `architecture-advisor` (the style choice, whose menu omits cells), `agent-containment-reviewer` (agent blast radius, not infra cells). |
+| `data-partitioning-sharding-strategist` | reconciliation §3 D12.11 (LOW) | yes | OLTP partitioning/sharding for WRITE/size scale: shard-key selection (tenant_id + its hot-tenant limit), range/hash/list partitioning, cross-shard cost, reshard/rebalance runbook (designed, not run) — gated behind DON'T-SHARD-PREMATURELY (single well-indexed primary + replicas first; shard only on evidenced ceiling). ≠ `multi-tenant-data-architect` (isolation scoping, not throughput), `warehouse-lake-architect` (analytical partitioning), `operational-vs-analytical-splitter` (what leaves the OLTP store). |
+| `intra-tenant-scope-architect` | reconciliation §3 D12.11 (LOW/flag) — **resolved STANDALONE (D32)** | yes | A second mandatory scoping axis BELOW the tenant (site/region/org-unit): per-user scope-grant model, the composite tenant+scope row-filter predicate on every scoped table, scope-restricted vs tenant-wide roles, server-derived propagation through app+edge, live add-axis migration (designed, not run). ≠ `tenant-modeler` (tenant semantics/hierarchy — a child tenant is a separate boundary), `multi-tenant-data-architect` (the tenant_id storage axis this presupposes), `authorization-matrix-designer` (roles×permissions vs a row-filter dimension), `command-gateway-architect` (execute-time write scope vs the standing read-side axis). |
+| `share-link-access-architect` | reconciliation §3 D12.11 (LOW/flag) — **resolved STANDALONE (D32)** | yes | Guest/public share-link (bearer-capability) access: opaque high-entropy expiring revocable tokens, per-link scope (one resource, one permission), ephemeral guest sessions (not memberships), optional password/OTP gate, enumeration/abuse defense (no existence oracle), audit — the link exposes exactly its resource, never a hole into the tenant. ≠ `authorization-matrix-designer` (member RBAC + impersonation, not anyone-with-the-link), `api-event-architect` (machine API credentials / webhook signing). |
 
 ---
 

@@ -534,8 +534,8 @@ gap:
 
 **D12.11 SaaS Architecture Depth** *(pack added by D30, 2026-07-08; STRONG
 cluster of 10 ✅ built by D31, 2026-07-08 — ahead of the D12.10 SAST/DAST pack
-as planned; the 4 LOW-PRIORITY candidates remain candidate — not built (Build
-B))*: net-new architecture-depth gaps surfaced by a private
+as planned; the 4 LOW-PRIORITY candidates ✅ built by D32, 2026-07-08 (Build B),
+pack now COMPLETE)*: net-new architecture-depth gaps surfaced by a private
 read-only deep-audit of production multi-tenant SaaS patterns plus general
 SaaS-architecture research (product-agnostic — evidenced by production
 multi-tenant SaaS patterns; no product/vendor named). Two tiers: a **STRONG
@@ -633,34 +633,34 @@ D12.10.
   `agent-authorization-matrix` (AI-agent authority, not human-admin),
   `incident-response-runbook` (reactive playbook the console's tools serve).
 
-*LOW-PRIORITY set (4 — bank as candidates, explicitly low-priority;
-standalone-vs-extension deferred to build time):*
+*LOW-PRIORITY set (4 — ✅ all built by D32, 2026-07-08; both standalone-vs-
+extension flags resolved STANDALONE at build time):*
 
-- `cell-based-architecture-designer` *(candidate — not built; **LOW** —
+- `cell-based-architecture-designer` *(✅ built — D32, 2026-07-08; **LOW** —
   scale-stage only, most SaaS never needs it)* — cell / blast-radius partitioning
   (self-contained stack subset, tenant→cell mapping, thin router, cell-by-cell
   deploy, cross-cell concerns, migration). SEAMS: `saas-platform-architect`
   (per-component isolation, not whole-stack cells), `architecture-advisor` (its
   style menu omits cells — this fills that), `agent-containment-reviewer` (agent
   blast-radius).
-- `data-partitioning-sharding-strategist` *(candidate — not built; **LOW** —
+- `data-partitioning-sharding-strategist` *(✅ built — D32, 2026-07-08; **LOW** —
   scale-stage, "don't shard prematurely")* — OLTP partitioning/sharding for write
   scale (shard-key selection, range/hash/list partitioning, resharding a hot
   tenant, cross-shard costs, don't-shard-prematurely gate). SEAMS:
   `multi-tenant-data-architect` (isolation scoping, not throughput sharding),
   `warehouse-lake-architect` (analytical partitioning),
   `operational-vs-analytical-splitter`.
-- `intra-tenant-scope-architect` *(candidate — not built; **LOW** + **FLAG:
-  possibly an extension of `multi-tenant-data-architect` —
-  `skill-quality-reviewer` decides**)* — a second mandatory data-scoping axis
+- `intra-tenant-scope-architect` *(✅ built — D32, 2026-07-08; **LOW**; **FLAG
+  RESOLVED STANDALONE (D32)** — ~60% distinct from `multi-tenant-data-architect`,
+  well above the ~40% duplicate threshold)* — a second mandatory data-scoping axis
   below the tenant (location/site/org-unit): per-user scope assignment, an RLS
   predicate on scoped tables, scope-restricted vs tenant-wide roles, propagation,
   and migration to add the axis live. SEAMS: `tenant-modeler` (tenant hierarchy),
   `multi-tenant-data-architect` (`tenant_id` scoping),
   `authorization-matrix-designer` (roles×permissions, not a row-filter dimension).
-- `share-link-access-architect` *(candidate — not built; **LOW** + **FLAG:
-  possibly an extension of `authorization-matrix-designer` —
-  `skill-quality-reviewer` decides**)* — guest/public share-link access (opaque
+- `share-link-access-architect` *(✅ built — D32, 2026-07-08; **LOW**; **FLAG
+  RESOLVED STANDALONE (D32)** — ~60% distinct from `authorization-matrix-designer`,
+  well above the ~40% duplicate threshold)* — guest/public share-link access (opaque
   expiring/revocable tokens, guest sessions, optional password/OTP gating,
   per-link scope, enumeration/abuse defense, audit). SEAMS:
   `authorization-matrix-designer` (member roles, not anyone-with-the-link),
@@ -1303,6 +1303,67 @@ Aegis-d28-owasp-a09-a10
   overlap risks flagged for that pass: usage-metering ↔ `saas-cost-architect`
   and realtime ↔ offline-first. Validator: 171 skills, exit 0.
 main
+- **D32 (2026-07-08) — D12.11 SaaS Architecture Depth LOW-PRIORITY cluster
+  built (4 skills). 171→175.** The deferred Build B, completing the D12.11
+  pack. The 4: `cell-based-architecture-designer`,
+  `data-partitioning-sharding-strategist`, `intra-tenant-scope-architect`,
+  `share-link-access-architect`.
+  **Both standalone-vs-extension flags resolved STANDALONE** (same
+  author-then-judge circuit-breaker as D31's usage-metering):
+  - `intra-tenant-scope-architect` vs `multi-tenant-data-architect`: the
+    parent is explicitly SINGLE-AXIS (scoping decided around `tenant_id`,
+    per-store pooled/silo strategy + propagation). The new skill adds a
+    SUBORDINATE per-user scope axis below the tenant (site/region/org-unit):
+    a per-user scope-grant model, a scope-restricted-vs-tenant-wide role
+    split, the composite `tenant_id AND scope` row-filter predicate, and a
+    live add-axis migration — none of which live in the parent. It
+    PRESUPPOSES the tenant layer rather than restating it. Shared surface is
+    the server-derived propagation + expand→contract migration pattern
+    (~35%); distinct surface ~60% — well above the ~40% duplicate threshold.
+    Not a near-duplicate; shipped standalone with the parent seam pinned hard.
+  - `share-link-access-architect` vs `authorization-matrix-designer`: the
+    parent is IDENTITY/RBAC for authenticated members (roles × permissions ×
+    resources, impersonation/support). The new skill is a CAPABILITY model —
+    possession of an opaque, unguessable, expiring, revocable token grants a
+    fixed narrow scope to anyone-with-the-link, often unauthenticated, with a
+    different actor, a different threat surface (token enumeration/leak/expiry,
+    guest sessions, abuse defense), and a different lifecycle. The parent's
+    one-line "sharing grant" is a MEMBER shared-with grant, not a public
+    bearer link. Overlap (~30%: both authorization, both scope+audit+
+    deny-by-default) is well below the distinct surface (~60%). Shipped
+    standalone with the parent seam pinned hard.
+  So both are new skills: 171→175 (not fewer). Seams pinned in every skill's
+  `trigger-evals.json`, both directions. Highest-overlap pins: intra-tenant-
+  scope ≠ `multi-tenant-data-architect` (subordinate axis vs tenant_id axis)
+  and ≠ `command-gateway-architect` (standing read-side axis vs execute-time
+  write scope — the D31 bleed guard); share-link ≠ `authorization-matrix-
+  designer` (bearer capability vs member RBAC, incl. the member-shared-with-
+  grant nuance case); `cell-based-architecture-designer` ≠ `saas-platform-
+  architect` (per-component isolation) / `architecture-advisor` (style menu
+  omits cells) / `agent-containment-reviewer` (agent blast radius), and its
+  too-big-tenant edge routes to `data-partitioning-sharding-strategist`;
+  sharding ≠ `multi-tenant-data-architect` (isolation) / `warehouse-lake-
+  architect` (analytical) / `operational-vs-analytical-splitter` (what leaves
+  OLTP). Product-agnostic (no product/company/personal names or live
+  identifiers; placeholder paths/ids only; sweep for supabase/athena/lovable/
+  aegis/onedrive/personal names/URLs came back clean except the standard
+  evals `$schema` URL and one generic "Postgres" engine reference — neither a
+  product/company name nor a live identifier). All 4 are design/review skills
+  producing specs/plans/verdicts and editing nothing → model-invocable (no
+  `disable-model-invocation`); the three that DESIGN a production-reshaping
+  change (`cell-based-architecture-designer` cell migration/rebalancing,
+  `data-partitioning-sharding-strategist` reshard, `intra-tenant-scope-
+  architect` add-a-scope-axis migration) carry Stop Conditions forbidding
+  execution against production without human approval — they design, they do
+  not run. `share-link-access-architect` additionally Stop-Conditions
+  inventing crypto (specify vetted primitives) and unilateral public exposure
+  of regulated data (escalate). Embedded commands follow the D19 squash-merge
+  posture (none needed — these are design skills). **D12.11 pack now COMPLETE:
+  all 14 candidates resolved (10 strong built D31, 4 low-priority built D32).**
+  To be checked by `skill-quality-reviewer` in the deferred sweep; residual
+  overlap risks flagged for that pass: intra-tenant-scope ↔ `multi-tenant-
+  data-architect` (the closest of the two flag decisions) and share-link ↔
+  `authorization-matrix-designer`. Validator: 175 skills, exit 0.
 
 ---
 

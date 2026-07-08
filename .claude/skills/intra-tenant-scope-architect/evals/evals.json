@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "intra-tenant-scope-architect",
+  "description": "Behavior cases for a second mandatory scoping axis below the tenant: the per-user scope-grant model, the composite tenant+scope row-filter predicate, scope-restricted vs tenant-wide roles, the live-add-axis migration, the client-supplied-scope IDOR refusal, and the child-tenant-not-a-scope reroute.",
+  "cases": [
+    {
+      "id": "positive-add-site-axis",
+      "type": "should_trigger",
+      "prompt": "One tenant of ours is a retail chain. Within that tenant a store manager must see only their store's data, a regional lead sees their region's stores, and head-office admins see the whole chain. Today every user in the tenant sees everything. Add this scoping.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs a second scoping axis BELOW the tenant (store/region) as a per-user scope-grant model, not a new tenant.",
+          "Writes the composite row-filter predicate — tenant_id = current_tenant AND (scope in granted scopes OR user is tenant-wide) — on every scoped table, deny-by-default on scope.",
+          "Classifies roles into scope-restricted (store manager, regional lead) vs tenant-wide (head-office admin bypasses the scope filter) as an explicit, small, audited exception.",
+          "Plans the live migration (add scope column → backfill → assign scopes → shadow predicate → verify per-scope counts → enforce) as designed, not executed, and defers RLS SQL correctness to rls-policy-auditor."
+        ]
+      }
+    },
+    {
+      "id": "edge-tenant-wide-bypass",
+      "type": "should_trigger",
+      "prompt": "In our scoped design, how do the tenant's own admins and auditors keep seeing all sites while everyone else is restricted — without leaving a hole that lets ordinary roles see everything?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Handles the tenant-wide bypass as an enumerated, minimal exception in the predicate rather than an implicit or overly broad hole.",
+          "Ensures the bypass is keyed off a server-derived role/flag, not a client claim, and that tenant-wide reads are audited.",
+          "Warns that getting this one clause wrong either locks admins out of their own tenant or lets every role bypass scope."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trust-client-supplied-scope",
+      "type": "should_trigger",
+      "prompt": "Our UI already filters by site, so on the API just read the site_id from the request and filter on it — that's simplest. Wire up the scoping that way.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to trust a client-supplied scope value: reading site_id from the request is the intra-tenant IDOR, exactly analogous to trusting a client tenant_id.",
+          "Derives the user's scope set server-side from the grant model, binds it once per request, and propagates it to every query including the edge/gateway layer.",
+          "Explains UI filtering is not enforcement — the authoritative scope filter lives server-side."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-child-tenant",
+      "type": "should_not_trigger",
+      "prompt": "Our customers are franchise groups. Each franchise location is a separate legal entity with its own billing, its own admins, and a hard data boundary from the others. Model these organizations and their parent/child relationship.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke intra-tenant-scope-architect: separate legal entities with their own billing and hard data boundaries are child TENANTS, and the parent/child hierarchy is tenant-modeler.",
+          "A scope is a filter WITHIN one tenant with shared ownership, not a separate tenant boundary — the two have opposite data-sharing defaults."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-roles-permissions",
+      "type": "should_not_trigger",
+      "prompt": "Define who can do what in our app: which roles can export data, delete records, invite members, or change billing, with object-level rules and a deny-by-default matrix.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke intra-tenant-scope-architect: roles × permissions × resources — what a role CAN do — is authorization-matrix-designer.",
+          "A scope is a propagated row-FILTER dimension, not a permission; the same role can be held by two users with different scopes."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "cell-based-architecture-designer",
+  "description": "Behavior cases for cell-based (blast-radius) partitioning: cell definition, tenant→cell mapping, a thin router, cell-by-cell deployment, global concerns, the too-big-tenant edge, and the don't-adopt-cells recommendation when blast-radius reduction is not the dominant lever.",
+  "cases": [
+    {
+      "id": "positive-blast-radius-warrants-cells",
+      "type": "should_trigger",
+      "prompt": "Every time we ship a bad migration or one big customer runs a heavy job, the whole platform degrades for all tenants at once. That shared fate is our biggest risk and we want to be able to canary changes to a slice of tenants first. Design a partition scheme that contains failures.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Confirms blast-radius reduction is the dominant lever from the stated shared-fate incidents before designing, rather than assuming cells.",
+          "Defines a cell as a self-contained stack subset (compute + data + cache + queue + workers) that serves a subset of tenants end to end.",
+          "Designs the tenant→cell mapping with a placement policy and a routing table, plus a THIN cell-router carrying no business logic or per-tenant data.",
+          "Plans cell-by-cell deployment with a per-cell health gate and a halt rule so a bad change cannot reach the whole fleet, and enumerates global/cross-cell concerns."
+        ]
+      }
+    },
+    {
+      "id": "edge-tenant-too-big-for-one-cell",
+      "type": "should_trigger",
+      "prompt": "We're designing cells but one tenant is by itself larger than a single cell can hold — its write volume alone saturates a node. How do we place it?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Recognizes a single tenant that exceeds one cell breaks the cell model, which assumes a tenant fits in one cell.",
+          "Routes the intra-cell write/size scale problem to data-partitioning-sharding-strategist rather than multiplying cells around one giant tenant.",
+          "Does not force a cell design that pretends the oversized tenant is contained."
+        ]
+      }
+    },
+    {
+      "id": "should-not-adopt-cells-no-evidence",
+      "type": "should_trigger",
+      "prompt": "We keep reading that big companies use cell-based architecture, so let's re-platform onto cells. Our real pain right now is that reporting dashboards slow down the app under read load. Design the cells.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Tests the premise and finds blast-radius reduction is NOT the dominant lever — the stated pain is analytical read load.",
+          "Recommends the cheaper lever (a read replica / offloading reporting) instead of adopting cells, and explains cells multiply operational cost by cell count.",
+          "Declines to design a cell partition nobody's actual risk requires, rather than proceeding on the fashion argument."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-per-component-isolation",
+      "type": "should_not_trigger",
+      "prompt": "For our new enterprise tier we want that tier's data in a dedicated database while everyone else stays on the shared one — should that one store be pooled, siloed, or bridged, and how do we route to it?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke cell-based-architecture-designer: pooled/siloed/bridge isolation of ONE component for a tenant tier is saas-platform-architect's per-component tenancy decision.",
+          "Whole-stack cells are a far heavier hammer than a single-store isolation choice and are not what this asks for."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-architecture-style",
+      "type": "should_not_trigger",
+      "prompt": "We're greenfield and unsure whether to build a modular monolith, microservices, or an event-driven system for this product. Which paradigm fits, given a small team?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke cell-based-architecture-designer: choosing the architecture STYLE/paradigm is architecture-advisor, whose menu deliberately omits cells.",
+          "Cells partition a chosen paradigm for blast radius; they are not one of the styles being chosen among here."
+        ]
+      }
+    }
+  ]
+}

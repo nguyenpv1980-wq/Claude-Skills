@@ -162,7 +162,7 @@ entry in the reconciliation doc.
 
 ## Map of the system
 
-- **Skills** ([`.claude/skills/`](.claude/skills/)) — the ~171 shipped procedures,
+- **Skills** ([`.claude/skills/`](.claude/skills/)) — the ~175 shipped procedures,
   grouped by the phase categories in the catalog: operating discipline, AI-SDLC
   governance, core architecture & engineering, SaaS & tenant isolation, security &
   supply chain, QA & evidence, cloud & reliability & release, AI/LLM security, agentic
@@ -170,7 +170,7 @@ entry in the reconciliation doc.
   D12.8 operational workflow patterns (the Zero-Trust Engineering Discipline's
   concrete rules), data engineering (D12.1), performance engineering (D12.3),
   performance/load validation (D10 Tier 1), and SaaS architecture depth
-  (D12.11 strong cluster). Full list in
+  (D12.11 — strong cluster D31 + low-priority set D32). Full list in
   [Skills (shipped)](#skills-shipped) below.
 - **Subagents** — seven read-only specialist reviewers, one per lens; see
   [Subagents (read-only reviewers)](#subagents-read-only-reviewers).
@@ -232,6 +232,7 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | D26 | Staff-IC / architecture / framework-refresh batch (11 = D12.7 staff+ IC craft 7 + D12.9 architecture-advisor 1 + D14 framework refresh 3) — PART B of the D12.4+D12.7+D12.9+D14 two-PR batch, 148→159. Seams: `tech-spec-writer`≠`adr-writer`, `phased-work-handoff-designer`≠`ai-closeout-reporter`≠`ai-sdlc-operating-model`, `architecture-advisor`≠`architecture-designer`, D14 detect→propose→human-review | P2 | ✅ shipped (D26) |
 | D28 | OWASP web-app gap-closure pair (2 = `security-logging-alerting-architect` closes A09:2025 + `error-handling-security-reviewer` closes A10:2025 — the D8 audit's two zero-coverage categories; all 10 OWASP web-app categories now owned), 159→161. Seams: A09 skill ≠ `audit-log-architect`/`observability-operator`/`slo-reliability-architect`/`incident-response-runbook`; A10 skill ≠ `security-pr-reviewer`/`appsec-implementer`/`static-analysis-reviewer`/`error-taxonomy-designer` | P1 | ✅ shipped (D28) |
 | D31 | SaaS architecture depth — D12.11 STRONG cluster (10 = `command-gateway-architect`, `realtime-subscription-architect`, `background-job-orchestration-architect`, `horizontal-scalability-reviewer`, `search-architecture-designer`, `file-upload-storage-architect`, `usage-metering-and-cost-attribution-pipeline-designer`, `synthetic-monitoring-architect`, `offline-first-sync-architect`, `admin-console-architect`), 161→171. Hard-pinned seams: usage-metering ≠ `saas-cost-architect` (pipeline vs cost model), background-job ≠ `streaming-event-architect` (execution vs transport), realtime ↔ offline-first (online push vs offline sync, in-batch); `command-gateway-architect` enforces `authorization-matrix-designer`'s policy. usage-metering resolved STANDALONE. The 4 low-priority D12.11 candidates remain unbuilt (Build B). | P1 | ✅ shipped (D31) |
+| D32 | SaaS architecture depth — D12.11 LOW-PRIORITY set (4 = `cell-based-architecture-designer`, `data-partitioning-sharding-strategist`, `intra-tenant-scope-architect`, `share-link-access-architect`), 171→175. Completes the D12.11 pack (all 14 candidates resolved: 10 strong D31 + 4 low-priority D32). Both flags resolved STANDALONE: `intra-tenant-scope-architect` ≠ `multi-tenant-data-architect` (subordinate per-user scope axis vs the tenant_id axis), `share-link-access-architect` ≠ `authorization-matrix-designer` (bearer-capability guest access vs member RBAC). Seams also pinned: cell-based ≠ `saas-platform-architect`/`architecture-advisor`/`agent-containment-reviewer`; sharding ≠ `multi-tenant-data-architect`/`warehouse-lake-architect`/`operational-vs-analytical-splitter`. | P2 | ✅ shipped (D32) |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
 
 ## Subagents (read-only reviewers)
@@ -614,7 +615,8 @@ SAST/DAST pack. All design/review skills that edit nothing → model-invocable;
 the three that can touch live systems (command-gateway backstop,
 synthetic-monitoring probes, offline-first reconciliation) carry Stop
 Conditions forbidding execution against production without human approval.
-The 4 low-priority D12.11 candidates remain unbuilt (Build B):
+The 4 low-priority D12.11 candidates were the deferred Build B, since built in
+D32 (below):
 
 | Skill | What it does | Invocation |
 |---|---|---|
@@ -628,6 +630,24 @@ The 4 low-priority D12.11 candidates remain unbuilt (Build B):
 | `synthetic-monitoring-architect` | Black-box PRODUCTION monitoring: scheduled prod-safe probes/journeys + dependency/heartbeat, a hard no-mutate/no-fixture-leak safety contract, synthetic SLIs + alerting. DESIGNS probes, does not run them against prod. ≠ `performance-test-harness`/`load-test-planner` (pre-release), `playwright-e2e-engineer` (CI E2E), `slo-reliability-architect` (targets), `observability-operator` (white-box). | auto + manual |
 | `offline-first-sync-architect` | The client OFFLINE data layer: durable idempotent write queue, optimistic apply + rollback, version-based conflict detection + eyes-open resolution (refuses silent data loss), background sync, reconciliation integrity. ≠ `edge-state-ux-designer` (UX states), `caching-strategy-designer` (server cache), `realtime-subscription-architect` (live online push, in-batch). | auto + manual |
 | `admin-console-architect` | The internal ops/support/superadmin CONSOLE: least-privilege tiers, audited-by-construction cross-tenant access (reads too), bounded/marked/time-boxed impersonation, break-glass elevation, gated control-plane actions. ≠ `authorization-matrix-designer` (the policy it ENFORCES), `observability-operator` (telemetry vs action), `agent-authorization-matrix` (AI-agent vs human), `incident-response-runbook` (the playbook it serves). | auto + manual |
+
+D32 — SaaS architecture depth (D12.11 LOW-PRIORITY set): the 4 deferred
+Build-B candidates, completing the D12.11 pack (all 14 candidates now
+resolved: 10 strong built D31, 4 low-priority built D32). Two carried a
+standalone-vs-extension flag resolved at build time — `intra-tenant-scope-architect`
+(~60% distinct from `multi-tenant-data-architect`) and `share-link-access-architect`
+(~60% distinct from `authorization-matrix-designer`) — both shipped STANDALONE.
+All design/review skills that edit nothing → model-invocable; the three that
+DESIGN a production-reshaping change (cell migration/rebalancing, a reshard, an
+add-a-scope-axis migration) carry Stop Conditions forbidding execution against
+production without human approval — they design, they do not run.
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `cell-based-architecture-designer` | Cell (blast-radius) partitioning: a self-contained full-stack cell per tenant-subset, tenant→cell mapping + placement, a THIN cell-router, cell-by-cell deploy/canary, global-concern enumeration, migration/rebalancing. SCALE-STAGE — tests the premise first and recommends NOT adopting cells when a cheaper lever suffices. ≠ `saas-platform-architect` (per-component pooled/siloed isolation), `architecture-advisor` (the style choice, whose menu omits cells), `agent-containment-reviewer` (agent blast radius). | auto + manual |
+| `data-partitioning-sharding-strategist` | OLTP partitioning/sharding for WRITE/size scale: shard-key selection (tenant_id + its hot-tenant limit), range/hash/list partitioning, cross-shard cost, reshard/rebalance runbook — gated behind DON'T-SHARD-PREMATURELY (single well-indexed primary + replicas first; shard only on evidenced ceiling). ≠ `multi-tenant-data-architect` (isolation scoping), `warehouse-lake-architect` (analytical partitioning), `operational-vs-analytical-splitter` (what leaves the OLTP store). | auto + manual |
+| `intra-tenant-scope-architect` | A second mandatory scoping axis BELOW the tenant (site/region/org-unit): per-user scope-grant model, the composite tenant+scope row-filter predicate on every scoped table, scope-restricted vs tenant-wide roles, server-derived propagation, live add-axis migration. **STANDALONE (D32).** ≠ `tenant-modeler` (tenant semantics/hierarchy), `multi-tenant-data-architect` (tenant_id-axis storage), `authorization-matrix-designer` (roles×permissions vs a row-filter), `command-gateway-architect` (execute-time write scope). | auto + manual |
+| `share-link-access-architect` | Guest/public share-link (bearer-capability) access: opaque expiring revocable tokens, per-link scope, ephemeral guest sessions, optional password/OTP gate, enumeration/abuse defense, audit — the link exposes exactly its resource, never a hole into the tenant. **STANDALONE (D32).** ≠ `authorization-matrix-designer` (member RBAC + impersonation), `api-event-architect` (machine API credentials / webhook signing). | auto + manual |
 
 ## Authoring a new skill
 

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "data-partitioning-sharding-strategist",
+  "description": "Behavior cases for OLTP partitioning/sharding for write/size scale: evidenced-ceiling shard design, shard-key selection with the tenant_id hot-tenant limit, partitioning-scheme-per-table, cross-shard cost, the reshard runbook, and the don't-shard-prematurely refusal when no ceiling is evidenced.",
+  "cases": [
+    {
+      "id": "positive-evidenced-write-ceiling",
+      "type": "should_trigger",
+      "prompt": "Our primary Postgres is at its write ceiling — sustained write TPS is saturating the node, the biggest table is 4TB and vacuum can't keep up, and we've already added read replicas and tuned indexes. We need to distribute writes across nodes. Design the sharding.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Confirms the write/size ceiling is evidenced (saturated write TPS, 4TB table, replicas + indexing already tried) before designing shards.",
+          "Selects a shard key (tenant_id as the natural key) and states its hot-tenant limit — a single large tenant still lands on one shard.",
+          "Chooses a partitioning scheme per table (range/hash/list) against its query pattern, distinguishing in-node partitioning from cross-node sharding.",
+          "Prices the cross-shard cost (joins, transactions without cheap 2PC, global uniqueness, fan-out) and delivers a reversible reshard runbook that is designed, not executed."
+        ]
+      }
+    },
+    {
+      "id": "edge-hot-tenant-defeats-tenant-key",
+      "type": "should_trigger",
+      "prompt": "We shard by tenant_id but one enterprise tenant is now 60% of the biggest table and its shard is the hotspot. How do we rebalance it?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies that tenant_id sharding cannot split a single hot tenant, which is exactly why one shard became the hotspot.",
+          "Proposes a composite/sub-key to split that tenant's data, or surfaces that a dedicated silo/cell may be the better answer, rather than just adding shards.",
+          "Designs the rebalance as dual-write/backfill → verify → cutover → route update, reversible per step and DESIGNED not executed against production."
+        ]
+      }
+    },
+    {
+      "id": "should-not-shard-prematurely",
+      "type": "should_trigger",
+      "prompt": "We're at 5,000 users on a single database and want to shard now so we never have to later. There's no performance problem today. Set up the shards.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Applies the don't-shard-prematurely gate: with no evidence of a write/size ceiling, it recommends NOT sharding.",
+          "Recommends the single well-indexed primary + read replicas path and names exactly what to measure (write TPS, table size, growth forecast) that would justify revisiting.",
+          "Explains sharding is a one-way door that multiplies operational complexity and cross-shard cost, so it is not done on anticipation."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-isolation-scoping",
+      "type": "should_not_trigger",
+      "prompt": "For our new store, should tenant data be pooled with a tenant key, schema-per-tenant, or database-per-tenant, and how does tenant context get derived and propagated to every query?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke data-partitioning-sharding-strategist: pooled/schema/database isolation scoping and tenant-context propagation are multi-tenant-data-architect.",
+          "This skill distributes an OLTP store for throughput/size, which is not the isolation-strategy question being asked."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-analytical-offload",
+      "type": "should_not_trigger",
+      "prompt": "Our reporting dashboards run heavy aggregate scans against the primary and slow down transactions. Decide what should move off the operational store — a read replica, a warehouse via CDC, or materialized views.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke data-partitioning-sharding-strategist: deciding WHAT analytical workload leaves the OLTP store is operational-vs-analytical-splitter, and the destination design is warehouse-lake-architect.",
+          "This skill shards what STAYS on the operational store for write/size scale; it does not decide analytical offload."
+        ]
+      }
+    }
+  ]
+}

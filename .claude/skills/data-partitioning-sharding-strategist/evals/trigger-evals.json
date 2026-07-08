@@ -1,0 +1,50 @@
+{
+  "skill": "data-partitioning-sharding-strategist",
+  "description": "Trigger discrimination for OLTP write/size-scale partitioning & sharding (this skill) vs per-store tenant ISOLATION scoping (multi-tenant-data-architect), ANALYTICAL-estate partitioning (warehouse-lake-architect), the decision of WHAT leaves the OLTP store (operational-vs-analytical-splitter), and whole-stack cell partitioning (cell-based-architecture-designer).",
+  "overlaps_with": [
+    "multi-tenant-data-architect",
+    "warehouse-lake-architect",
+    "operational-vs-analytical-splitter",
+    "cell-based-architecture-designer"
+  ],
+  "cases": [
+    {
+      "id": "oltp-write-scale-sharding-wins-here",
+      "prompt": "The transactional primary can't absorb our write volume anymore and the largest tables are too big to maintain. Pick a shard key, choose range vs hash partitioning per table, and plan how we reshard a hot key — knowing cross-shard transactions get expensive.",
+      "expected_skill": "data-partitioning-sharding-strategist",
+      "should_not_trigger": ["multi-tenant-data-architect", "warehouse-lake-architect", "operational-vs-analytical-splitter"],
+      "note": "SEAM CASE (primary) — shard-key choice, range/hash partitioning, resharding a hot key, and cross-shard transaction cost on the TRANSACTIONAL store are the sharding strategist's core.",
+      "reason": "OLTP write/size-scale distribution is data-partitioning-sharding-strategist. It is not an isolation-scoping, analytical-estate, or offload-decision question."
+    },
+    {
+      "id": "isolation-scoping-goes-to-multi-tenant-data-architect",
+      "prompt": "Design the tenant-scoped data layer: pooled vs schema-per-tenant vs database-per-tenant per store, the server-derived tenant-context propagation contract, the data-ownership map, and the isolation test matrix.",
+      "expected_skill": "multi-tenant-data-architect",
+      "should_not_trigger": ["data-partitioning-sharding-strategist"],
+      "note": "SEAM CASE (primary, reverse) — pooled/schema/database ISOLATION scoping and tenant-context propagation are about the tenant boundary, not throughput distribution.",
+      "reason": "Per-store tenant isolation scoping and propagation are multi-tenant-data-architect. data-partitioning-sharding-strategist distributes for write/size scale, a different axis."
+    },
+    {
+      "id": "analytical-partitioning-goes-to-warehouse-lake-architect",
+      "prompt": "Design our warehouse: raw→conformed→curated zones, dimensional models per mart, and how we partition and format the fact tables for the query patterns.",
+      "expected_skill": "warehouse-lake-architect",
+      "should_not_trigger": ["data-partitioning-sharding-strategist"],
+      "reason": "Partitioning the ANALYTICAL estate (zones, marts, fact-table partitioning) is warehouse-lake-architect. data-partitioning-sharding-strategist partitions the OLTP store."
+    },
+    {
+      "id": "offload-decision-goes-to-operational-vs-analytical-splitter",
+      "prompt": "Reporting queries are hurting the transactional path. Decide which workloads should leave the primary and whether each goes to a read replica, a warehouse, or a materialized view, against each consumer's freshness tolerance.",
+      "expected_skill": "operational-vs-analytical-splitter",
+      "should_not_trigger": ["data-partitioning-sharding-strategist"],
+      "reason": "Deciding WHAT leaves the OLTP store and the offload mechanism is operational-vs-analytical-splitter. data-partitioning-sharding-strategist shards what STAYS on the OLTP store."
+    },
+    {
+      "id": "fleet-partitioning-goes-to-cell-based",
+      "prompt": "We want to contain failures by running self-contained full stacks per subset of tenants, with tenants mapped to exactly one partition and deploys rolled out one partition at a time.",
+      "expected_skill": "cell-based-architecture-designer",
+      "should_not_trigger": ["data-partitioning-sharding-strategist"],
+      "note": "SEAM CASE (adjacency, reverse) — self-contained full-stack partitions for blast radius are cells, not a shard-key/throughput decision.",
+      "reason": "Whole-stack blast-radius partitioning is cell-based-architecture-designer. data-partitioning-sharding-strategist distributes one store's data across nodes for write/size scale."
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "skill": "intra-tenant-scope-architect",
+  "description": "Trigger discrimination for a subordinate per-user scoping axis below the tenant (this skill) vs tenant SEMANTICS/parent-child hierarchy (tenant-modeler), the tenant_id-axis storage strategy (multi-tenant-data-architect), roles×permissions object-level authz (authorization-matrix-designer), and the command pipeline's execute-time server-derived write scope (command-gateway-architect).",
+  "overlaps_with": [
+    "tenant-modeler",
+    "multi-tenant-data-architect",
+    "authorization-matrix-designer",
+    "command-gateway-architect"
+  ],
+  "cases": [
+    {
+      "id": "intra-tenant-scope-axis-wins-here",
+      "prompt": "Inside a single tenant, users must be limited to a subset of that tenant's data by their site/region, while tenant admins see everything. Design the per-user scope grants, the row-filter predicate on every scoped table, and how the scope propagates to queries.",
+      "expected_skill": "intra-tenant-scope-architect",
+      "should_not_trigger": ["tenant-modeler", "multi-tenant-data-architect", "authorization-matrix-designer"],
+      "note": "SEAM CASE (primary) — a subordinate scoping axis inside one tenant with a per-user grant model and a composite tenant+scope row filter is this skill's core, distinct from the tenant boundary itself.",
+      "reason": "A second row-filter dimension below tenant_id with per-user grants is intra-tenant-scope-architect. It presupposes the tenant boundary; it does not define tenants, store strategy, or role permissions."
+    },
+    {
+      "id": "tenant-semantics-goes-to-tenant-modeler",
+      "prompt": "Define what a tenant is for our product, the parent/child relationship between organizations and workspaces, membership and invitations, and the tenant lifecycle from provisioning to purge.",
+      "expected_skill": "tenant-modeler",
+      "should_not_trigger": ["intra-tenant-scope-architect"],
+      "note": "SEAM CASE (primary, reverse) — tenant semantics and the parent/child TENANT hierarchy are tenant-modeler; a child tenant is a separate boundary, not a scope within one tenant.",
+      "reason": "Defining tenant semantics and tenant hierarchy is tenant-modeler. intra-tenant-scope-architect adds a filter dimension INSIDE an already-defined tenant."
+    },
+    {
+      "id": "tenant-id-storage-strategy-goes-to-multi-tenant-data-architect",
+      "prompt": "Design the tenant-scoped data layer around tenant_id: pooled vs schema-per-tenant vs database-per-tenant per store, the server-derived tenant-context propagation contract, and the data-ownership map.",
+      "expected_skill": "multi-tenant-data-architect",
+      "should_not_trigger": ["intra-tenant-scope-architect"],
+      "note": "SEAM CASE (primary, reverse) — the tenant_id-axis storage strategy and propagation are multi-tenant-data-architect; the intra-tenant axis is a subordinate dimension layered on top.",
+      "reason": "Per-store scoping strategy around tenant_id is multi-tenant-data-architect. intra-tenant-scope-architect adds a second axis below it and presupposes that layer."
+    },
+    {
+      "id": "roles-permissions-goes-to-authorization-matrix-designer",
+      "prompt": "Design the roles × permissions × resources matrix: which roles can perform which sensitive actions on which resources, object-level rules, deny-by-default, and negative tests.",
+      "expected_skill": "authorization-matrix-designer",
+      "should_not_trigger": ["intra-tenant-scope-architect"],
+      "reason": "What a role CAN do (permissions × resources) is authorization-matrix-designer. A scope is a propagated row-FILTER dimension, not a permission — the same role can carry different scopes."
+    },
+    {
+      "id": "execute-time-write-scope-goes-to-command-gateway",
+      "prompt": "For our write pipeline, on every mutation authenticate the actor from the token, look the target row up, and derive its tenant/resource scope from trusted rows before executing — clients must not send scope on writes.",
+      "expected_skill": "command-gateway-architect",
+      "should_not_trigger": ["intra-tenant-scope-architect"],
+      "note": "SEAM CASE (bleed guard) — deriving a write's tenant/resource scope at execute-time inside the command pipeline is command-gateway-architect; intra-tenant-scope-architect designs the STANDING per-user scope-grant model and the row-filter predicate the reads honor.",
+      "reason": "Execute-time server-derived scope for a mutation is the command gateway's pipeline step. intra-tenant-scope-architect owns the standing scope axis, grant model, and read-side predicate — not the per-write derivation."
+    }
+  ]
+}

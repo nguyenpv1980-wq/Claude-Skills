@@ -1,0 +1,50 @@
+{
+  "skill": "cell-based-architecture-designer",
+  "description": "Trigger discrimination for whole-stack cell (blast-radius) partitioning (this skill) vs per-component pooled/siloed isolation (saas-platform-architect), the architecture-style choice (architecture-advisor, whose menu omits cells), agent blast-radius (agent-containment-reviewer), and intra-cell write/size sharding (data-partitioning-sharding-strategist).",
+  "overlaps_with": [
+    "saas-platform-architect",
+    "architecture-advisor",
+    "agent-containment-reviewer",
+    "data-partitioning-sharding-strategist"
+  ],
+  "cases": [
+    {
+      "id": "whole-stack-cells-win-here",
+      "prompt": "Partition the platform so a failure or bad deploy is contained to a subset of tenants: each partition runs its own full stack, tenants map to exactly one partition, and we can roll changes out one partition at a time.",
+      "expected_skill": "cell-based-architecture-designer",
+      "should_not_trigger": ["saas-platform-architect", "architecture-advisor"],
+      "note": "SEAM CASE (primary) — a self-contained full-stack partition per tenant-subset, one-partition-at-a-time rollout, and containment of failure are the defining properties of cells, not a single-component isolation choice.",
+      "reason": "Whole-stack blast-radius partitioning with a thin router and cell-by-cell deploy is cell-based-architecture-designer. saas-platform-architect decides per-component pooled/siloed isolation, not full-stack cells."
+    },
+    {
+      "id": "per-component-isolation-goes-to-saas-platform-architect",
+      "prompt": "Decide the tenancy deployment model for our platform component by component — which stores are pooled with a tenant key, which are siloed per tenant, and what lives in the control plane vs the data plane.",
+      "expected_skill": "saas-platform-architect",
+      "should_not_trigger": ["cell-based-architecture-designer"],
+      "note": "SEAM CASE (primary, reverse) — per-component pooled/siloed/bridge decisions and control/data-plane split are saas-platform-architect; cells are a heavier whole-stack partition on top of that.",
+      "reason": "Per-component tenancy isolation is saas-platform-architect. cell-based-architecture-designer partitions the WHOLE stack for blast radius, which is a different, scale-stage decision."
+    },
+    {
+      "id": "architecture-style-goes-to-architecture-advisor",
+      "prompt": "We haven't picked an architecture paradigm yet — monolith, modular monolith, microservices, or event-driven. Recommend one for a small team building a CRUD-heavy product.",
+      "expected_skill": "architecture-advisor",
+      "should_not_trigger": ["cell-based-architecture-designer"],
+      "reason": "Choosing the architecture STYLE is architecture-advisor, whose style menu omits cells. Cells partition an already-chosen paradigm; they are not a paradigm being selected."
+    },
+    {
+      "id": "agent-blast-radius-goes-to-agent-containment-reviewer",
+      "prompt": "In our multi-agent system one misbehaving agent can cascade failures across the whole agent network. Design blast-radius isolation, circuit breakers, and kill switches for the agents.",
+      "expected_skill": "agent-containment-reviewer",
+      "should_not_trigger": ["cell-based-architecture-designer"],
+      "reason": "Blast radius across an AGENT network — cascade/rogue containment, circuit breakers, kill switches — is agent-containment-reviewer. cell-based-architecture-designer partitions INFRA, not agent authority."
+    },
+    {
+      "id": "intra-cell-write-scale-goes-to-sharding",
+      "prompt": "One tenant's write throughput and table size have outgrown a single node. We need to split that tenant's data across nodes with a shard key and a resharding plan.",
+      "expected_skill": "data-partitioning-sharding-strategist",
+      "should_not_trigger": ["cell-based-architecture-designer"],
+      "note": "SEAM CASE (adjacency) — a tenant too big for one node is a write/size-scale sharding problem, not a fleet-partitioning one.",
+      "reason": "Splitting one tenant's data across nodes for write/size scale is data-partitioning-sharding-strategist. cell-based-architecture-designer partitions tenants across self-contained cells and assumes a tenant fits in one cell."
+    }
+  ]
+}

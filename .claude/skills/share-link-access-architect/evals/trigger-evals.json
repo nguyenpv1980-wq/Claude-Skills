@@ -1,0 +1,41 @@
+{
+  "skill": "share-link-access-architect",
+  "description": "Trigger discrimination for guest/public share-link (bearer-capability) access (this skill) vs member roles×permissions and impersonation/support access (authorization-matrix-designer), the member shared-with grant (also authorization-matrix-designer), and machine API credentials / webhook signing (api-event-architect).",
+  "overlaps_with": [
+    "authorization-matrix-designer",
+    "api-event-architect"
+  ],
+  "cases": [
+    {
+      "id": "share-link-capability-wins-here",
+      "prompt": "Let anyone with a link open a specific resource without an account — the link must be unguessable, expire, be revocable, optionally require a password, and grant only view on that one resource and nothing else in the tenant.",
+      "expected_skill": "share-link-access-architect",
+      "should_not_trigger": ["authorization-matrix-designer", "api-event-architect"],
+      "note": "SEAM CASE (primary) — an unguessable expiring revocable bearer token that scopes anonymous holders to one resource is the capability model, distinct from member RBAC.",
+      "reason": "Anyone-with-the-link guest access via a bearer token is share-link-access-architect. It is a capability model for non-members, not identity-based member RBAC."
+    },
+    {
+      "id": "member-rbac-and-impersonation-goes-to-authorization-matrix-designer",
+      "prompt": "Design roles and permissions for authenticated members — owner/admin/member — object-level rules per resource, deny-by-default, and a scoped, time-boxed, audited support-impersonation flow.",
+      "expected_skill": "authorization-matrix-designer",
+      "should_not_trigger": ["share-link-access-architect"],
+      "note": "SEAM CASE (primary, reverse) — member roles, object-level rules, and impersonation are identity-based RBAC, not anyone-with-the-link access.",
+      "reason": "Member roles × permissions and impersonation/support access are authorization-matrix-designer. share-link-access-architect handles unauthenticated bearer-link holders, not members."
+    },
+    {
+      "id": "member-shared-with-grant-goes-to-authorization-matrix-designer",
+      "prompt": "Let a user share a document with a specific teammate who is a member of the same account, granting that member edit access to just that document.",
+      "expected_skill": "authorization-matrix-designer",
+      "should_not_trigger": ["share-link-access-architect"],
+      "note": "SEAM CASE (nuance) — sharing a resource with a named MEMBER is an object-level RBAC grant, not a public bearer link. Only anyone-with-the-link, non-member access is this skill.",
+      "reason": "A member-to-member shared-with grant is an object-level rule in authorization-matrix-designer. share-link-access-architect is for links usable by non-members without an account."
+    },
+    {
+      "id": "api-credentials-goes-to-api-event-architect",
+      "prompt": "Design API keys per tenant, key rotation and revocation, and signed webhook envelopes partners verify. How do machine clients authenticate to our API?",
+      "expected_skill": "api-event-architect",
+      "should_not_trigger": ["share-link-access-architect"],
+      "reason": "Machine credentials — API keys, rotation, webhook signing — are api-event-architect. share-link-access-architect designs human guest access to a resource via a link, not machine-to-machine auth."
+    }
+  ]
+}
