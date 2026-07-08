@@ -1,0 +1,49 @@
+{
+  "skill": "admin-console-architect",
+  "description": "Trigger discrimination for the operator CONSOLE / action surface (this skill) vs the authorization POLICY it enforces (authorization-matrix-designer), operator TELEMETRY (observability-operator), AI-AGENT authority (agent-authorization-matrix), and the incident PLAYBOOK the console serves (incident-response-runbook).",
+  "overlaps_with": [
+    "authorization-matrix-designer",
+    "observability-operator",
+    "agent-authorization-matrix",
+    "incident-response-runbook"
+  ],
+  "cases": [
+    {
+      "id": "console-action-surface-wins-here",
+      "prompt": "Design the internal admin console: least-privilege operator tiers, audited cross-tenant access, marked and time-boxed impersonation, break-glass elevation, and a control-plane for retry/failover/data-repair.",
+      "expected_skill": "admin-console-architect",
+      "should_not_trigger": ["authorization-matrix-designer", "observability-operator", "incident-response-runbook"],
+      "note": "SEAM CASE (primary) — tiers, audited cross-tenant action, impersonation mechanics, break-glass, and control-plane actions are the console that operators ACT through. Not policy authoring, not telemetry, not a playbook.",
+      "reason": "The operator action surface and its controls are this skill; it enforces the authorization policy and serves the incident runbook rather than being either."
+    },
+    {
+      "id": "authz-policy-goes-to-authorization-matrix-designer",
+      "prompt": "Define who can do what: platform vs tenant roles, object-level permissions per resource, deny-by-default, and the rules governing when support access and impersonation are allowed.",
+      "expected_skill": "authorization-matrix-designer",
+      "should_not_trigger": ["admin-console-architect"],
+      "note": "SEAM CASE (primary, reverse) — authoring the roles × permissions × resources model and the impersonation/support RULES is policy. The console enforces those rules; it does not decide them.",
+      "reason": "The authorization policy (including impersonation rules) is authorization-matrix-designer. admin-console-architect designs the console that ENFORCES that policy at its action surface."
+    },
+    {
+      "id": "telemetry-goes-to-observability-operator",
+      "prompt": "Instrument the platform and build the operator dashboards: metrics, traces, logs, and health views so ops can SEE what the system is doing.",
+      "expected_skill": "observability-operator",
+      "should_not_trigger": ["admin-console-architect"],
+      "reason": "Telemetry and dashboards to SEE system state are observability-operator. The admin console is the ACTION surface; it may embed telemetry, but seeing is not acting."
+    },
+    {
+      "id": "agent-authority-goes-to-agent-authorization-matrix",
+      "prompt": "Define what our AI agents are allowed to do in the SDLC — which can merge, deploy, or change settings, and where a human must approve — the standing authority matrix for agents vs humans.",
+      "expected_skill": "agent-authorization-matrix",
+      "should_not_trigger": ["admin-console-architect"],
+      "reason": "The standing authority of AI agents (merge/deploy/settings, human-approval gates) is agent-authorization-matrix. This console is for HUMAN operators; an agent must not be handed a human break-glass path."
+    },
+    {
+      "id": "incident-playbook-goes-to-incident-response-runbook",
+      "prompt": "Write the incident response runbook: detection, severity classification, roles, communication, mitigation steps, and postmortem for a production outage.",
+      "expected_skill": "incident-response-runbook",
+      "should_not_trigger": ["admin-console-architect"],
+      "reason": "The incident PLAYBOOK (steps/roles/comms during an incident) is incident-response-runbook. The console's tools (failover, data-repair) SERVE that playbook, but the runbook itself is a separate artifact."
+    }
+  ]
+}

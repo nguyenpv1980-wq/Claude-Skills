@@ -1,0 +1,41 @@
+{
+  "skill": "search-architecture-designer",
+  "description": "Trigger discrimination for keyword/faceted search design (this skill) vs AI semantic/vector retrieval and its security (rag-security-architect), the base data-store tenancy model (multi-tenant-data-architect), and cursor/pagination mechanics (pagination-cursor-designer).",
+  "overlaps_with": [
+    "rag-security-architect",
+    "multi-tenant-data-architect",
+    "pagination-cursor-designer"
+  ],
+  "cases": [
+    {
+      "id": "keyword-search-wins-here",
+      "prompt": "Design full-text search over our tenant records: choose the engine, design the indexing pipeline and its freshness, rank results, and guarantee a query for tenant A never returns tenant B's rows.",
+      "expected_skill": "search-architecture-designer",
+      "should_not_trigger": ["rag-security-architect", "multi-tenant-data-architect", "pagination-cursor-designer"],
+      "note": "SEAM CASE (primary) — engine choice, lexical indexing, freshness, ranking, and query+index tenant isolation are keyword-search design. No embeddings/vectors, no base-tenancy redesign, no cursor mechanics are requested.",
+      "reason": "Lexical/faceted search and its per-tenant isolation are this skill. It extends the data model's tenancy into the index rather than redefining it, and defers vector retrieval and pagination mechanics."
+    },
+    {
+      "id": "semantic-vector-goes-to-rag-security-architect",
+      "prompt": "For our AI assistant, design the vector store and retrieval: embedding model, similarity search, keeping one tenant's embeddings from being retrieved for another, and defending against prompt injection carried in retrieved chunks.",
+      "expected_skill": "rag-security-architect",
+      "should_not_trigger": ["search-architecture-designer"],
+      "note": "SEAM CASE (primary, reverse) — embeddings, similarity search, vector-store access control, and injection-via-retrieval are AI retrieval security. This is semantic, not lexical, search.",
+      "reason": "Vector/embedding retrieval and its security (LLM08) are rag-security-architect. search-architecture-designer designs keyword/faceted search; a hybrid defers the vector half there."
+    },
+    {
+      "id": "base-tenancy-goes-to-multi-tenant-data-architect",
+      "prompt": "Design our multi-tenant data model: pooled vs siloed storage, how tenant_id scopes every table, and the isolation guarantees at the primary data layer.",
+      "expected_skill": "multi-tenant-data-architect",
+      "should_not_trigger": ["search-architecture-designer"],
+      "reason": "The base data-store tenancy model (pooled/siloed, tenant_id scoping of primary tables) is multi-tenant-data-architect. Search consumes that model and extends isolation into the index; it does not define the data-layer tenancy."
+    },
+    {
+      "id": "pagination-mechanics-go-to-pagination-cursor-designer",
+      "prompt": "Design our pagination: stable cursors, how we handle deep pagination without offset drift, tie-breaking on non-unique sort keys, and what the cursor encodes.",
+      "expected_skill": "pagination-cursor-designer",
+      "should_not_trigger": ["search-architecture-designer"],
+      "reason": "Cursor encoding, deep-pagination stability, and tie-breaking are pagination-cursor-designer. Search designs the faceted result set and the stable sort/tiebreak, then hands the cursor mechanics over."
+    }
+  ]
+}

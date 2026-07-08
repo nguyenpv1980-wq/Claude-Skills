@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "background-job-orchestration-architect",
+  "description": "Behavior cases for async job/worker execution design: per-job idempotency + retry + visibility timeout + DLQ, resumable long jobs, per-tenant fairness, scheduling with overlap prevention, and the transport-vs-execution and sync-write boundaries.",
+  "cases": [
+    {
+      "id": "positive-offload-slow-work",
+      "type": "should_trigger",
+      "prompt": "Generating a large export blocks the request for 40 seconds and sometimes times out. Move it to a background job and design how the worker runs it, retries, and reports back.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Catalogs the job with its trigger, duration, side effects, and whether it is safe to re-run, then designs an execution contract: idempotency, retry with backoff and a retryable-vs-poison classifier, a visibility timeout sized above real runtime, and a DLQ with a named owner.",
+          "Designs resumability/checkpointing so a crash mid-export resumes rather than restarting from zero or double-charging.",
+          "Provides a way to report success/failure back to the user rather than fire-and-forget.",
+          "Defers the message transport (topics/partitions/delivery semantics) to streaming-event-architect and capacity validation to the performance/load skills."
+        ]
+      }
+    },
+    {
+      "id": "positive-per-tenant-fairness",
+      "type": "should_trigger",
+      "prompt": "When one big customer kicks off a bulk operation with tens of thousands of jobs, every other customer's jobs stall behind them. Fix the worker design so one tenant can't starve the others.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Diagnoses the single undifferentiated queue as the cause and designs per-tenant fairness: per-tenant queues with weighted/round-robin draining, per-tenant concurrency caps, or priority lanes for interactive vs bulk work.",
+          "States explicitly how a tenant's flood is bounded so others keep flowing — noisy-neighbor defense at the worker layer.",
+          "Adds per-tenant queue-depth as a first-class observability signal with a threshold and owner.",
+          "Does not merely add more workers, which scales the starvation rather than removing the unfairness."
+        ]
+      }
+    },
+    {
+      "id": "edge-poison-job-and-visibility-timeout",
+      "type": "should_trigger",
+      "prompt": "Some jobs retry forever and hammer a third-party API, and separately a long job sometimes runs twice at the same time. What's wrong with our job handling?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies retry-forever as a missing poison classifier: permanent failures (bad input, 4xx) must be dead-lettered fast, not retried indefinitely with backoff.",
+          "Identifies the double-run as a visibility timeout shorter than the job's real runtime — the queue redelivers while the first worker is still processing — and sizes the lease above runtime.",
+          "Requires idempotency so any redelivery that does happen cannot double-apply.",
+          "Adds DLQ ownership and a fill alert so dead-lettered jobs are not lost silently."
+        ]
+      }
+    },
+    {
+      "id": "should-not-make-a-sync-write-async",
+      "type": "should_trigger",
+      "prompt": "The role-change endpoint feels slow. Just push the whole authorize-and-update-permissions operation onto a background queue so the response returns instantly.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Pushes back: a synchronous, user-blocking, security-sensitive write does not belong on a background queue just to speed up the response — that can hide authorization outcomes and lose the user's result.",
+          "Routes the write to command-gateway-architect's synchronous protected path and suggests optimizing it there, or making only a genuinely deferrable side effect async.",
+          "Names the risk: a fire-and-forget enqueue that silently fails is worse than a slow but honest synchronous call for a permission change."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-message-transport",
+      "type": "should_not_trigger",
+      "prompt": "Design our event backbone: which flows are streams vs queues, the partition keys, consumer-group layout, delivery semantics, and CDC from the operational database.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke background-job-orchestration-architect: stream-vs-queue, partition keys, consumer groups, delivery semantics, and CDC are the message transport owned by streaming-event-architect.",
+          "Jobs may ride that transport, but nothing here asks for the worker execution contract."
+        ]
+      }
+    }
+  ]
+}

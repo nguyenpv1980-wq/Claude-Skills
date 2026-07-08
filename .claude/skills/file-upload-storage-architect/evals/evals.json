@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "file-upload-storage-architect",
+  "description": "Behavior cases for file/object storage and upload design: direct-vs-proxied flow, narrowly-scoped short-lived signed URLs, server-derived tenant-prefixed keys, content-based validation, scan-before-serve, off-request-path derivatives, retention — and the PII-lifecycle non-trigger.",
+  "cases": [
+    {
+      "id": "positive-add-uploads",
+      "type": "should_trigger",
+      "prompt": "We're adding file attachments per customer. Design the upload and storage: how files are uploaded, how we keep one customer from reading another's files, and how we keep it safe.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Chooses direct-to-storage vs proxied with a stated reason, and for direct uploads has the app issue a scoped signed URL and record intent rather than trust a client success report.",
+          "Scopes signed URLs to one verb + one object key + short expiry (never prefix/bucket) with server-derived keys of the form tenant/<random-id>, so a client cannot escape its tenant prefix.",
+          "Validates size at the storage layer and type by magic bytes/content, not extension, and scans files before they are served or processed (quarantine until clean).",
+          "Designs storage tenancy (shared bucket + tenant prefix or per-tenant bucket) and hands the resulting access policy to rls-policy-auditor; designs retention with orphan cleanup and delete-propagation."
+        ]
+      }
+    },
+    {
+      "id": "positive-slow-proxied-uploads",
+      "type": "should_trigger",
+      "prompt": "Large uploads are slow and occasionally crash our app servers because every file streams through the app. And our signed download URLs last a week. Redesign it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Moves to direct-to-storage so the app is out of the byte path, removing the size cap and compute cost of proxying.",
+          "Shortens signed URLs to one object + one verb + a minutes-scale expiry, and notes a week-long URL is a shareable/leakable bearer key.",
+          "Keeps content validation and scanning in the new flow (validation cannot be dropped just because the app no longer sees the bytes inline — enforce size/type at storage and scan post-upload before serve).",
+          "Adds derivative processing off the request path as background jobs rather than inline."
+        ]
+      }
+    },
+    {
+      "id": "edge-image-derivatives-and-serving",
+      "type": "should_trigger",
+      "prompt": "Users upload avatars and documents. We need thumbnails, and some documents are private while avatars are public. Design storage, processing, and serving.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Processes thumbnails/derivatives as background jobs off the request path, keeping the original immutable and derivatives regenerable.",
+          "Makes a per-class public-vs-private decision: public avatars via CDN with cache-control; private documents via signed short-lived GET URLs, never a public URL.",
+          "Serves user-uploaded content safely (isolated domain / safe content-disposition) to avoid stored XSS, calling out SVG/HTML risk.",
+          "Applies retention/lifecycle and orphan cleanup per class."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trust-extension",
+      "type": "should_trigger",
+      "prompt": "For validation we'll just check the file extension is in an allowlist (.png, .jpg, .pdf) and cap size on the client. Good enough?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Rejects extension/client-MIME trust: a malicious file renamed to .png passes, and a client-side size cap is trivially bypassed.",
+          "Requires magic-byte/content-type validation and a storage-layer-enforced size cap, with mismatches rejected or quarantined.",
+          "Adds malware scanning before the file is served or processed, with a non-servable pending state until scanned clean.",
+          "Notes stored-XSS risk if such files are later served from the app's own domain."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-pii-lifecycle",
+      "type": "should_not_trigger",
+      "prompt": "Design our personal-data lifecycle: lawful basis and consent for the data we hold, data-subject access and export requests, and deletion SLAs across all systems when a user asks to be forgotten.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke file-upload-storage-architect: consent, subject-access/export, and cross-system deletion SLAs are the personal-data lifecycle owned by pii-lifecycle-designer.",
+          "Storage design may implement a deletion mechanism, but the privacy obligations on file CONTENTS are deferred there."
+        ]
+      }
+    }
+  ]
+}

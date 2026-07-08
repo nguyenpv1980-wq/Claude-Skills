@@ -1,0 +1,41 @@
+{
+  "skill": "usage-metering-and-cost-attribution-pipeline-designer",
+  "description": "Trigger discrimination for the highest-overlap seam in this pack: the metering/billing DATA PIPELINE (this skill) vs the unit-economics COST MODEL (saas-cost-architect — THE hard-pinned closest neighbor), AI spend enforcement (ai-cost-guardrail-designer), and the operational-vs-analytical split decision (operational-vs-analytical-splitter).",
+  "overlaps_with": [
+    "saas-cost-architect",
+    "ai-cost-guardrail-designer",
+    "operational-vs-analytical-splitter"
+  ],
+  "cases": [
+    {
+      "id": "metering-pipeline-wins-here",
+      "prompt": "Build the usage-metering pipeline: the append-only event table, versioned time-bounded rate cards, idempotent cost entries that survive replays, additive daily rollups, and reconciliation against the provider invoices.",
+      "expected_skill": "usage-metering-and-cost-attribution-pipeline-designer",
+      "should_not_trigger": ["saas-cost-architect", "operational-vs-analytical-splitter"],
+      "note": "SEAM CASE (primary) — event schema, idempotency keys, rate-card versioning, additive rollups, and invoice reconciliation are ETL/data-pipeline engineering. The question is HOW to compute trustworthy numbers, not whether pricing is profitable.",
+      "reason": "Building the metering→rollup→reconciliation pipeline is this skill. It feeds the cost model rather than being it; the overlap is only the word 'attribution'."
+    },
+    {
+      "id": "cost-model-goes-to-saas-cost-architect",
+      "prompt": "What does each tenant actually cost us, which tenants are unprofitable at their plan, and does our pricing cover cost? Build the cost model with unit economics against revenue and cost guardrails.",
+      "expected_skill": "saas-cost-architect",
+      "should_not_trigger": ["usage-metering-and-cost-attribution-pipeline-designer"],
+      "note": "SEAM CASE (primary, reverse — HARD PIN) — driver inventory, attribution POLICY, unit economics vs revenue, and profitability are the economic MODEL, a reasoning artifact. No event schema, idempotency key, rollup job, or reconciliation loop is requested.",
+      "reason": "The unit-economics cost model and profitability judgment are saas-cost-architect. This pipeline produces the numbers that model consumes; it does not decide what a tenant costs or whether pricing works."
+    },
+    {
+      "id": "ai-spend-enforcement-goes-to-ai-cost-guardrail-designer",
+      "prompt": "Defend our AI feature against runaway spend: per-request token caps, cost-aware (token-based) rate limits, per-tenant budgets, a fail-closed spend kill switch, and degraded-mode fallback.",
+      "expected_skill": "ai-cost-guardrail-designer",
+      "should_not_trigger": ["usage-metering-and-cost-attribution-pipeline-designer"],
+      "reason": "Token caps, cost-aware rate limits, and a spend kill switch are AI-spend ENFORCEMENT (ai-cost-guardrail-designer). The metering pipeline supplies the metered signal those guardrails act on; it does not throttle or kill."
+    },
+    {
+      "id": "split-decision-goes-to-operational-vs-analytical-splitter",
+      "prompt": "Our reporting and rollup queries are hammering the production database. Should the rollup/analytical workload move off the operational store, and which parts?",
+      "expected_skill": "operational-vs-analytical-splitter",
+      "should_not_trigger": ["usage-metering-and-cost-attribution-pipeline-designer"],
+      "reason": "WHETHER and WHICH analytical workloads leave the operational store is operational-vs-analytical-splitter. The metering rollup is an analytical projection whose PLACEMENT that decision governs; this skill designs the rollup's correctness (additive, reconstructable), not where it runs."
+    }
+  ]
+}

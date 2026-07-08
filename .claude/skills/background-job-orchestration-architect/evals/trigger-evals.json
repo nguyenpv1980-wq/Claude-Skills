@@ -1,0 +1,42 @@
+{
+  "skill": "background-job-orchestration-architect",
+  "description": "Trigger discrimination for the worker EXECUTION model (this skill) vs the message TRANSPORT it rides (streaming-event-architect — THE hard-pinned seam), the measurement of capacity under load (performance-test-harness / load-test-planner), and the synchronous protected write path (command-gateway-architect).",
+  "overlaps_with": [
+    "streaming-event-architect",
+    "performance-test-harness",
+    "load-test-planner",
+    "command-gateway-architect"
+  ],
+  "cases": [
+    {
+      "id": "execution-model-wins-here",
+      "prompt": "Design how our background workers run jobs: idempotency and retry-with-backoff per job, visibility timeouts, a dead-letter queue with an owner, resumable long jobs, and fairness so one tenant can't monopolize the workers.",
+      "expected_skill": "background-job-orchestration-architect",
+      "should_not_trigger": ["streaming-event-architect", "performance-test-harness", "load-test-planner"],
+      "note": "SEAM CASE (primary) — retry, visibility timeout, DLQ ownership, checkpointing, and worker fairness are execution mechanics: what RUNS the work, not the pipe it travels on nor how fast it goes under load.",
+      "reason": "The worker execution contract and per-tenant fairness are this skill. It assumes a transport rather than designing one, and it designs rather than measures."
+    },
+    {
+      "id": "transport-goes-to-streaming-event-architect",
+      "prompt": "Design the queue/stream layer itself: stream vs work-queue per flow, partition keys and ordering scope, consumer groups, at-least-once delivery semantics, retention vs compaction, and CDC ingestion.",
+      "expected_skill": "streaming-event-architect",
+      "should_not_trigger": ["background-job-orchestration-architect"],
+      "note": "SEAM CASE (primary, reverse — HARD PIN) — partition keys, ordering scope, delivery semantics, retention, and CDC are transport design. Whether a worker retries or dead-letters is not mentioned; the pipe is the subject.",
+      "reason": "The message transport (topics, partitions, delivery semantics, CDC) is streaming-event-architect. Jobs ride that transport; this skill designs the worker on top of it. Transport choice does not transfer to the execution model."
+    },
+    {
+      "id": "capacity-measurement-goes-to-load-test-planner",
+      "prompt": "We need to know whether our job system survives Black-Friday-scale bursts: model realistic enqueue traffic across tenants and data volumes and find where it degrades.",
+      "expected_skill": "load-test-planner",
+      "should_not_trigger": ["background-job-orchestration-architect"],
+      "reason": "Planning realistic load to find the degradation point MEASURES the system; load-test-planner (with performance-test-harness for instrumentation) owns that. This skill designs the model that gets measured, and does not assert its own capacity."
+    },
+    {
+      "id": "sync-protected-write-goes-to-command-gateway-architect",
+      "prompt": "Design the single server-side path every protected mutation flows through: validate, authenticate the actor from the token, authorize, derive tenant scope, dedup, execute, and audit — synchronously, returning the result to the caller.",
+      "expected_skill": "command-gateway-architect",
+      "should_not_trigger": ["background-job-orchestration-architect"],
+      "reason": "A synchronous, authorized, audited write returned to the caller is the command gateway. Background jobs are for work deliberately taken OFF the request path, not for the request-time protected write itself."
+    }
+  ]
+}

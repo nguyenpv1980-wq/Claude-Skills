@@ -1,0 +1,50 @@
+{
+  "skill": "synthetic-monitoring-architect",
+  "description": "Trigger discrimination for black-box production monitoring (this skill) vs pre-release load/perf measurement (performance-test-harness / load-test-planner), CI end-to-end tests (playwright-e2e-engineer), SLO/SLI target-setting (slo-reliability-architect), and white-box internal instrumentation (observability-operator).",
+  "overlaps_with": [
+    "performance-test-harness",
+    "load-test-planner",
+    "playwright-e2e-engineer",
+    "slo-reliability-architect",
+    "observability-operator"
+  ],
+  "cases": [
+    {
+      "id": "prod-black-box-monitoring-wins-here",
+      "prompt": "Design scheduled probes that exercise our critical production journeys and third-party dependencies from the outside, alert us before customers notice, and never touch real data unsafely.",
+      "expected_skill": "synthetic-monitoring-architect",
+      "should_not_trigger": ["performance-test-harness", "load-test-planner", "playwright-e2e-engineer", "observability-operator"],
+      "note": "SEAM CASE (primary) — scheduled external probes of production journeys/dependencies with a prod-safety contract and alerting is black-box synthetic monitoring. Not a pre-release load test, not a CI gate, not internal telemetry.",
+      "reason": "Ongoing prod-safe external probing that watches whether production works from the user's path is this skill; it feeds SLOs and complements white-box telemetry rather than being either."
+    },
+    {
+      "id": "pre-release-load-goes-to-load-test-planner",
+      "prompt": "Before we launch, model realistic peak traffic across tenants and data volumes and measure where latency and throughput degrade so we know our capacity.",
+      "expected_skill": "load-test-planner",
+      "should_not_trigger": ["synthetic-monitoring-architect"],
+      "note": "SEAM CASE (reverse) — modeling peak load to find the degradation point is pre-release MEASUREMENT (with performance-test-harness for instrumentation). Synthetic monitoring watches production on a schedule after ship.",
+      "reason": "Pre-release capacity/latency measurement under modeled load is load-test-planner/performance-test-harness. Synthetic monitoring is post-ship watching of the live system, not a load test."
+    },
+    {
+      "id": "ci-e2e-goes-to-playwright-e2e-engineer",
+      "prompt": "Build the end-to-end browser tests that run in CI against the preview environment and block a PR if the core flows break.",
+      "expected_skill": "playwright-e2e-engineer",
+      "should_not_trigger": ["synthetic-monitoring-architect"],
+      "reason": "CI E2E tests on ephemeral preview data gating PRs are playwright-e2e-engineer. Synthetic monitoring is scheduled prod-safe probing of production, not a pre-merge CI gate; the two differ on target (prod vs preview) and safety envelope."
+    },
+    {
+      "id": "slo-targets-go-to-slo-reliability-architect",
+      "prompt": "Define our availability and latency SLOs and the error budget for each service — what we commit to and how we measure and spend it.",
+      "expected_skill": "slo-reliability-architect",
+      "should_not_trigger": ["synthetic-monitoring-architect"],
+      "reason": "Setting the SLO/SLI targets and error budgets is slo-reliability-architect. Synthetic monitoring produces a synthetic SLI that FEEDS those targets; it does not define them."
+    },
+    {
+      "id": "white-box-telemetry-goes-to-observability-operator",
+      "prompt": "Instrument the application with metrics, distributed traces, and structured logs from inside, and wire the dashboards and alerting on those internal signals.",
+      "expected_skill": "observability-operator",
+      "should_not_trigger": ["synthetic-monitoring-architect"],
+      "reason": "Internal white-box instrumentation (metrics/traces/logs from inside the app) is observability-operator. Synthetic monitoring is the external black-box complement that probes from the user's vantage point; the two are paired, not the same."
+    }
+  ]
+}

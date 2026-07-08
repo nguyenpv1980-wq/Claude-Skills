@@ -1,0 +1,49 @@
+{
+  "skill": "command-gateway-architect",
+  "description": "Trigger discrimination for the internal write-path gateway (this skill) vs the external API/webhook contract (api-event-architect), the authorization policy it enforces (authorization-matrix-designer), the audit record schema it emits into (audit-log-architect), and the internal event backbone its domain events ride (streaming-event-architect).",
+  "overlaps_with": [
+    "api-event-architect",
+    "authorization-matrix-designer",
+    "audit-log-architect",
+    "streaming-event-architect"
+  ],
+  "cases": [
+    {
+      "id": "internal-write-path-wins-here",
+      "prompt": "Every protected mutation should go through one server-side path that authenticates the actor from the token, derives tenant scope from the database, dedups retries, executes, and emits an audit record — and clients must not be able to write around it.",
+      "expected_skill": "command-gateway-architect",
+      "should_not_trigger": ["api-event-architect", "authorization-matrix-designer", "audit-log-architect"],
+      "note": "SEAM CASE (primary) — actor-from-token, server-derived scope, idempotency, transactional audit emission, and the no-bypass invariant are the command pipeline's mechanics. No external contract, no policy authoring, no record-schema design is requested.",
+      "reason": "The subject is the internal write pipeline and its no-bypass invariant. It ENFORCES policy and EMITS audit records but authors neither; it dispatches, it is not the external API."
+    },
+    {
+      "id": "external-contract-goes-to-api-event-architect",
+      "prompt": "Design the public API surface: REST resource conventions, semantic versioning with a deprecation/sunset window, per-tenant and per-plan rate limits, and the signed webhook envelope partners subscribe to.",
+      "expected_skill": "api-event-architect",
+      "should_not_trigger": ["command-gateway-architect"],
+      "note": "SEAM CASE (primary, reverse) — versioning, rate limits, and partner webhooks are the promise made to outside integrators. The gateway is what those endpoints dispatch into, not the contract itself.",
+      "reason": "External resource/versioning/rate-limit/webhook contract is api-event-architect. command-gateway-architect owns the internal pipeline behind that surface."
+    },
+    {
+      "id": "policy-authoring-goes-to-authorization-matrix-designer",
+      "prompt": "Define who can do what: platform vs tenant roles, object-level permissions for every tenant-owned resource, deny-by-default posture, and the negative tests proving forbidden actions fail.",
+      "expected_skill": "authorization-matrix-designer",
+      "should_not_trigger": ["command-gateway-architect"],
+      "reason": "Authoring the roles × permissions × resources model is authorization-matrix-designer. The gateway CALLS that model at its authorize step; it does not decide the rules."
+    },
+    {
+      "id": "audit-schema-goes-to-audit-log-architect",
+      "prompt": "Design the audit trail: the event taxonomy, the record schema (actor, tenant, action, target, outcome, correlation id), append-only tamper-evidence, and retention.",
+      "expected_skill": "audit-log-architect",
+      "should_not_trigger": ["command-gateway-architect"],
+      "reason": "The audit record schema, taxonomy, and integrity guarantees are audit-log-architect. The gateway EMITS records into that schema at its emit step; it does not design the record."
+    },
+    {
+      "id": "event-transport-goes-to-streaming-event-architect",
+      "prompt": "The domain events our writes emit need an internal backbone: topics, partition keys, consumer groups, dead-letter handling, and replay after an outage.",
+      "expected_skill": "streaming-event-architect",
+      "should_not_trigger": ["command-gateway-architect"],
+      "reason": "Topics, partitions, DLQ, and replay for the internal event pipeline are streaming-event-architect. The gateway decides WHAT to emit and that it commits with the write; the transport it rides is a separate design."
+    }
+  ]
+}

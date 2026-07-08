@@ -1,0 +1,50 @@
+{
+  "skill": "realtime-subscription-architect",
+  "description": "Trigger discrimination for live client delivery (this skill) vs the internal server-to-server event backbone (streaming-event-architect — THE seam), request/response API and outbound webhooks (api-event-architect), the client offline write-sync engine (offline-first-sync-architect — the in-batch online-vs-offline seam), and notification UX (notification-webhook-ux-designer).",
+  "overlaps_with": [
+    "streaming-event-architect",
+    "api-event-architect",
+    "offline-first-sync-architect",
+    "notification-webhook-ux-designer"
+  ],
+  "cases": [
+    {
+      "id": "client-push-wins-here",
+      "prompt": "Clients should get live updates over WebSocket when a shared resource changes — with per-user authorization at subscribe time, cross-node fan-out, and reconnect that replays what they missed.",
+      "expected_skill": "realtime-subscription-architect",
+      "should_not_trigger": ["streaming-event-architect", "api-event-architect", "notification-webhook-ux-designer"],
+      "note": "SEAM CASE (primary) — the audience is CLIENTS, the concerns are subscribe-time authz, fan-out to connections, and reconnect/replay. These are client-push mechanics, not an internal pipeline.",
+      "reason": "Live delivery to client connections with per-subscribe authorization is this skill. It may consume the internal backbone but does not design it."
+    },
+    {
+      "id": "internal-backbone-goes-to-streaming-event-architect",
+      "prompt": "Design the internal event backbone between our services: which flows are streams vs queues, partition keys, consumer groups, dead-letter policy, retention, and CDC from the operational database.",
+      "expected_skill": "streaming-event-architect",
+      "should_not_trigger": ["realtime-subscription-architect"],
+      "note": "SEAM CASE (primary, reverse) — every consumer is an internal service; topics, partitions, DLQ, and CDC are backbone mechanics with no client connection in sight.",
+      "reason": "Server-to-server event flow is streaming-event-architect. The realtime skill explicitly stops at the boundary where it consumes that backbone to push to clients."
+    },
+    {
+      "id": "outbound-webhooks-go-to-api-event-architect",
+      "prompt": "Partners want to receive our events on their own servers: a versioned, signed webhook envelope, tenant-scoped subscriptions, at-least-once delivery with retries, and replay protection.",
+      "expected_skill": "api-event-architect",
+      "should_not_trigger": ["realtime-subscription-architect"],
+      "reason": "Server-to-server webhook delivery to partner endpoints is the external contract (api-event-architect). Realtime subscriptions push to a live client connection, not to a partner's HTTP endpoint."
+    },
+    {
+      "id": "offline-sync-engine-goes-to-offline-first-sync-architect",
+      "prompt": "Our app must work offline: queue writes made while disconnected, apply them optimistically, and reconcile with conflict resolution when the device comes back online.",
+      "expected_skill": "offline-first-sync-architect",
+      "should_not_trigger": ["realtime-subscription-architect"],
+      "note": "IN-BATCH SEAM — offline write queue, optimistic apply, and conflict resolution are the sync engine. Realtime is live push while ONLINE; the two compose (the channel can be the sync transport) but the ask here is the offline engine.",
+      "reason": "Write-while-offline, optimistic rollback, and conflict resolution are offline-first-sync-architect. realtime-subscription-architect owns live online delivery, not the offline queue."
+    },
+    {
+      "id": "notification-ux-goes-to-notification-webhook-ux-designer",
+      "prompt": "Design the in-app notification experience: the bell/inbox, read/unread state, grouping and digesting, toast timing, and per-category preferences.",
+      "expected_skill": "notification-webhook-ux-designer",
+      "should_not_trigger": ["realtime-subscription-architect"],
+      "reason": "The presentation and UX of notifications is notification-webhook-ux-designer. Realtime owns the transport that may deliver them, not the inbox, read-state, or toast behavior."
+    }
+  ]
+}

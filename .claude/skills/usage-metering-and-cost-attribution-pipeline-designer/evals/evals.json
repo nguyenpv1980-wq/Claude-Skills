@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "usage-metering-and-cost-attribution-pipeline-designer",
+  "description": "Behavior cases for the metering→rollup→reconciliation data pipeline: billing-safe metadata-only events, time-bounded rate cards, idempotent cost entries safe under replay, additive rollups, invoice reconciliation, correction handling — and the cost-MODEL non-trigger.",
+  "cases": [
+    {
+      "id": "positive-build-the-pipeline",
+      "type": "should_trigger",
+      "prompt": "We bill customers on usage — API calls, storage, and AI tokens. Build the metering pipeline: how we record usage, price it, roll it up, and make sure what we bill matches the provider invoices.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs a billing-safe append-only usage-event table with metadata only (tenant, metric, quantity, occurred_at, event_id) and explicitly no message/file content or PII.",
+          "Models time-bounded, versioned rate cards and rates each event at its occurred_at card version so a price change never re-rates history.",
+          "Designs cost entries with idempotency keys (event_id + rate-card version) so replays/retries never double-bill, and additive rollups that are reconstructable projections of the entries.",
+          "Designs a reconciliation loop comparing metered totals to the provider invoice with a tolerance and a defined action on drift, and defers unit-economics/profitability to saas-cost-architect."
+        ]
+      }
+    },
+    {
+      "id": "positive-numbers-dont-match-invoice",
+      "type": "should_trigger",
+      "prompt": "Finance says our metered usage totals don't match what the cloud and AI providers actually invoiced us, and nobody can explain the gap. Fix the pipeline.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Builds the reconciliation loop as the trust anchor: metered totals vs the source-of-truth invoice per metric and tenant, with drift computed and a tolerance beyond which the pipeline is treated as broken.",
+          "Enumerates likely drift causes to hunt: dropped/duplicated events (missing idempotency), rate-card time-boundary errors re-rating history, and un-attributed usage.",
+          "Adds late/out-of-order event handling and a period close/lock so late items don't silently mutate a finalized invoice.",
+          "Does not present unreconciled metering as billing-grade."
+        ]
+      }
+    },
+    {
+      "id": "edge-replay-idempotency",
+      "type": "should_trigger",
+      "prompt": "When our usage processor crashes mid-batch we re-run it, and sometimes that double-counts usage. How should the pipeline handle re-processing?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats re-processing as a NORMAL operation the pipeline must be safe under, not an exception, and makes cost entries idempotent via a key derived from event_id + rate-card version.",
+          "Ensures re-running the rater or replaying events produces the SAME entry rather than a duplicate.",
+          "Keeps rollups additive so a recompute after re-processing yields the same total.",
+          "Distinguishes idempotent re-processing from destructive edits (corrections are new additive adjustment entries, not in-place changes)."
+        ]
+      }
+    },
+    {
+      "id": "should-not-store-content-in-events",
+      "type": "should_trigger",
+      "prompt": "To debug billing disputes, let's store the full request payload and the AI prompt/response text in each usage event so we can see exactly what was charged.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to put message/file content or prompt/response text into usage events: it turns the metering table into a PII/secret store with billing-grade retention.",
+          "Keeps events metadata-only (that usage happened and how much) and points debugging at correlation ids linking to the appropriate (access-controlled, retention-governed) store instead.",
+          "Preserves the billing-safe boundary as a validation-checklist item."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-cost-model",
+      "type": "should_not_trigger",
+      "prompt": "What does each tenant actually cost us to serve, which plans are unprofitable at their current price, and does our pricing cover cost before we launch the new AI feature?",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke the metering-pipeline skill: what a tenant costs, which plans are unprofitable, and whether pricing covers cost is the unit-economics COST MODEL owned by saas-cost-architect.",
+          "This pipeline produces the numbers that model consumes, but the modeling/profitability question is deferred there."
+        ]
+      }
+    }
+  ]
+}

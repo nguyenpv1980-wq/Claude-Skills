@@ -532,10 +532,10 @@ gap:
     `architecture-designer`, `cloud-architecture-decider`, `saas-platform-architect`, and
     `domain-modeler`.
 
-**D12.11 SaaS Architecture Depth** *(pack added by D30, 2026-07-08; all 14:
-candidate — not built; build DEFERRED until AFTER the library-wide
-`skill-quality-reviewer` sweep — then **scheduled to BUILD AHEAD OF the D12.10
-SAST/DAST pack below**)*: net-new architecture-depth gaps surfaced by a private
+**D12.11 SaaS Architecture Depth** *(pack added by D30, 2026-07-08; STRONG
+cluster of 10 ✅ built by D31, 2026-07-08 — ahead of the D12.10 SAST/DAST pack
+as planned; the 4 LOW-PRIORITY candidates remain candidate — not built (Build
+B))*: net-new architecture-depth gaps surfaced by a private
 read-only deep-audit of production multi-tenant SaaS patterns plus general
 SaaS-architecture research (product-agnostic — evidenced by production
 multi-tenant SaaS patterns; no product/vendor named). Two tiers: a **STRONG
@@ -550,9 +550,9 @@ that follows it** — the architecture-depth gaps are foundational product
 surfaces, so when packs are pulled the strong cluster here runs first, ahead of
 D12.10.
 
-*STRONG cluster (10 — build these first when the phase is pulled):*
+*STRONG cluster (10 — ✅ all built by D31, 2026-07-08):*
 
-- `command-gateway-architect` *(candidate — not built)* — design a single
+- `command-gateway-architect` *(✅ built — D31, 2026-07-08)* — design a single
   server-side-mediated write path (a command bus): a command registry + a
   per-command pipeline (validate → authenticate the actor from the token, never
   from the client → authorize → server-derive tenant/resource scope from trusted
@@ -562,39 +562,40 @@ D12.10.
   `authorization-matrix-designer` (the policy it ENFORCES), `audit-log-architect`
   (the records it emits); backlog components `validation-boundary-designer` /
   `idempotency-first-designer`.
-- `realtime-subscription-architect` *(candidate — not built)* — design real-time
+- `realtime-subscription-architect` *(✅ built — D31, 2026-07-08)* — design real-time
   client delivery (WebSocket/SSE/DB-change subscriptions/presence): channel/topic
   model, authorize-at-subscribe-time (the per-tenant + per-user leak boundary),
   fan-out, scaling stateful connections, backpressure, reconnect/replay, presence.
   SEAMS: `streaming-event-architect` (server-internal backbone, NOT client push),
   `api-event-architect` (request/response + outbound webhooks),
   `notification-webhook-ux-designer` (UX, not transport).
-- `background-job-orchestration-architect` *(candidate — not built)* — design the
+- `background-job-orchestration-architect` *(✅ built — D31, 2026-07-08)* — design the
   async job/worker execution model: offload-from-request-path, worker pools,
   scheduled/cron jobs, job idempotency + resumability/checkpointing, retry/backoff,
   job DLQ, visibility timeouts, per-tenant fairness. SEAMS:
   `streaming-event-architect` (transport vs execution — pin hard),
   `performance-test-harness` / `load-test-planner` (they measure it).
-- `horizontal-scalability-reviewer` *(candidate — not built)* — review whether a
+- `horizontal-scalability-reviewer` *(✅ built — D31, 2026-07-08)* — review whether a
   system can scale out: statelessness / session externalization, connection
   pooling, sticky-session + in-memory-singleton smells, autoscaling +
   load-balancer config, graceful shutdown/draining. SEAMS:
   `slo-reliability-architect` (targets), `latency-budget-architect` (latency),
   `caching-strategy-designer` (caching).
-- `search-architecture-designer` *(candidate — not built)* — design
+- `search-architecture-designer` *(✅ built — D31, 2026-07-08)* — design
   search/discovery: full-text (pg `tsvector` / `pg_trgm`) vs external engine,
   indexing pipeline + freshness, relevance/ranking, per-tenant search isolation
   (leak boundary), faceting/pagination seam. SEAMS: `rag-security-architect`
   (AI/vector retrieval), `multi-tenant-data-architect` (data-store scoping),
   `pagination-cursor-designer` (pagination).
-- `file-upload-storage-architect` *(candidate — not built)* — design file/object
+- `file-upload-storage-architect` *(✅ built — D31, 2026-07-08)* — design file/object
   storage & upload flows: direct-vs-proxied upload, signed URLs, tenancy by
   bucket/path prefix, size/type/content validation, malware scanning,
   image/derivative processing, retention/lifecycle, CDN, storage-cost posture.
   SEAMS: `pii-lifecycle-designer` (personal-data lifecycle), `rls-policy-auditor`
   (storage RLS).
-- `usage-metering-and-cost-attribution-pipeline-designer` *(candidate — not
-  built)* — design the metering → pricing → allocation → rollup → reconciliation
+- `usage-metering-and-cost-attribution-pipeline-designer` *(✅ built — D31,
+  2026-07-08; resolved STANDALONE — not an extension of `saas-cost-architect`)* —
+  design the metering → pricing → allocation → rollup → reconciliation
   data pipeline: a billing-safe usage-event table (no content), time-bounded rate
   cards, exact/estimated/allocated cost entries with idempotency keys, additive
   daily rollups, budgets + breach alerts, spend forecast, reconciliation. SEAMS:
@@ -603,7 +604,7 @@ D12.10.
   kill-switch), `operational-vs-analytical-splitter` (the rollup is an analytical
   projection). **FLAG: standalone-vs-extension-of-`saas-cost-architect` —
   `skill-quality-reviewer` confirms at build time.**
-- `synthetic-monitoring-architect` *(candidate — not built)* — design ongoing
+- `synthetic-monitoring-architect` *(✅ built — D31, 2026-07-08)* — design ongoing
   black-box production monitoring: scheduled synthetic journeys/probes against the
   live app + third-party deps, a hard prod-safety contract (probes must not mutate
   prod or leak test fixtures), synthetic SLIs + alert-on-synthetic-failure,
@@ -612,16 +613,16 @@ D12.10.
   `playwright-e2e-engineer` (CI E2E, not prod-safe scheduled probes),
   `slo-reliability-architect` (defines SLOs, not the probes),
   `observability-operator` (white-box instrumentation vs external black-box).
-- `offline-first-sync-architect` *(candidate — not built)* — design the client
+- `offline-first-sync-architect` *(✅ built — D31, 2026-07-08)* — design the client
   offline data layer: write-while-offline queue, optimistic apply + rollback on
   server reject, conflict detection/resolution (LWW/merge/CRDT/manual), local
   persistence, background sync, online↔offline reconciliation + integrity. SEAMS:
   `edge-state-ux-designer` (offline/optimistic-rollback UX STATES, not the sync
   engine), `caching-strategy-designer` (server/distributed cache),
   `realtime-subscription-architect` (live ONLINE push).
-- `admin-console-architect` *(candidate — not built; **HIGH PRIORITY — pull
-  forward within the strong cluster**, evidenced as the most operationally mature
-  pattern in the audited portfolio)* — design the internal ops/support/superadmin
+- `admin-console-architect` *(✅ built — D31, 2026-07-08; was HIGH PRIORITY
+  pull-forward within the strong cluster, the most operationally mature pattern
+  in the audited portfolio)* — design the internal ops/support/superadmin
   surface: cross-tenant read/write with mandatory audit, impersonation /
   support-mode-as-user with hard boundaries + audit, least-privilege admin tiers
   (view-ops vs write-ops vs superadmin), break-glass/elevation workflows, and the
@@ -1254,6 +1255,53 @@ Aegis-d28-owasp-a09-a10
   `resilience-architecture-reviewer` (Phase 6). All product-agnostic. Build
   DEFERRED — this pack builds after the library-wide `skill-quality-reviewer`
   sweep, ahead of D12.10. Not built.
+
+- **D31 (2026-07-08) — D12.11 SaaS Architecture Depth STRONG cluster built
+  (10 skills). 161→171.** Built ahead of the D12.10 SAST/DAST pack as the D30
+  schedule specified. The 10:
+  `command-gateway-architect`, `realtime-subscription-architect`,
+  `background-job-orchestration-architect`, `horizontal-scalability-reviewer`,
+  `search-architecture-designer`, `file-upload-storage-architect`,
+  `usage-metering-and-cost-attribution-pipeline-designer`,
+  `synthetic-monitoring-architect`, `offline-first-sync-architect`,
+  `admin-console-architect`.
+  **`usage-metering-and-cost-attribution-pipeline-designer` resolved
+  STANDALONE** (the build-time flag from D30): it is the metering→rollup→
+  reconciliation DATA PIPELINE (event schema, idempotency keys, additive
+  rollups, invoice reconciliation) — an ETL/schema deliverable, whereas
+  `saas-cost-architect` is the unit-economics MODEL (driver inventory,
+  attribution policy, profitability). They compose (the pipeline feeds the
+  model); the only overlap is the word "attribution", so the surface is
+  ~65% distinct — well above the ~40% duplicate threshold. Not a near-duplicate.
+  Seams pinned per the D30 spec, in every skill's `trigger-evals.json` on both
+  directions. Highest-overlap pins: usage-metering ≠ `saas-cost-architect`
+  (pipeline vs cost model — hard); `background-job-orchestration-architect` ≠
+  `streaming-event-architect` (execution vs transport — hard); the in-batch
+  `realtime-subscription-architect` ↔ `offline-first-sync-architect` seam
+  (live online push vs offline sync) pinned reciprocally both ways;
+  `command-gateway-architect` ENFORCES `authorization-matrix-designer`'s policy
+  and EMITS into `audit-log-architect`'s schema (not either);
+  `admin-console-architect` is the CONSOLE that enforces the authz policy, ≠
+  the policy / telemetry / agent-authority / incident-playbook it composes;
+  `search-architecture-designer` (lexical) ≠ `rag-security-architect` (vector);
+  `synthetic-monitoring-architect` (post-ship prod-safe black-box) ≠
+  pre-release/CI/SLO/white-box neighbors. Product-agnostic (no product/company/
+  personal names or live identifiers; placeholder paths/ids only; sweep for
+  supabase/athena/lovable/aegis/onedrive/personal names/URLs came back clean
+  except the standard evals `$schema` URL). All 10 are design/review skills
+  producing specs/plans/verdicts and editing nothing → model-invocable (no
+  `disable-model-invocation`); the three that DESIGN things that could run
+  against live systems (`command-gateway-architect` datastore backstop,
+  `synthetic-monitoring-architect` probes, `offline-first-sync-architect`
+  reconciliation) carry Stop Conditions forbidding execution against production
+  without human approval — they design, they do not run. Embedded commands
+  follow the D19 squash-merge posture (few — these are design skills). The 4
+  LOW-PRIORITY D12.11 candidates (`cell-based-architecture-designer`,
+  `data-partitioning-sharding-strategist`, `intra-tenant-scope-architect`,
+  `share-link-access-architect`) remain candidate — not built (Build B). To be
+  checked by `skill-quality-reviewer` in the deferred sweep; highest mutual-
+  overlap risks flagged for that pass: usage-metering ↔ `saas-cost-architect`
+  and realtime ↔ offline-first. Validator: 171 skills, exit 0.
 main
 
 ---

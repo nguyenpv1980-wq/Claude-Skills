@@ -162,14 +162,15 @@ entry in the reconciliation doc.
 
 ## Map of the system
 
-- **Skills** ([`.claude/skills/`](.claude/skills/)) — the ~161 shipped procedures,
+- **Skills** ([`.claude/skills/`](.claude/skills/)) — the ~171 shipped procedures,
   grouped by the phase categories in the catalog: operating discipline, AI-SDLC
   governance, core architecture & engineering, SaaS & tenant isolation, security &
   supply chain, QA & evidence, cloud & reliability & release, AI/LLM security, agentic
   AI security, compliance & governance, library meta (self-application), the
   D12.8 operational workflow patterns (the Zero-Trust Engineering Discipline's
   concrete rules), data engineering (D12.1), performance engineering (D12.3),
-  and performance/load validation (D10 Tier 1). Full list in
+  performance/load validation (D10 Tier 1), and SaaS architecture depth
+  (D12.11 strong cluster). Full list in
   [Skills (shipped)](#skills-shipped) below.
 - **Subagents** — seven read-only specialist reviewers, one per lens; see
   [Subagents (read-only reviewers)](#subagents-read-only-reviewers).
@@ -230,6 +231,7 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | D25 | Docs engineering batch (8 = D12.4 technical writing / docs engineering; `adr-sequencer` extends `adr-writer`, `docs-retention-index`≠`skill-deprecation-planner` pinned both ways, `api-doc-generator-designer`≠`api-event-architect`) — PART A of the D12.4+D12.7+D12.9+D14 two-PR batch, 140→148 | P1 | ✅ shipped (D25) |
 | D26 | Staff-IC / architecture / framework-refresh batch (11 = D12.7 staff+ IC craft 7 + D12.9 architecture-advisor 1 + D14 framework refresh 3) — PART B of the D12.4+D12.7+D12.9+D14 two-PR batch, 148→159. Seams: `tech-spec-writer`≠`adr-writer`, `phased-work-handoff-designer`≠`ai-closeout-reporter`≠`ai-sdlc-operating-model`, `architecture-advisor`≠`architecture-designer`, D14 detect→propose→human-review | P2 | ✅ shipped (D26) |
 | D28 | OWASP web-app gap-closure pair (2 = `security-logging-alerting-architect` closes A09:2025 + `error-handling-security-reviewer` closes A10:2025 — the D8 audit's two zero-coverage categories; all 10 OWASP web-app categories now owned), 159→161. Seams: A09 skill ≠ `audit-log-architect`/`observability-operator`/`slo-reliability-architect`/`incident-response-runbook`; A10 skill ≠ `security-pr-reviewer`/`appsec-implementer`/`static-analysis-reviewer`/`error-taxonomy-designer` | P1 | ✅ shipped (D28) |
+| D31 | SaaS architecture depth — D12.11 STRONG cluster (10 = `command-gateway-architect`, `realtime-subscription-architect`, `background-job-orchestration-architect`, `horizontal-scalability-reviewer`, `search-architecture-designer`, `file-upload-storage-architect`, `usage-metering-and-cost-attribution-pipeline-designer`, `synthetic-monitoring-architect`, `offline-first-sync-architect`, `admin-console-architect`), 161→171. Hard-pinned seams: usage-metering ≠ `saas-cost-architect` (pipeline vs cost model), background-job ≠ `streaming-event-architect` (execution vs transport), realtime ↔ offline-first (online push vs offline sync, in-batch); `command-gateway-architect` enforces `authorization-matrix-designer`'s policy. usage-metering resolved STANDALONE. The 4 low-priority D12.11 candidates remain unbuilt (Build B). | P1 | ✅ shipped (D31) |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
 
 ## Subagents (read-only reviewers)
@@ -604,6 +606,28 @@ the D8 rubric). Both edit nothing:
 |---|---|---|
 | `security-logging-alerting-architect` | The security-event DETECTION/ALERTING design (closes A09:2025): detection coverage map (which events must be logged, with detectable fields), alert-vs-ticket rules with baseline-justified thresholds + bounded noise control, response wiring (owner, severity, escalation, runbook link), coverage tests, honest blind spots. ≠ `audit-log-architect` (records, never detects/alerts), `observability-operator` (implements alert config), `slo-reliability-architect` (reliability paging), `incident-response-runbook` (the playbook AFTER). | auto + manual |
 | `error-handling-security-reviewer` | The error/exception-path security REVIEW (closes A10:2025): fail-closed defaults, error-path authorization, exception-driven bypass, leak-free error responses — file:line findings, a fail-closed matrix, missing-negative-test list; recommends fixes, never applies them. ≠ `security-pr-reviewer` (broad diff gate), `appsec-implementer` (builds the fix), `static-analysis-reviewer` (scanner triage), `error-taxonomy-designer` (the error MODEL). | auto + manual |
+
+D31 — SaaS architecture depth (D12.11 STRONG cluster): 10 net-new
+architecture-depth surfaces for a multi-tenant SaaS, surfaced by a
+read-only audit of production SaaS patterns; scheduled ahead of the D12.10
+SAST/DAST pack. All design/review skills that edit nothing → model-invocable;
+the three that can touch live systems (command-gateway backstop,
+synthetic-monitoring probes, offline-first reconciliation) carry Stop
+Conditions forbidding execution against production without human approval.
+The 4 low-priority D12.11 candidates remain unbuilt (Build B):
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `command-gateway-architect` | The single server-mediated write path (command bus): a per-command pipeline (validate → authenticate actor from token → authorize → server-derive tenant scope → idempotency → execute → emit audit+events → safe error envelope) + the no-direct-client-writes invariant. ≠ `api-event-architect` (external contract), `authorization-matrix-designer` (the policy it ENFORCES), `audit-log-architect` (records it emits). | auto + manual |
+| `realtime-subscription-architect` | Live client delivery (WS/SSE/DB-change/presence): channel model, authorize-at-subscribe-time (per-tenant AND per-user leak boundary), fan-out, stateful-connection scaling, backpressure, reconnect/replay. ≠ `streaming-event-architect` (internal backbone), `api-event-architect` (webhooks), `offline-first-sync-architect` (offline sync, in-batch), `notification-webhook-ux-designer` (UX). | auto + manual |
+| `background-job-orchestration-architect` | The async job/worker EXECUTION model: worker pools, cron, job idempotency + resumability, retry/backoff, DLQ, visibility timeouts, per-tenant fairness. ≠ `streaming-event-architect` (transport vs execution — hard pin), `performance-test-harness`/`load-test-planner` (measure it), `command-gateway-architect` (sync protected write). | auto + manual |
+| `horizontal-scalability-reviewer` | Can-it-scale-out review: statelessness, connection-ceiling math, sticky-session / in-process-singleton / local-cache / run-N-times smells, autoscaling + graceful drain — ranked readiness verdict. ≠ `slo-reliability-architect` (targets), `latency-budget-architect` (latency), `caching-strategy-designer` (cache design). | auto + manual |
+| `search-architecture-designer` | Keyword/faceted search: in-DB full-text vs engine, indexing + freshness, ranking, the query-side AND index-side per-tenant isolation boundary (fail-closed), pagination seam. ≠ `rag-security-architect` (vector/semantic), `multi-tenant-data-architect` (base tenancy), `pagination-cursor-designer` (cursor mechanics). | auto + manual |
+| `file-upload-storage-architect` | File/object storage + upload: direct-vs-proxied, narrowly-scoped signed URLs, tenant-prefixed keys, magic-byte content validation, malware scan, off-request derivatives, retention, CDN. ≠ `pii-lifecycle-designer` (personal-data lifecycle of contents), `rls-policy-auditor` (audit existing storage policies). | auto + manual |
+| `usage-metering-and-cost-attribution-pipeline-designer` | The metering→rollup→reconciliation DATA PIPELINE: billing-safe metadata-only event table, time-bounded rate cards, idempotent cost entries, additive rollups, budgets/alerts, invoice reconciliation. **STANDALONE (D31).** ≠ `saas-cost-architect` (unit-economics cost MODEL — closest neighbor, hard pin), `ai-cost-guardrail-designer` (AI spend enforcement), `operational-vs-analytical-splitter` (rollup placement). | auto + manual |
+| `synthetic-monitoring-architect` | Black-box PRODUCTION monitoring: scheduled prod-safe probes/journeys + dependency/heartbeat, a hard no-mutate/no-fixture-leak safety contract, synthetic SLIs + alerting. DESIGNS probes, does not run them against prod. ≠ `performance-test-harness`/`load-test-planner` (pre-release), `playwright-e2e-engineer` (CI E2E), `slo-reliability-architect` (targets), `observability-operator` (white-box). | auto + manual |
+| `offline-first-sync-architect` | The client OFFLINE data layer: durable idempotent write queue, optimistic apply + rollback, version-based conflict detection + eyes-open resolution (refuses silent data loss), background sync, reconciliation integrity. ≠ `edge-state-ux-designer` (UX states), `caching-strategy-designer` (server cache), `realtime-subscription-architect` (live online push, in-batch). | auto + manual |
+| `admin-console-architect` | The internal ops/support/superadmin CONSOLE: least-privilege tiers, audited-by-construction cross-tenant access (reads too), bounded/marked/time-boxed impersonation, break-glass elevation, gated control-plane actions. ≠ `authorization-matrix-designer` (the policy it ENFORCES), `observability-operator` (telemetry vs action), `agent-authorization-matrix` (AI-agent vs human), `incident-response-runbook` (the playbook it serves). | auto + manual |
 
 ## Authoring a new skill
 

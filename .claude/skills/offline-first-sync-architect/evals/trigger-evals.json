@@ -1,0 +1,42 @@
+{
+  "skill": "offline-first-sync-architect",
+  "description": "Trigger discrimination for the client offline sync ENGINE (this skill) vs the offline/optimistic UX STATES it feeds (edge-state-ux-designer), the server/distributed cache (caching-strategy-designer), and live ONLINE server→client push (realtime-subscription-architect — the in-batch seam, pinned both ways).",
+  "overlaps_with": [
+    "edge-state-ux-designer",
+    "caching-strategy-designer",
+    "realtime-subscription-architect"
+  ],
+  "cases": [
+    {
+      "id": "sync-engine-wins-here",
+      "prompt": "Design the offline write queue, optimistic apply with rollback on reject, version-based conflict detection and a resolution policy, and background sync that reconciles with the server without duplicating or losing data.",
+      "expected_skill": "offline-first-sync-architect",
+      "should_not_trigger": ["edge-state-ux-designer", "caching-strategy-designer", "realtime-subscription-architect"],
+      "note": "SEAM CASE (primary) — write queue, optimistic apply/rollback, conflict detection/resolution, and reconciliation are the sync ENGINE. Not the UX of those states, not a server cache, not online push.",
+      "reason": "The offline data layer's engine — queue, conflict handling, reconciliation — is this skill; it hands the state rendering to edge-state-ux-designer and may sync over the realtime transport."
+    },
+    {
+      "id": "offline-ux-states-go-to-edge-state-ux-designer",
+      "prompt": "Design how we PRESENT offline and optimistic states to users: the 'saved locally, will sync' badge, the syncing/synced/failed indicators, and how a rolled-back change is shown after the server rejects it.",
+      "expected_skill": "edge-state-ux-designer",
+      "should_not_trigger": ["offline-first-sync-architect"],
+      "note": "SEAM CASE (primary, reverse) — presenting offline/optimistic/rollback STATES to the user is UX. The engine that produces those states is separate.",
+      "reason": "Rendering the offline/optimistic/error states is edge-state-ux-designer. This skill is the sync engine BEHIND those states; the two compose."
+    },
+    {
+      "id": "server-cache-goes-to-caching-strategy-designer",
+      "prompt": "Design our server-side and distributed caching: what to cache at which layer, TTLs, cache keys, and invalidation when the source data changes.",
+      "expected_skill": "caching-strategy-designer",
+      "should_not_trigger": ["offline-first-sync-architect"],
+      "reason": "Server-side/distributed cache design (what/where/TTL/invalidation) is caching-strategy-designer. A client on-device offline store that queues writes is not a server cache."
+    },
+    {
+      "id": "live-online-push-goes-to-realtime-subscription-architect",
+      "prompt": "When a shared record changes, push it live to every online client viewing it over WebSocket, authorized at subscribe time, with reconnect/replay and presence.",
+      "expected_skill": "realtime-subscription-architect",
+      "should_not_trigger": ["offline-first-sync-architect"],
+      "note": "IN-BATCH SEAM (reciprocal of realtime-subscription-architect's offline-sync case) — live server→client delivery while ONLINE, subscribe-time authz, and presence are realtime. The offline write queue and conflict resolution are not in the ask.",
+      "reason": "Live online push, subscribe-time authorization, and presence are realtime-subscription-architect. The two compose (realtime can be the sync transport) but offline-first owns write-while-offline, optimistic rollback, and conflict resolution."
+    }
+  ]
+}

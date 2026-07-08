@@ -1,0 +1,33 @@
+{
+  "skill": "file-upload-storage-architect",
+  "description": "Trigger discrimination for file/object storage + upload architecture (this skill) vs the personal-data lifecycle of file CONTENTS (pii-lifecycle-designer) and auditing existing storage RLS/bucket policies (rls-policy-auditor).",
+  "overlaps_with": [
+    "pii-lifecycle-designer",
+    "rls-policy-auditor"
+  ],
+  "cases": [
+    {
+      "id": "storage-architecture-wins-here",
+      "prompt": "Design our file uploads: direct-to-storage with scoped signed URLs, tenant-prefixed object keys, magic-byte content validation, malware scanning before serve, thumbnails as background jobs, and a retention rule per object class.",
+      "expected_skill": "file-upload-storage-architect",
+      "should_not_trigger": ["pii-lifecycle-designer", "rls-policy-auditor"],
+      "note": "SEAM CASE (primary) — upload flow, signed-URL scope, key derivation, content validation, scanning, derivatives, and retention are storage architecture. No consent/subject-access obligations and no audit of an EXISTING policy are requested.",
+      "reason": "The storage and upload architecture — where and how files live and move — is this skill. It hands policy verification to rls-policy-auditor and content privacy to pii-lifecycle-designer."
+    },
+    {
+      "id": "content-privacy-goes-to-pii-lifecycle-designer",
+      "prompt": "The uploaded documents contain personal data. Design the lifecycle: lawful basis and consent, how we honor data-subject access and export, PII classification, and the deletion SLA when a user is erased.",
+      "expected_skill": "pii-lifecycle-designer",
+      "should_not_trigger": ["file-upload-storage-architect"],
+      "note": "SEAM CASE (primary, reverse) — consent, subject access/export, and erasure SLAs are the personal-data lifecycle, independent of where the bytes are stored.",
+      "reason": "The privacy obligations on file CONTENTS are pii-lifecycle-designer. Storage design provides the deletion mechanism; it does not define the lawful basis, subject-access, or erasure SLA."
+    },
+    {
+      "id": "existing-policy-audit-goes-to-rls-policy-auditor",
+      "prompt": "We already have storage bucket policies and row-level rules for our object metadata. Audit them for holes — can any tenant read or write another tenant's objects, and are the policies deny-by-default?",
+      "expected_skill": "rls-policy-auditor",
+      "should_not_trigger": ["file-upload-storage-architect"],
+      "reason": "Auditing EXISTING RLS/bucket policies for cross-tenant holes and deny-by-default posture is rls-policy-auditor. This skill DESIGNS the storage access model and hands verification of existing policies there."
+    }
+  ]
+}
