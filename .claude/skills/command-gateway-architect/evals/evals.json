@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "command-gateway-architect",
+  "description": "Behavior cases for single server-mediated write-path (command bus) design: fixed pipeline order, server-derived actor + tenant scope, idempotency vs concurrency, the no-direct-client-writes invariant, and the exactly-once refusal.",
+  "cases": [
+    {
+      "id": "positive-scattered-writes-need-a-gateway",
+      "type": "should_trigger",
+      "prompt": "Our mutations are spread across dozens of endpoints and a client SDK that writes to tables directly. Each one re-implements its own checks and they've drifted. Design a single write path so every protected mutation is validated, authorized, and audited consistently.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inventories COMMANDS (protected mutations) rather than endpoints, and defines one per-command pipeline with a fixed order: validate → authenticate actor from token → authorize → derive tenant/resource scope from trusted rows → idempotency → execute → emit audit + events → safe error envelope.",
+          "States the no-direct-client-writes invariant AND names the datastore backstop (RLS/write-deny) that makes the gateway the sole write authority, not merely the polite one.",
+          "Delegates the authorization policy to authorization-matrix-designer and the audit record schema to audit-log-architect rather than re-authoring them.",
+          "Produces an enforcement-point map (command × stage) and flags any write that reads scope from the body or skips audit as a finding."
+        ]
+      }
+    },
+    {
+      "id": "positive-tenant-id-from-request-body",
+      "type": "should_trigger",
+      "prompt": "On our update-record endpoint the client sends the tenant_id and owner_id in the JSON body and we use them to scope the write. Fix the write path.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies client-supplied tenant_id/owner_id on a write as the cross-tenant / privilege-escalation bug and removes the trust: scope is derived by looking the target row up and reading its tenant_id server-side.",
+          "Orders derive-scope-then-authorize so authorization runs against the REAL row's tenant, not a client-claimed target.",
+          "Returns a uniform not-found/forbidden envelope that does not reveal whether the row exists in another tenant (no existence oracle).",
+          "Does not merely add a validation check on the body value — the body value is untrusted regardless of shape."
+        ]
+      }
+    },
+    {
+      "id": "edge-idempotency-vs-concurrency",
+      "type": "should_trigger",
+      "prompt": "Retries create duplicate charges, and separately two users editing the same record clobber each other. Design the write path to handle both.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Treats retries with an idempotency contract (stable key source, dedup store with retention, replayed key returns the first result without re-executing side effects) — NOT keyed on the whole request body.",
+          "Treats concurrent DIFFERENT writers as a separate problem needing optimistic version check or row lock, and states explicitly that idempotency is not concurrency control.",
+          "Names both mechanisms per affected command rather than conflating them.",
+          "Ensures the side-effecting execute and its audit/event emission are transactional so a replay or a crash cannot half-apply."
+        ]
+      }
+    },
+    {
+      "id": "should-not-promise-exactly-once-external",
+      "type": "should_trigger",
+      "prompt": "Make every command exactly-once end to end — including the confirmation emails and the third-party payment call. Just guarantee it in the gateway.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses an unqualified end-to-end exactly-once guarantee across external side effects (emails, third-party charges) — it is not purchasable at the gateway.",
+          "Offers the honest decomposition: at-least-once execution with idempotent effects at each edge, and where duplicate suppression actually lives for the payment and email cases.",
+          "Escalates the surviving hard requirement to a human decision (Stop Condition) rather than writing a false guarantee into the design."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-external-api-contract",
+      "type": "should_not_trigger",
+      "prompt": "Design our public REST API: resource naming, versioning and deprecation policy, per-plan rate limits, and the webhook envelope partners subscribe to.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke command-gateway-architect: resource naming, versioning, rate limits, and partner webhooks are the EXTERNAL contract owned by api-event-architect.",
+          "The gateway is what those endpoints dispatch into, but nothing here asks for the internal write-path pipeline."
+        ]
+      }
+    }
+  ]
+}

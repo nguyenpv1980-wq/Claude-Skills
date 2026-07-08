@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "offline-first-sync-architect",
+  "description": "Behavior cases for the client offline sync engine: durable idempotent write queue, optimistic apply + rollback, version-based conflict detection, eyes-open resolution policy, dedup-on-sync, reconciliation integrity, and the silent-data-loss refusal.",
+  "cases": [
+    {
+      "id": "positive-app-must-work-offline",
+      "type": "should_trigger",
+      "prompt": "Our field techs use the app in areas with no signal. It needs to let them create and edit records offline and sync when they're back. Design the offline data layer.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Scopes the offline surface per operation (read/create/edit/delete) with conflict risk noted, rather than making everything offline by reflex.",
+          "Designs a durable, ordered on-device queue where each write carries a client-generated idempotency id, the intended change, and a base version, plus the local store (IndexedDB/SQLite), scoped and encrypted.",
+          "Designs optimistic apply with rollback on server reject (never leaving an unconfirmed change on screen as saved), handing the state rendering to edge-state-ux-designer.",
+          "Designs background sync that dedups on the client-generated id so retried syncs never duplicate, plus reconciliation with a cursor and integrity checks (no duplicate creates, tombstones for deletes)."
+        ]
+      }
+    },
+    {
+      "id": "positive-conflict-resolution",
+      "type": "should_trigger",
+      "prompt": "Two users sometimes edit the same record while both offline. When they reconnect, how should we detect and resolve the conflict?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Requires an explicit versioning mechanism (version number / vector clock / updated-at) so a diverged base version is DETECTED as a conflict — resolution is impossible without detection.",
+          "Chooses a resolution policy per data type (last-write-wins with acknowledged discard, field-level merge, CRDT with justification, or manual), stating what each costs the loser.",
+          "Refuses a silent last-writer-clobbers path for high-stakes co-edited data and surfaces both versions for manual resolution where merge is unsafe.",
+          "Routes the conflict-resolution UX to edge-state-ux-designer while owning the detection/merge engine."
+        ]
+      }
+    },
+    {
+      "id": "edge-retried-sync-duplicates",
+      "type": "should_trigger",
+      "prompt": "When a device's sync gets interrupted and retries, we sometimes end up with duplicate records. What's wrong with the sync design?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Diagnoses the missing idempotency key: the create succeeded server-side, the ack was lost, and the retry created a second record.",
+          "Puts a client-generated id on every queued write that the server dedups on, so a retried sync is a no-op rather than a duplicate.",
+          "Flags that the server write path must be able to accept and dedup on that client id (a prerequisite, route to command-gateway-architect if it cannot).",
+          "Handles partial-sync failure per-write with backoff rather than re-sending the whole queue blindly."
+        ]
+      }
+    },
+    {
+      "id": "should-not-silent-last-write-wins",
+      "type": "should_trigger",
+      "prompt": "Keep it simple: on conflict just take whichever version synced most recently and overwrite the other. Users won't notice.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses blanket silent last-write-wins for anything but low-stakes single-owner data: it discards the loser's work with no trace — the offline-first data-loss classic.",
+          "Requires that any discard be acknowledged (surfaced), and recommends field-merge or manual resolution for high-stakes or co-edited records.",
+          "Ties the refusal to the skill's non-negotiable: a conflict that silently loses data is a bug, not a strategy (a Stop Condition).",
+          "Notes 'users won't notice' is the problem, not the justification — silent loss is worse than a visible conflict prompt."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-live-online-push",
+      "type": "should_not_trigger",
+      "prompt": "When one user makes a change, everyone else currently viewing the same board should see it live over WebSocket, with per-user authorization at subscribe time and presence indicators.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke offline-first-sync-architect: live server-to-client push while ONLINE, subscribe-time authorization, and presence are realtime-subscription-architect (the in-batch seam).",
+          "The realtime channel can be the transport this sync engine uses, but the request is live online delivery, not the offline write queue or conflict resolution."
+        ]
+      }
+    }
+  ]
+}

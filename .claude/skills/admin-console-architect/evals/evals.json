@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "admin-console-architect",
+  "description": "Behavior cases for the internal ops/support/superadmin console: least-privilege tiers, audited-by-construction cross-tenant access (reads too), bounded/marked/time-boxed impersonation, break-glass elevation, gated control-plane actions, and the unaudited-access / silent-impersonation refusal.",
+  "cases": [
+    {
+      "id": "positive-build-admin-console",
+      "type": "should_trigger",
+      "prompt": "We're building an internal admin tool so support and ops can help customers — view accounts, fix data, and occasionally log in as a user to reproduce a bug. Design it safely.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Defines least-privilege admin tiers (view-ops / write-ops / superadmin) mapped to operator personas, enforced against the authorization policy rather than inventing permissions.",
+          "Makes every cross-tenant action — reads as well as writes — emit an unskippable audit record (operator, tenant, action, target, reason) via audit-log-architect's schema.",
+          "Designs impersonation that is always clearly marked, bounded (view-to-reproduce allowed; password change/payment/deletion gated or forbidden), consent/ticket-gated where required, time-boxed, and records both the real operator and the impersonated user.",
+          "Designs dangerous control-plane actions (data-repair, failover) as scoped, previewable/dry-run, reversible or backed-up-first, and audited, and states the design-only (grants no real access) posture."
+        ]
+      }
+    },
+    {
+      "id": "positive-break-glass",
+      "type": "should_trigger",
+      "prompt": "A few engineers currently have standing superadmin because occasionally someone needs to do a high-privilege fix. That feels risky. Design something better.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Replaces standing superadmin with break-glass elevation: requested with a reason, approved (a second person for the top tier via human-approval-boundary), time-boxed and auto-expiring, and heavily logged with post-hoc review.",
+          "Names standing superadmin as the anti-pattern (a breach waiting for a stolen laptop) and makes the dangerous power on-demand and accountable rather than always-on.",
+          "Keeps the elevated actions themselves audited and scoped.",
+          "Does not simply reduce how many people have standing superadmin — it removes the standing grant."
+        ]
+      }
+    },
+    {
+      "id": "edge-data-repair-blast-radius",
+      "type": "should_trigger",
+      "prompt": "Support wants a button to fix a corrupted field on a customer record. Design the data-repair tooling in the console.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Scopes the repair to an explicit named target so 'fix this record' cannot become 'fix every record' (no apply-to-all).",
+          "Requires a dry-run/preview of exactly what will change, and makes the operation reversible or backed-up-first.",
+          "Audits the repair (operator, tenant, target, before/after or reason) and gates it at the appropriate tier — data-repair that mutates customer data is treated as the highest-risk action.",
+          "Confirms the current tenant context on write so an operator with two tenants open cannot repair the wrong one."
+        ]
+      }
+    },
+    {
+      "id": "should-not-unaudited-or-silent",
+      "type": "should_trigger",
+      "prompt": "To keep support fast, let agents view any customer's data without logging it, and let them silently log in as a user without the user knowing or it showing anywhere.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses unaudited cross-tenant reads: an operator browsing a customer's private data unaudited is the insider-access failure — reads must be audited, not only writes.",
+          "Refuses silent impersonation: acting as a user must be unmistakably marked and audited on BOTH identities, or 'who actually did this?' is unanswerable.",
+          "Treats the requested convenience as the vulnerability and requires the audited, marked, bounded design instead (a Stop Condition).",
+          "Adds consent/ticket gating for support access where policy/contract requires it."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-authz-policy",
+      "type": "should_not_trigger",
+      "prompt": "Define our authorization model: platform vs tenant roles, object-level permissions for every resource, deny-by-default, and the rules for when support access and impersonation are permitted.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke admin-console-architect: authoring the roles × permissions × resources model and the impersonation/support-access RULES is authorization-matrix-designer.",
+          "This console ENFORCES that policy at its action surface; it does not author the policy itself."
+        ]
+      }
+    }
+  ]
+}

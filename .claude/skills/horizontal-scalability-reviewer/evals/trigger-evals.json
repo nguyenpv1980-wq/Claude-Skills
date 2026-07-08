@@ -1,0 +1,41 @@
+{
+  "skill": "horizontal-scalability-reviewer",
+  "description": "Trigger discrimination for scale-out readiness review (this skill) vs setting reliability/availability targets (slo-reliability-architect), allocating an end-to-end latency budget (latency-budget-architect), and designing the cache the review may flag (caching-strategy-designer).",
+  "overlaps_with": [
+    "slo-reliability-architect",
+    "latency-budget-architect",
+    "caching-strategy-designer"
+  ],
+  "cases": [
+    {
+      "id": "scale-out-review-wins-here",
+      "prompt": "Review whether our service can run as many autoscaled instances: is state externalized, do in-process singletons run once or per-node, does the connection pool math hold at max scale, and does scale-in drain gracefully?",
+      "expected_skill": "horizontal-scalability-reviewer",
+      "should_not_trigger": ["slo-reliability-architect", "latency-budget-architect", "caching-strategy-designer"],
+      "note": "SEAM CASE (primary) — statelessness, run-once singletons, connection ceilings, and graceful drain are scale-out correctness. No target, no latency allocation, no cache design is requested.",
+      "reason": "Whether the system tolerates many concurrent, churning instances is this reviewer's core scope; it defers targets, latency, and cache design to their owners."
+    },
+    {
+      "id": "reliability-targets-go-to-slo-reliability-architect",
+      "prompt": "Define our SLOs and error budgets: what availability and latency we commit to per service, how we measure them, and what the error budget lets us spend on risk.",
+      "expected_skill": "slo-reliability-architect",
+      "should_not_trigger": ["horizontal-scalability-reviewer"],
+      "note": "SEAM CASE (primary, reverse) — committing availability/latency targets and error budgets is target-setting. Scale-out readiness may threaten a target but does not define it.",
+      "reason": "SLOs and error budgets are slo-reliability-architect. This reviewer consumes such targets when judging acceptable drop/degradation; it does not set them."
+    },
+    {
+      "id": "latency-budget-goes-to-latency-budget-architect",
+      "prompt": "Allocate our 300ms end-to-end latency budget across the hops — gateway, auth, database, downstream service, serialization — so each owner knows their slice.",
+      "expected_skill": "latency-budget-architect",
+      "should_not_trigger": ["horizontal-scalability-reviewer"],
+      "reason": "Dividing an end-to-end latency target across hops is latency-budget-architect. Scale-out review concerns whether adding nodes preserves correctness, not how latency is apportioned."
+    },
+    {
+      "id": "cache-design-goes-to-caching-strategy-designer",
+      "prompt": "Design what we cache and where: which reads to cache, at which layer, TTLs, cache-key design, and the invalidation strategy when the source data changes.",
+      "expected_skill": "caching-strategy-designer",
+      "should_not_trigger": ["horizontal-scalability-reviewer"],
+      "reason": "Deciding what/where/how to cache and how to invalidate is caching-strategy-designer. This reviewer flags a node-LOCAL cache as a scale-out smell and hands the redesign over; it does not design caching."
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "horizontal-scalability-reviewer",
+  "description": "Behavior cases for a scale-out readiness review: hunting single-instance state and singletons, connection-ceiling math, local-resource assumptions, graceful drain, ranked findings, and deferral of targets/latency/cache to their owners.",
+  "cases": [
+    {
+      "id": "positive-pre-scale-out-review",
+      "type": "should_trigger",
+      "prompt": "We run on one big instance and want to turn on autoscaling behind a load balancer. Review whether the service is actually ready to run as many instances.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Establishes the target topology (N instances, autoscaled, LB, health check) and reviews against 'many instances run concurrently and churn'.",
+          "Hunts single-instance state (sessions, in-process caches/counters/limiters, module-level mutable state) and singletons that must run once not N times (in-process cron, startup migrations), naming the concrete failure for each.",
+          "Does the connection-ceiling math (pool size × max instances vs datastore connection cap) rather than assuming it.",
+          "Verifies graceful drain (deregister → stop-new → finish/handoff → bounded grace) and delivers a ranked verdict with deferrals to slo-reliability-architect / latency-budget-architect / caching-strategy-designer."
+        ]
+      }
+    },
+    {
+      "id": "positive-second-node-breaks-things",
+      "type": "should_trigger",
+      "prompt": "We added a second instance and now users randomly get logged out and our nightly cleanup job seems to run twice. What's wrong?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Diagnoses intermittent logout as in-memory session state that assumed the same node serves the user, and recommends externalizing sessions (not sticky sessions as a correctness crutch).",
+          "Diagnoses the double nightly job as in-process cron firing once per node and recommends run-once coordination (external scheduler / leader election / advisory lock).",
+          "Ranks findings by blast radius and points each at a remediation, flagging silent data-wrongness above visible errors.",
+          "Notes that sticky sessions would mask, not fix, the session problem and lose state on node death."
+        ]
+      }
+    },
+    {
+      "id": "edge-connection-ceiling",
+      "type": "should_trigger",
+      "prompt": "Our autoscaler scaled up under load and then the whole fleet started erroring with database connection failures. Review our scalability.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Identifies the pattern: each new instance opens a connection pool, and at max scale the pools exceed the database's connection ceiling — autoscaling DOS-ing its own database.",
+          "Does the math (per-instance pool × max instances vs DB cap) and marks the breaking ceiling a BLOCKER.",
+          "Recommends a connection pooler/proxy or a lower per-instance pool, and a bound on max instances relative to the DB cap.",
+          "Frames it as a scale-out-correctness finding, not a request to right-size cost."
+        ]
+      }
+    },
+    {
+      "id": "should-not-invent-slo-to-justify-fix",
+      "type": "should_trigger",
+      "prompt": "During review you find that scale-in drops in-flight requests. To decide how much dropped traffic is acceptable, just set our availability target at 99.95% and design the error budget for me.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Flags the dropped-in-flight-requests finding and recommends graceful drain as the fix — that part is in scope.",
+          "Declines to SET the availability target or design the error budget: that is slo-reliability-architect's decision, handed off rather than invented to justify the fix.",
+          "Keeps the review's job (readiness verdict) separate from the target-setting it defers."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-cache-design",
+      "type": "should_not_trigger",
+      "prompt": "Design our caching strategy: what to cache at which layer, TTLs, cache keys, and how invalidation works when the underlying data changes.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke horizontal-scalability-reviewer: what-to-cache, TTLs, keys, and invalidation are cache DESIGN owned by caching-strategy-designer.",
+          "This reviewer would flag a node-LOCAL cache as a scale-out smell, but designing the cache is out of scope."
+        ]
+      }
+    }
+  ]
+}

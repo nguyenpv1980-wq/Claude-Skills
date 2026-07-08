@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "realtime-subscription-architect",
+  "description": "Behavior cases for real-time client delivery: server-derived channel keys, subscribe-time authorization re-checked as authority changes, cross-node fan-out with an edge leak filter, backpressure, reconnect/replay, and the authorize-only-at-connect leak refusal.",
+  "cases": [
+    {
+      "id": "positive-add-live-updates",
+      "type": "should_trigger",
+      "prompt": "We want live updates: when anyone on a shared board makes a change, everyone viewing it should see it instantly over WebSocket. Design the realtime delivery — channels, who's allowed to subscribe, and how it scales.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Models channels so the channel key (e.g. tenant:<id>:board:<id>) is server-derived from trusted state, not a client-constructed string.",
+          "Authorizes at subscribe time against the authorization model and states the leak boundary as tenant AND per-resource, with the fan-out filter applied server-side at the edge.",
+          "Designs cross-node fan-out over a named pub/sub backbone (consumed, not re-invented) and a connection-scaling plan including per-node limits and a drain/handoff path.",
+          "Specifies reconnect/replay (resume window, cursor, dedup) and backpressure (bounded per-connection buffer with an overflow policy)."
+        ]
+      }
+    },
+    {
+      "id": "positive-presence-and-fanout",
+      "type": "should_trigger",
+      "prompt": "Add presence and typing indicators to our collaborative editor, and make sure one slow client on bad wifi doesn't back up delivery for everyone else in the room.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs presence as soft state (heartbeat + TTL, rebuilt on reconnect, never source of truth) with its own per-resource authorization.",
+          "Bounds the per-connection send buffer and defines an overflow policy (drop-oldest / disconnect-and-resume / coalesce) so a slow consumer cannot back-pressure the fan-out.",
+          "Keeps the leak boundary: presence and typing events are delivered only to entitled participants, filtered server-side.",
+          "Adds reconnect backoff/jitter to avoid a reconnect storm when the room re-establishes after a blip."
+        ]
+      }
+    },
+    {
+      "id": "edge-authority-changes-mid-connection",
+      "type": "should_trigger",
+      "prompt": "A user was removed from a workspace but their open tab kept receiving the workspace's live events for another ten minutes. Fix the realtime authorization.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Diagnoses connect-time-only authorization as the defect: authority changed mid-connection and the subscription was never re-checked.",
+          "Adds a re-authorization trigger (on authority-change event / token refresh / periodic) and a tear-down of now-forbidden subscriptions.",
+          "States that per-tenant isolation alone is insufficient — the per-user/per-resource boundary must be re-enforced when membership changes.",
+          "Does not 'fix' it by shortening the token lifetime alone, which only narrows the leak window rather than closing it."
+        ]
+      }
+    },
+    {
+      "id": "should-not-broadcast-and-filter-client-side",
+      "type": "should_trigger",
+      "prompt": "To keep it simple, can we just push every event in a tenant to all that tenant's connected clients and let each client ignore the ones it doesn't care about?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses client-side filtering of a tenant-wide broadcast: it sends every user their tenant-mates' data over the wire, a per-user leak.",
+          "Requires the fan-out filter to apply the per-user/per-resource boundary server-side before delivery.",
+          "Explains that 'the client ignores it' is not a security control — the data already left the server."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-internal-backbone",
+      "type": "should_not_trigger",
+      "prompt": "Design how our billing and inventory services exchange events internally: topics, partition keys, consumer groups, dead-letter handling, and replay after an outage.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke realtime-subscription-architect: internal service-to-service topics, partitions, consumer groups, and DLQ are streaming-event-architect's backbone.",
+          "This skill may consume that backbone to push to clients, but nothing here concerns client subscriptions."
+        ]
+      }
+    }
+  ]
+}

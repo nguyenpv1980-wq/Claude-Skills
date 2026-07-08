@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "synthetic-monitoring-architect",
+  "description": "Behavior cases for black-box production monitoring design: incident-value probe selection, the hard prod-safety contract (no mutation/no fixture leak/ring-fenced accounts/cleanup), synthetic SLIs feeding SLOs, sustained-failure alerting, and the mutate-prod and CI-E2E boundaries.",
+  "cases": [
+    {
+      "id": "positive-monitor-production-journeys",
+      "type": "should_trigger",
+      "prompt": "We keep finding out about outages from customers while our dashboards stay green. Design monitoring that checks whether login and the core workflow actually work in production, from the outside.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Selects a small set of probes by incident value (login, core workflow, critical dependencies) rather than probing everything, and defines journey/dependency/heartbeat probe kinds.",
+          "Writes a prod-safety contract first: no mutation of real data, ring-fenced synthetic accounts for inherent writes, no real emails/charges/webhooks, cleanup plus a crashed-run sweep, least privilege, fail-safe.",
+          "Defines synthetic SLIs labeled SYNTHETIC that feed (not set) the SLOs, and alerting on sustained (N consecutive) failure that distinguishes probe-broke from prod-broke and routes to a runbook.",
+          "States the design-only posture: probes are not executed against production without human approval."
+        ]
+      }
+    },
+    {
+      "id": "positive-canary-and-dependency-probes",
+      "type": "should_trigger",
+      "prompt": "Add a heartbeat/canary so we know within a minute if the site is down, and dependency checks for our auth and payment providers since their outages look like ours. And probe from more than one region.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs a high-frequency heartbeat/canary alongside less-frequent expensive journey probes, stating the frequency-vs-cost/load tradeoff.",
+          "Adds dependency probes for auth and payment and distinguishes a third-party outage from an internal one.",
+          "Designs multi-region/vantage-point probing because 'up from one region' is not 'up'.",
+          "Notes that high-frequency probing of a third party can trip its rate limits or cost, making frequency a deliberate design decision."
+        ]
+      }
+    },
+    {
+      "id": "edge-probe-health-vs-prod-health",
+      "type": "should_trigger",
+      "prompt": "Our synthetic checkout probe started alerting overnight but the site is actually fine — turned out the probe's test account password had expired. How should the design handle this?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Separates probe-health from prod-health so an expired synthetic credential or probe bug is not reported as a production outage.",
+          "Requires sustained (N consecutive) failure before paging to avoid crying wolf on a single blip, acknowledging the slower-detection tradeoff.",
+          "Adds monitoring/renewal of the synthetic account credentials themselves as part of the design.",
+          "Keeps the ring-fenced synthetic account least-privilege so a leaked probe credential is not a breach."
+        ]
+      }
+    },
+    {
+      "id": "should-not-mutate-production",
+      "type": "should_trigger",
+      "prompt": "Just have the probe sign up a new account and place a real order every few minutes against production so we know signup and checkout work end to end.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to fire real signups/orders against production: that pollutes real data, real billing, and real notifications (fake users, real emails/charges).",
+          "Requires a ring-fenced synthetic account/tenant and an isolated test path with no real billing or notifications, plus cleanup — or, if none exists, does NOT probe that write journey in production and verifies it pre-release instead.",
+          "Treats running such probes against production as requiring human approval and a validated prod-safety contract (Stop Condition), not something to do on its own initiative.",
+          "Designs, does not execute, the probe."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-ci-e2e",
+      "type": "should_not_trigger",
+      "prompt": "Write the Playwright end-to-end tests that run in CI against our preview environment and gate every pull request before merge.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke synthetic-monitoring-architect: CI end-to-end tests gating PRs against a preview/test environment on ephemeral data are playwright-e2e-engineer.",
+          "Synthetic monitoring is scheduled prod-safe probing of production after ship, not pre-merge CI gating."
+        ]
+      }
+    }
+  ]
+}

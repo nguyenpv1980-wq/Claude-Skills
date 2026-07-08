@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "search-architecture-designer",
+  "description": "Behavior cases for keyword/faceted search design: engine choice vs need, indexing pipeline and honest freshness lag, the query-side AND index-side tenant-isolation boundary that fails closed, ranking, the pagination seam, and the vector/RAG non-trigger.",
+  "cases": [
+    {
+      "id": "positive-add-search",
+      "type": "should_trigger",
+      "prompt": "We need search across our customers' documents — typeahead and full search with filters. Design it: what engine, how it stays fresh, how it ranks, and how we keep one tenant from ever seeing another's results.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Chooses the engine (in-DB full-text tsvector/pg_trgm vs a dedicated engine) against corpus size, relevance need, and operational appetite, stating the tradeoff rather than defaulting to a heavy engine.",
+          "Designs the indexing pipeline (sync vs async) with an HONEST freshness lag and delete/permission-change propagation to the index.",
+          "Designs tenant isolation on BOTH sides: a server-derived, non-overridable query filter AND an index-side scoped index/enforced field, failing closed, with a stated negative test (A never sees B).",
+          "Designs ranking with named signals and a stable sort/tiebreak, and hands pagination to pagination-cursor-designer."
+        ]
+      }
+    },
+    {
+      "id": "positive-slow-stale-search",
+      "type": "should_trigger",
+      "prompt": "Our search uses LIKE '%term%' across a growing table, it's slow, and users complain results are missing right after they create something. Redesign it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Names LIKE '%term%' as an un-indexable full scan (debt, not a baseline) and moves to a proper index (full-text/trigram or an engine).",
+          "Diagnoses the missing-just-created-record complaint as freshness lag and either indexes synchronously for that path or adds read-your-writes for the creator, stating the lag honestly.",
+          "Designs the reindex/backfill procedure for the migration from LIKE to the indexed approach.",
+          "Preserves tenant isolation through the redesign rather than only fixing speed."
+        ]
+      }
+    },
+    {
+      "id": "edge-freshness-vs-latency",
+      "type": "should_trigger",
+      "prompt": "Leadership wants sub-second freshness (edits searchable instantly) AND a dedicated search engine for relevance, at large scale. Design the indexing.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Surfaces the tension: a dedicated engine at scale is fed by an async pipeline with an eventual-consistency lag, which conflicts with hard sub-second freshness.",
+          "Presents the tradeoff (synchronous indexing cost / write-latency coupling vs the freshness lag) rather than asserting both are free.",
+          "Offers a middle path (e.g. read-your-writes for the author, near-real-time async for others) and stops for a human decision on the hard requirement.",
+          "States the resulting freshness contract explicitly."
+        ]
+      }
+    },
+    {
+      "id": "should-not-allow-client-tenant-filter",
+      "type": "should_trigger",
+      "prompt": "To keep the search API simple, the client will pass tenant_id as a query parameter and we'll filter on it. That's enough isolation, right?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses a client-supplied tenant_id as the isolation mechanism: the client can omit or change it and receive other tenants' results — the search leak.",
+          "Requires a server-derived, non-overridable tenant filter plus index-side scoping, designed to FAIL CLOSED when the filter is absent.",
+          "Adds a negative test proving a query as tenant A never returns tenant B's documents.",
+          "Explains that a shared index with a fail-open filter returns ALL tenants' hits with no error — the silent breach."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-vector-rag",
+      "type": "should_not_trigger",
+      "prompt": "Design the semantic retrieval for our AI assistant: the embedding/vector store, how we keep one tenant's vectors from being retrieved for another, and defenses against prompt injection via retrieved chunks.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke search-architecture-designer: semantic/embedding/vector retrieval, its cross-tenant access control, and injection-via-retrieval are rag-security-architect's domain.",
+          "Lexical search and vector search may coexist as a hybrid, but the vector half and its security are deferred there."
+        ]
+      }
+    }
+  ]
+}
