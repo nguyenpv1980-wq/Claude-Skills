@@ -1,11 +1,12 @@
 {
   "skill": "command-gateway-architect",
-  "description": "Trigger discrimination for the internal write-path gateway (this skill) vs the external API/webhook contract (api-event-architect), the authorization policy it enforces (authorization-matrix-designer), the audit record schema it emits into (audit-log-architect), and the internal event backbone its domain events ride (streaming-event-architect).",
+  "description": "Trigger discrimination for the internal write-path gateway (this skill) vs the external API/webhook contract (api-event-architect), the authorization policy it enforces (authorization-matrix-designer), the audit record schema it emits into (audit-log-architect), the internal event backbone its domain events ride (streaming-event-architect), and the standing sub-tenant scope axis (intra-tenant-scope-architect).",
   "overlaps_with": [
     "api-event-architect",
     "authorization-matrix-designer",
     "audit-log-architect",
-    "streaming-event-architect"
+    "streaming-event-architect",
+    "intra-tenant-scope-architect"
   ],
   "cases": [
     {
@@ -44,6 +45,14 @@
       "expected_skill": "streaming-event-architect",
       "should_not_trigger": ["command-gateway-architect"],
       "reason": "Topics, partitions, DLQ, and replay for the internal event pipeline are streaming-event-architect. The gateway decides WHAT to emit and that it commits with the write; the transport it rides is a separate design."
+    },
+    {
+      "id": "standing-scope-axis-goes-to-intra-tenant-scope-architect",
+      "prompt": "Inside a tenant, design the standing per-user scope grants and the row-filter predicate on every scoped table so users see only their site/region's rows while admins see all.",
+      "expected_skill": "intra-tenant-scope-architect",
+      "should_not_trigger": ["command-gateway-architect"],
+      "note": "SEAM CASE — the STANDING per-user scope axis and read-side row filter vs the gateway's execute-time server-derived write scope on a single mutation.",
+      "reason": "Designing the standing scope axis, grant model, and read-side row-filter predicate is intra-tenant-scope-architect. This skill derives a write's tenant/resource scope at execute-time inside the command pipeline; it does not design the standing scope model the reads honor."
     }
   ]
 }

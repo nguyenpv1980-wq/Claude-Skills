@@ -1,11 +1,13 @@
 {
   "skill": "operational-vs-analytical-splitter",
-  "description": "Trigger discrimination: the WHICH-workloads-move decision (this skill) vs the analytical destination's design (warehouse-lake-architect), the CDC transport (streaming-event-architect), one slow query (query-plan-reader), and cache design (caching-strategy-designer).",
+  "description": "Trigger discrimination: the WHICH-workloads-move decision (this skill) vs the analytical destination's design (warehouse-lake-architect), the CDC transport (streaming-event-architect), one slow query (query-plan-reader), cache design (caching-strategy-designer), OLTP write/size-scale sharding of what STAYS (data-partitioning-sharding-strategist), and the metering rollup's pipeline correctness (usage-metering-and-cost-attribution-pipeline-designer).",
   "overlaps_with": [
     "warehouse-lake-architect",
     "streaming-event-architect",
     "query-plan-reader",
-    "caching-strategy-designer"
+    "caching-strategy-designer",
+    "data-partitioning-sharding-strategist",
+    "usage-metering-and-cost-attribution-pipeline-designer"
   ],
   "cases": [
     {
@@ -44,6 +46,21 @@
       "expected_skill": "caching-strategy-designer",
       "should_not_trigger": ["operational-vs-analytical-splitter"],
       "reason": "Keys, TTLs, and invalidation are cache DESIGN. The splitter may output 'cache' as a workload's mechanism, but a request already inside that mechanism belongs to the cache designer."
+    },
+    {
+      "id": "write-path-sharding-goes-to-data-partitioning-sharding-strategist",
+      "prompt": "The transactional primary can't absorb our write volume anymore and the largest tables are too big to maintain — pick a shard key, choose range vs hash partitioning per table, and plan resharding a hot key.",
+      "expected_skill": "data-partitioning-sharding-strategist",
+      "should_not_trigger": ["operational-vs-analytical-splitter", "multi-tenant-data-architect"],
+      "note": "SEAM CASE — write/size-scale pressure on the store that STAYS, not a read-offload decision. multi-tenant-data-architect only enters if the reshard is for tenant ISOLATION (pooled↔silo), which this is not.",
+      "reason": "Sharding the OLTP store for write/size throughput (shard key, range/hash partitioning, hot-key resharding) is data-partitioning-sharding-strategist. The splitter offloads READ/analytical workloads OFF the primary; it does not shard the write path that stays."
+    },
+    {
+      "id": "metering-rollup-pipeline-goes-to-usage-metering-and-cost-attribution-pipeline-designer",
+      "prompt": "Build the usage-metering rollup: the append-only event table, idempotent cost entries that survive replays, additive daily rollups, and reconciliation against provider invoices.",
+      "expected_skill": "usage-metering-and-cost-attribution-pipeline-designer",
+      "should_not_trigger": ["operational-vs-analytical-splitter"],
+      "reason": "Designing the metering rollup's CORRECTNESS (additive, idempotent, reconstructable, reconciled) is usage-metering-and-cost-attribution-pipeline-designer. The splitter only decides WHETHER that analytical rollup leaves the operational store and by which mechanism, not how it computes."
     }
   ]
 }

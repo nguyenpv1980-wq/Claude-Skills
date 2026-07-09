@@ -34,6 +34,12 @@ names the tenant is a leak with extra steps.
   not the policy SQL.
 - Do NOT use when: the structural question has no tenancy axis — plain
   `architecture-designer`.
+- Do NOT use when: the pressure is throughput/size distribution of a store —
+  shard-key choice, range/hash partitioning, hot-key resharding are
+  `data-partitioning-sharding-strategist` (a scale axis, not isolation); or
+  adding a subordinate per-user scope BELOW tenant_id (site/region row-filter
+  grants) — that is `intra-tenant-scope-architect`, layered on the tenant
+  boundary this skill sets.
 
 ## Inputs to Inspect
 

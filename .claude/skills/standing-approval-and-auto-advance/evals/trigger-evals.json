@@ -1,7 +1,13 @@
 {
   "skill": "standing-approval-and-auto-advance",
-  "description": "Trigger discrimination: designing the governed standing-approval loop vs recording one grant (scoped-approval-register), authority floors (agent-authorization-matrix), halting at a boundary (human-approval-boundary), and adversarial approval-UX review (human-agent-trust-reviewer).",
-  "overlaps_with": ["scoped-approval-register", "agent-authorization-matrix", "human-approval-boundary", "human-agent-trust-reviewer"],
+  "description": "Trigger discrimination: designing the governed standing-approval loop vs recording one grant (scoped-approval-register), authority floors (agent-authorization-matrix), halting at a boundary (human-approval-boundary), adversarial approval-UX review (human-agent-trust-reviewer), and the merge==deploy pipeline coupling that auto-merge-after-green rides (merge-is-deploy-governance).",
+  "overlaps_with": [
+    "scoped-approval-register",
+    "agent-authorization-matrix",
+    "human-approval-boundary",
+    "human-agent-trust-reviewer",
+    "merge-is-deploy-governance"
+  ],
   "cases": [
     {
       "id": "governed-fatigue-layer-wins-here",
@@ -37,6 +43,14 @@
       "expected_skill": "human-agent-trust-reviewer",
       "should_not_trigger": ["standing-approval-and-auto-advance"],
       "reason": "Adversarially attacking the approval layer's resilience is human-agent-trust-reviewer; standing-approval-and-auto-advance is the governed policy that review should be run AGAINST, not the review itself."
+    },
+    {
+      "id": "merge-equals-deploy-coupling-goes-to-merge-is-deploy-governance",
+      "prompt": "On our host, merging to main goes straight to production. Govern what arming auto-merge-after-green actually means when the merge IS the deploy — the authoritative gate, the exposure window, and the revert primitive.",
+      "expected_skill": "merge-is-deploy-governance",
+      "should_not_trigger": ["standing-approval-and-auto-advance"],
+      "note": "SEAM CASE — the merge==deploy pipeline coupling (what a merge physically ships and what gates it) is merge-is-deploy-governance; the standing-approval loop only reduces repeat prompts INSIDE already-approved phases and never authorizes a deploy.",
+      "reason": "Governing that a merge is a production deploy — the authoritative gate, exposure window, and revert primitive when auto-merge-after-green is armed — is merge-is-deploy-governance. standing-approval-and-auto-advance designs the fatigue-reducing standing-approval policy within approved scope; it does not govern the deploy coupling."
     }
   ]
 }

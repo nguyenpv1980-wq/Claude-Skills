@@ -1,6 +1,6 @@
 ---
 name: skill-deprecation-planner
-description: Plan the safe retirement of a library skill — the lifecycle end. Establishes the trigger (superseded with a coverage diff, absorbed as an extension, evidence-backed disuse, defect), runs the reverse-link sweep (every neighbor description, trigger-eval, catalog/README row, or agent definition naming the skill gets a disposition), then stages the exit — mark (successor named), redirect for a grace window, remove (registration rows moved to a retired record, never silently deleted) — each stage with rollback (a squash-merged removal reverts as one ordinary commit). Plan only; executes nothing — removal is a human-approved operation. Use when asked to deprecate, retire, remove, or sunset a skill, prune the library on evidence, or after a reject/make-it-an-extension verdict. Do NOT use for doc lifecycle/retirement (docs-retention-index — banked, not built), product-feature sunset messaging, usage-evidence gathering (skill-usage-instrumenter), or reviewing the removal PR (library-diff-reviewer).
+description: Plan the safe retirement of a library skill — the lifecycle end. Establishes the trigger (superseded with a coverage diff, absorbed as an extension, evidence-backed disuse, defect), runs the reverse-link sweep (every neighbor description, trigger-eval, catalog/README row, or agent definition naming the skill gets a disposition), then stages the exit — mark (successor named), redirect for a grace window, remove (registration rows moved to a retired record, never silently deleted) — each stage with rollback (a squash-merged removal reverts as one ordinary commit). Plan only; executes nothing — removal is a human-approved operation. Use when asked to deprecate, retire, remove, or sunset a skill, prune the library on evidence, or after a reject/make-it-an-extension verdict. Do NOT use for doc lifecycle/retirement (docs-retention-index — now shipped), product-feature sunset messaging, usage-evidence gathering (skill-usage-instrumenter), or reviewing the removal PR (library-diff-reviewer).
 ---
 
 # Skill Deprecation Planner
@@ -31,11 +31,11 @@ skill is as governed as shipping one. It plans; it never deletes.
   retirement plan.
 - Do NOT use when: the retiring artifact is a DOC — retention categories,
   superseded-by chains, and cleanup rules for workflow documents belong to
-  `docs-retention-index` (a banked candidate, not built; until it ships,
-  doc lifecycle is handled manually — this skill must not absorb it).
+  `docs-retention-index` (now shipped; it owns doc lifecycle end-to-end —
+  this skill must not absorb it).
 - Do NOT use when: the sunset is a product FEATURE and the work is customer
   communication and migration messaging — that is a product/PM concern
-  (banked as `sunset-deprecation-communicator`), not library mechanics.
+  (`sunset-deprecation-communicator`, now shipped), not library mechanics.
 - Do NOT use when: the question is whether anything still USES the skill —
   that evidence design is `skill-usage-instrumenter`; this skill consumes
   its package.
@@ -198,8 +198,8 @@ Not planned:  <what this plan deliberately leaves out, and why>
   deprecation problem but a design problem — hand it to
   `skill-quality-reviewer` / the library owners before any staging.
 - Asked to also plan a DOC's retirement in the same pass → decline that
-  slice; doc lifecycle is `docs-retention-index` scope (banked, not
-  built) and is handled manually until it ships.
+  slice; doc lifecycle is `docs-retention-index` scope (now shipped) —
+  hand it off.
 
 ## Supporting Files
 
@@ -210,5 +210,5 @@ Not planned:  <what this plan deliberately leaves out, and why>
 - `evals/evals.json` — behavior cases including the rare-but-critical
   pushback edge and the delete-now refusal.
 - `evals/trigger-evals.json` — discrimination against `docs-retention-index`
-  (the banked doc-lifecycle seam), `skill-usage-instrumenter`,
+  (the doc-lifecycle seam), `skill-usage-instrumenter`,
   `library-diff-reviewer`, and `skill-quality-reviewer`.

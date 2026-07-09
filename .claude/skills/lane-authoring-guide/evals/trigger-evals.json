@@ -1,7 +1,12 @@
 {
   "skill": "lane-authoring-guide",
-  "description": "Trigger discrimination: pre-work per-lane knowledge transfer vs end-of-work closeout/handoff (ai-closeout-reporter), whole-lifecycle contract (ai-sdlc-operating-model), and standing tool-instruction alignment (agent-instruction-consolidator).",
-  "overlaps_with": ["ai-closeout-reporter", "ai-sdlc-operating-model", "agent-instruction-consolidator"],
+  "description": "Trigger discrimination: pre-work per-lane knowledge transfer vs end-of-work closeout/handoff (ai-closeout-reporter), whole-lifecycle contract (ai-sdlc-operating-model), standing tool-instruction alignment (agent-instruction-consolidator), and the lane's approval-scope grant it cites (scoped-approval-register).",
+  "overlaps_with": [
+    "ai-closeout-reporter",
+    "ai-sdlc-operating-model",
+    "agent-instruction-consolidator",
+    "scoped-approval-register"
+  ],
   "cases": [
     {
       "id": "pre-work-lane-guide-wins-here",

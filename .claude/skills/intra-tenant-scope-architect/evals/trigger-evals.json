@@ -1,11 +1,12 @@
 {
   "skill": "intra-tenant-scope-architect",
-  "description": "Trigger discrimination for a subordinate per-user scoping axis below the tenant (this skill) vs tenant SEMANTICS/parent-child hierarchy (tenant-modeler), the tenant_id-axis storage strategy (multi-tenant-data-architect), roles×permissions object-level authz (authorization-matrix-designer), and the command pipeline's execute-time server-derived write scope (command-gateway-architect).",
+  "description": "Trigger discrimination for a subordinate per-user scoping axis below the tenant (this skill) vs tenant SEMANTICS/parent-child hierarchy (tenant-modeler), the tenant_id-axis storage strategy (multi-tenant-data-architect), roles×permissions object-level authz (authorization-matrix-designer), the command pipeline's execute-time server-derived write scope (command-gateway-architect), and ad-hoc bearer-link sharing for non-members (share-link-access-architect).",
   "overlaps_with": [
     "tenant-modeler",
     "multi-tenant-data-architect",
     "authorization-matrix-designer",
-    "command-gateway-architect"
+    "command-gateway-architect",
+    "share-link-access-architect"
   ],
   "cases": [
     {
@@ -46,6 +47,14 @@
       "should_not_trigger": ["intra-tenant-scope-architect"],
       "note": "SEAM CASE (bleed guard) — deriving a write's tenant/resource scope at execute-time inside the command pipeline is command-gateway-architect; intra-tenant-scope-architect designs the STANDING per-user scope-grant model and the row-filter predicate the reads honor.",
       "reason": "Execute-time server-derived scope for a mutation is the command gateway's pipeline step. intra-tenant-scope-architect owns the standing scope axis, grant model, and read-side predicate — not the per-write derivation."
+    },
+    {
+      "id": "ad-hoc-bearer-link-goes-to-share-link-access-architect",
+      "prompt": "Let a user share one document with anyone who has the link — no account needed, unguessable, expiring, revocable, view-only on just that resource.",
+      "expected_skill": "share-link-access-architect",
+      "should_not_trigger": ["intra-tenant-scope-architect"],
+      "note": "SEAM CASE — an ad-hoc bearer-link capability for NON-members vs the STANDING per-user scope AXIS inside a tenant.",
+      "reason": "Anyone-with-the-link guest access via an expiring bearer token is share-link-access-architect. This skill designs the standing per-user scope axis (site/region row-filter grants) for members inside a tenant, not ad-hoc link shares."
     }
   ]
 }

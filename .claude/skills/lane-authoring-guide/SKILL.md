@@ -164,4 +164,5 @@ Evidence:         every load-bearing claim cited or labeled unverified
 - `evals/evals.json` — behavior cases incl. refusing to omit the MUST-NOT
   boundary and labeling uncitable claims.
 - `evals/trigger-evals.json` — discrimination against `ai-closeout-reporter`,
-  `ai-sdlc-operating-model`, and `agent-instruction-consolidator`.
+  `ai-sdlc-operating-model`, `agent-instruction-consolidator`, and
+  `scoped-approval-register`.

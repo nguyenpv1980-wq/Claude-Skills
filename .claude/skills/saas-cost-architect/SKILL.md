@@ -36,6 +36,11 @@ biggest line item is fiction with a spreadsheet.
   tenant's cost floor).
 - Do NOT use when: general infrastructure right-sizing with no tenant/plan
   dimension — that is ordinary cloud engineering, not this skill.
+- Do NOT use when: BUILDING the metering pipeline that produces the usage
+  numbers — the append-only event table, rate-card versioning, idempotent
+  cost entries, additive rollups, and invoice reconciliation are
+  `usage-metering-and-cost-attribution-pipeline-designer`; this skill is the
+  economic MODEL those numbers feed, not the ETL.
 
 ## Inputs to Inspect
 

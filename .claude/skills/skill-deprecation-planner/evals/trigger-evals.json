@@ -1,6 +1,6 @@
 {
   "skill": "skill-deprecation-planner",
-  "description": "Trigger discrimination: SKILL retirement planning (this skill) vs DOC lifecycle/retirement (docs-retention-index — banked candidate, NOT built; the seam is pinned now so neither absorbs the other when both exist), usage-evidence design (skill-usage-instrumenter), the removal PR's review (library-diff-reviewer), and the quality verdict that may precede retirement (skill-quality-reviewer).",
+  "description": "Trigger discrimination: SKILL retirement planning (this skill) vs DOC lifecycle/retirement (docs-retention-index — now shipped; the seam stays pinned so neither absorbs the other), usage-evidence design (skill-usage-instrumenter), the removal PR's review (library-diff-reviewer), and the quality verdict that may precede retirement (skill-quality-reviewer).",
   "overlaps_with": [
     "docs-retention-index",
     "skill-usage-instrumenter",
@@ -20,7 +20,7 @@
       "prompt": "Build the index that governs our workflow docs' lifecycle — retention category per doc, reason-to-keep, superseded-by chains, and cleanup rules for the stale ones.",
       "expected_skill": "docs-retention-index",
       "should_not_trigger": ["skill-deprecation-planner"],
-      "note": "SEAM CASE — docs-retention-index is a banked candidate (D12.4, added by D15), NOT built. Until it ships, skill-deprecation-planner must NOT absorb doc lifecycle: doc retirement is handled manually, and this planner's subject stays the executable skill directories under the library's skills path. Once docs-retention-index ships, it owns doc lifecycle end-to-end; the two discriminate on artifact type — SKILL vs DOC.",
+      "note": "SEAM CASE — docs-retention-index is now shipped and owns doc lifecycle end-to-end; skill-deprecation-planner must NOT absorb doc lifecycle, and this planner's subject stays the executable skill directories under the library's skills path. The two discriminate on artifact type — SKILL vs DOC.",
       "reason": "Retention categories, superseded-by chains, and cleanup rules for DOCUMENTS are doc-lifecycle governance. A skill is an invocable procedure with triggers, evals, and registration arithmetic; a doc is prose with a retention category — different artifact, different lifecycle owner."
     },
     {

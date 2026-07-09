@@ -36,6 +36,14 @@ promise explicit before integrations harden around accidents.
 - Do NOT use when: deciding which roles/scopes may call what — the matrix
   comes from `authorization-matrix-designer`; this skill binds it into
   token scopes.
+- Do NOT use when: the concern is internal rather than the external
+  contract — the streaming backbone between services
+  (`streaming-event-architect`), live push to client connections
+  (`realtime-subscription-architect`), or the internal mediated write path
+  (`command-gateway-architect`); nor for analytics measurement events
+  (`event-schema-architect`), notification/webhook UX
+  (`notification-webhook-ux-designer`), or the generated reference docs for
+  this contract (`api-doc-generator-designer`).
 
 ## Inputs to Inspect
 

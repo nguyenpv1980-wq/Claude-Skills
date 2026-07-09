@@ -176,7 +176,7 @@ entry in the reconciliation doc.
   [Subagents (read-only reviewers)](#subagents-read-only-reviewers).
 - **The planning record**
   ([`docs/reconciliation/step-0-reconciliation-v4.md`](docs/reconciliation/step-0-reconciliation-v4.md))
-  — the dated decisions (D1–D22) in §5 are the project's immutable decision log; the
+  — the dated decisions (D1–D33) in §5 are the project's immutable decision log; the
   D12/D14 candidate scopes recorded there are banked-but-not-built future
   work (the D12.8 pack graduated from banked to built with D21; the D13
   library-meta scope completed with D22).

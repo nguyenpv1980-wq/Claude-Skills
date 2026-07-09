@@ -1,9 +1,10 @@
 {
   "skill": "error-taxonomy-designer",
-  "description": "Trigger discrimination for the error MODEL (this skill: codes, envelope, retryable, disclosure) vs the API CONTRACT that carries it (api-event-architect) vs how the UI RENDERS the error state (edge-state-ux-designer).",
+  "description": "Trigger discrimination for the error MODEL (this skill: codes, envelope, retryable, disclosure) vs the API CONTRACT that carries it (api-event-architect), how the UI RENDERS the error state (edge-state-ux-designer), and the security REVIEW of whether error/exception PATHS are secure (error-handling-security-reviewer).",
   "overlaps_with": [
     "api-event-architect",
-    "edge-state-ux-designer"
+    "edge-state-ux-designer",
+    "error-handling-security-reviewer"
   ],
   "cases": [
     {
@@ -29,6 +30,14 @@
       "should_not_trigger": ["error-taxonomy-designer"],
       "note": "SEAM CASE (within pack) — inline vs toast vs full-page, retry affordance, and empty-vs-error rendering are UI state design. The codes/messages being rendered come FROM this skill but are not what is asked.",
       "reason": "edge-state-ux-designer owns how non-happy-path states are presented. This skill supplies the machine codes and message patterns that rendering consumes."
+    },
+    {
+      "id": "error-path-security-review-goes-to-error-handling-security-reviewer",
+      "prompt": "Review whether our error and exception paths are secure: do failures fail closed, can a thrown exception skip an authorization check, and do any error responses leak internals or another tenant's data?",
+      "expected_skill": "error-handling-security-reviewer",
+      "should_not_trigger": ["error-taxonomy-designer"],
+      "note": "SEAM CASE — REVIEWING whether existing error/exception PATHS are secure (fail-closed, no auth bypass, no leakage) vs DESIGNING the error model. This skill supplies the disclosure rule the reviewer checks against.",
+      "reason": "Auditing error/exception paths for fail-closed behavior, exception-driven authorization bypass, and leak-free responses is error-handling-security-reviewer. This skill DESIGNS the taxonomy/envelope/disclosure model; it does not review whether the code's error paths honor it."
     }
   ]
 }

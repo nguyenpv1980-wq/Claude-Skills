@@ -145,8 +145,8 @@ Maintenance:     rebalance triggers; shard-map edits via reviewed PRs
   run-id + commit.
 - **Multiple required shard jobs:** registering each shard as a required
   check is exactly what breaks on conditional skips; the whole point of the
-  aggregate is ONE stable required name. (House corroboration: a repo's
-  merge gate here runs two required checks by design — the aggregate
+  aggregate is ONE stable required name. (In practice, a production repo's
+  merge gate may run two required checks by design — the aggregate
   pattern applies when tiers conditionally skip jobs.)
 - **The catch-shard that quietly passes:** an uncategorized shard that runs
   unmatched tests but reports green on empty just recreates the drift it

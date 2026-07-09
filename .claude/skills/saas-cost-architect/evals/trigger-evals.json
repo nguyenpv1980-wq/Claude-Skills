@@ -1,7 +1,11 @@
 {
   "skill": "saas-cost-architect",
-  "description": "Trigger discrimination for the Phase 3 platform/commercial cluster. Pins cost modeling apart from platform structure and entitlement design.",
-  "overlaps_with": ["saas-platform-architect", "plan-entitlement-architect"],
+  "description": "Trigger discrimination for the cost MODEL (this skill) vs platform structure (saas-platform-architect), entitlement design (plan-entitlement-architect), and the metering ETL PIPELINE that produces the numbers this model consumes (usage-metering-and-cost-attribution-pipeline-designer).",
+  "overlaps_with": [
+    "saas-platform-architect",
+    "plan-entitlement-architect",
+    "usage-metering-and-cost-attribution-pipeline-designer"
+  ],
   "cases": [
     {
       "id": "cost-wins-here",
@@ -23,6 +27,13 @@
       "expected_skill": "plan-entitlement-architect",
       "should_not_trigger": ["saas-cost-architect"],
       "reason": "Allowance semantics and over-quota behavior are entitlement design; pricing the allowance would be the cost skill."
+    },
+    {
+      "id": "metering-pipeline-goes-to-usage-metering-and-cost-attribution-pipeline-designer",
+      "prompt": "Build the usage-metering pipeline: the append-only event table, versioned time-bounded rate cards, idempotent cost entries that survive replays, additive daily rollups, and reconciliation against the provider invoices.",
+      "expected_skill": "usage-metering-and-cost-attribution-pipeline-designer",
+      "should_not_trigger": ["saas-cost-architect"],
+      "reason": "Building the metering→rollup→reconciliation ETL (event schema, idempotency keys, rate-card versioning, additive rollups) is usage-metering-and-cost-attribution-pipeline-designer. This skill is the unit-economics MODEL those numbers feed — it judges what a tenant costs and whether pricing works, not how the numbers are computed."
     }
   ]
 }

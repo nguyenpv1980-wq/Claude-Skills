@@ -37,8 +37,8 @@ that skill makes sessions read the map; this one makes changes maintain it.
 - Do NOT use when: sweeping chat history into repo docs on a cadence — that
   is `chat-backlog-reconciliation`; this gate acts at PR time on code paths.
 - Do NOT use when: governing documentation lifecycle/retirement (retention
-  categories, cleanup rules) — that is the banked `docs-retention-index`
-  candidate, not this gate.
+  categories, cleanup rules) — that is `docs-retention-index` (now shipped),
+  not this gate.
 
 ## Inputs to Inspect
 

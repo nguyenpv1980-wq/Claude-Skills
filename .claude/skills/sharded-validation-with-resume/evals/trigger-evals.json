@@ -1,7 +1,13 @@
 {
   "skill": "sharded-validation-with-resume",
-  "description": "Trigger discrimination: full-tier shard/resume architecture vs tier selection (risk-tiered-validation-selector), per-commit local mirroring (local-ci-mirror-preflight), whole-pipeline design (ci-pipeline-architect), and flake diagnosis (flaky-test-detective).",
-  "overlaps_with": ["risk-tiered-validation-selector", "local-ci-mirror-preflight", "ci-pipeline-architect", "flaky-test-detective"],
+  "description": "Trigger discrimination: full-tier shard/resume architecture vs tier selection (risk-tiered-validation-selector), per-commit local mirroring (local-ci-mirror-preflight), whole-pipeline design (ci-pipeline-architect), flake diagnosis (flaky-test-detective), and test-suite automation architecture / runner choice (qa-automation-architect).",
+  "overlaps_with": [
+    "risk-tiered-validation-selector",
+    "local-ci-mirror-preflight",
+    "ci-pipeline-architect",
+    "flaky-test-detective",
+    "qa-automation-architect"
+  ],
   "cases": [
     {
       "id": "shard-architecture-wins-here",
@@ -37,6 +43,13 @@
       "expected_skill": "flaky-test-detective",
       "should_not_trigger": ["sharded-validation-with-resume"],
       "reason": "Diagnosing an intermittent test is flaky-test-detective; the shard design must never retry or resume flakes into green."
+    },
+    {
+      "id": "suite-architecture-goes-to-qa-automation-architect",
+      "prompt": "Structure our whole test codebase, pick the runners, and wire the suites into CI with sensible tiers and retries.",
+      "expected_skill": "qa-automation-architect",
+      "should_not_trigger": ["sharded-validation-with-resume"],
+      "reason": "Structuring the whole test codebase, choosing runners, and wiring suites into CI is qa-automation-architect. This skill designs only the internal shard/resume/aggregate machinery of one already-selected validation tier, not the suite architecture or runner choice."
     }
   ]
 }

@@ -1,7 +1,14 @@
 {
   "skill": "authorization-matrix-designer",
-  "description": "Trigger discrimination for the Phase 3 access & events cluster, plus the authorization-vs-entitlement axis.",
-  "overlaps_with": ["audit-log-architect", "api-event-architect", "plan-entitlement-architect"],
+  "description": "Trigger discrimination for the authorization matrix (this skill) vs the audit record (audit-log-architect), external API/event contracts (api-event-architect), and the entitlement axis (plan-entitlement-architect); plus the operator console that ENFORCES policy (admin-console-architect), the subordinate row-filter scope axis (intra-tenant-scope-architect), and bearer share-link capability for non-members (share-link-access-architect).",
+  "overlaps_with": [
+    "audit-log-architect",
+    "api-event-architect",
+    "plan-entitlement-architect",
+    "admin-console-architect",
+    "intra-tenant-scope-architect",
+    "share-link-access-architect"
+  ],
   "cases": [
     {
       "id": "authz-wins-here",
@@ -30,6 +37,30 @@
       "expected_skill": "plan-entitlement-architect",
       "should_not_trigger": ["authorization-matrix-designer"],
       "reason": "\"Does this plan include X\" is the entitlement axis; \"can this role do X\" is the authorization axis."
+    },
+    {
+      "id": "operator-console-goes-to-admin-console-architect",
+      "prompt": "Design the internal admin console: least-privilege operator tiers, audited cross-tenant access, marked time-boxed impersonation, break-glass elevation, and a control-plane for retry/failover/data-repair.",
+      "expected_skill": "admin-console-architect",
+      "should_not_trigger": ["authorization-matrix-designer"],
+      "note": "SEAM CASE — the console operators ACT through (tiers, impersonation mechanics, break-glass, control-plane actions) ENFORCES policy; this skill authors the roles×permissions and impersonation RULES it enforces.",
+      "reason": "The operator action surface that enforces policy is admin-console-architect. This skill authors the authorization policy (roles × permissions, support/impersonation rules) that console enforces; it is not the console."
+    },
+    {
+      "id": "row-filter-scope-axis-goes-to-intra-tenant-scope-architect",
+      "prompt": "Inside a tenant, limit each user to a subset of that tenant's rows by their site/region — design the per-user scope grants and the row-filter predicate on every scoped table.",
+      "expected_skill": "intra-tenant-scope-architect",
+      "should_not_trigger": ["authorization-matrix-designer"],
+      "note": "SEAM CASE — a propagated row-FILTER dimension, not a permission: the same role can carry different scopes.",
+      "reason": "A subordinate per-user row-filter scope axis is intra-tenant-scope-architect. This skill designs what a ROLE can do (permissions × resources); a scope is a filter dimension a role carries, not a permission."
+    },
+    {
+      "id": "bearer-link-capability-goes-to-share-link-access-architect",
+      "prompt": "Let anyone with a link open a specific resource without an account — unguessable, expiring, revocable, optionally password-protected, granting only view on that one resource.",
+      "expected_skill": "share-link-access-architect",
+      "should_not_trigger": ["authorization-matrix-designer"],
+      "note": "SEAM CASE — an unguessable expiring bearer token scoping NON-members to one resource is a capability model, not identity-based member RBAC.",
+      "reason": "Anyone-with-the-link guest access via a bearer capability is share-link-access-architect. This skill designs identity-based member roles × permissions; a share link grants non-members access without a role."
     }
   ]
 }

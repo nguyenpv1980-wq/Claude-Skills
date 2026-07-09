@@ -1,11 +1,13 @@
 {
   "skill": "streaming-event-architect",
-  "description": "Trigger discrimination for the highest-risk seam in the data pack: INTERNAL streaming backbone (this skill) vs EXTERNAL API/event contracts (api-event-architect), plus the audit trail (audit-log-architect), the split decision (operational-vs-analytical-splitter), and database schema evolution (schema-evolution-planner).",
+  "description": "Trigger discrimination for the highest-risk seam in the data pack: INTERNAL streaming backbone (this skill) vs EXTERNAL API/event contracts (api-event-architect), the worker EXECUTION model that rides it (background-job-orchestration-architect — the DLQ/retry seam), live CLIENT push (realtime-subscription-architect), plus the audit trail (audit-log-architect), the split decision (operational-vs-analytical-splitter), and database schema evolution (schema-evolution-planner).",
   "overlaps_with": [
     "api-event-architect",
     "audit-log-architect",
     "operational-vs-analytical-splitter",
-    "schema-evolution-planner"
+    "schema-evolution-planner",
+    "background-job-orchestration-architect",
+    "realtime-subscription-architect"
   ],
   "cases": [
     {
@@ -44,6 +46,21 @@
       "expected_skill": "schema-evolution-planner",
       "should_not_trigger": ["streaming-event-architect"],
       "reason": "The evolving artifact is a database object with overlapping deployed readers — the expand/migrate/contract sequence. Event-schema compatibility rules only apply when the payload is a stream event, which this is not."
+    },
+    {
+      "id": "worker-execution-goes-to-background-job-orchestration-architect",
+      "prompt": "Design how our background workers run jobs: idempotency and retry-with-backoff per job, visibility timeouts, a dead-letter queue with an owner, resumable long jobs, and fairness so one tenant can't monopolize the workers.",
+      "expected_skill": "background-job-orchestration-architect",
+      "should_not_trigger": ["streaming-event-architect"],
+      "note": "SEAM CASE — the DLQ/retry seam: transport-level dead-lettering (delivery attempts, retention) is this skill; a job that keeps failing its handler with a retry policy and an owner is the worker execution model.",
+      "reason": "Per-job retry/backoff, visibility timeouts, DLQ ownership, checkpointing, and worker fairness are the EXECUTION model (background-job-orchestration-architect). This skill designs the TRANSPORT those jobs ride — topics, partitions, delivery semantics — not the worker on top of it."
+    },
+    {
+      "id": "client-push-goes-to-realtime-subscription-architect",
+      "prompt": "Clients should get live updates over WebSocket when a shared resource changes — subscribe-time authorization, cross-node fan-out, and reconnect that replays what they missed.",
+      "expected_skill": "realtime-subscription-architect",
+      "should_not_trigger": ["streaming-event-architect"],
+      "reason": "Live delivery to client connections (subscribe-time authz, fan-out, reconnect/replay) is realtime-subscription-architect. This skill designs the internal server-to-server backbone it may consume, not the push to client connections."
     }
   ]
 }

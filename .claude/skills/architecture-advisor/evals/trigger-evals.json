@@ -1,11 +1,12 @@
 {
   "skill": "architecture-advisor",
-  "description": "Trigger discrimination for advising the architecture STYLE/paradigm (this skill) vs producing the concrete target architecture (architecture-designer), deciding cloud provider/posture (cloud-architecture-decider), designing tenancy (saas-platform-architect), and modeling the domain (domain-modeler).",
+  "description": "Trigger discrimination for advising the architecture STYLE/paradigm (this skill) vs producing the concrete target architecture (architecture-designer), deciding cloud provider/posture (cloud-architecture-decider), designing tenancy (saas-platform-architect), modeling the domain (domain-modeler), and whole-stack blast-radius cell partitioning (cell-based-architecture-designer — deliberately kept OFF the style menu).",
   "overlaps_with": [
     "architecture-designer",
     "cloud-architecture-decider",
     "saas-platform-architect",
-    "domain-modeler"
+    "domain-modeler",
+    "cell-based-architecture-designer"
   ],
   "cases": [
     {
@@ -37,6 +38,14 @@
       "expected_skill": "saas-platform-architect",
       "should_not_trigger": ["architecture-advisor"],
       "reason": "saas-platform-architect designs tenancy structure and isolation. This skill advises the overall architecture style, a different decision."
+    },
+    {
+      "id": "whole-stack-cells-go-to-cell-based-architecture-designer",
+      "prompt": "Partition the platform so a bad deploy or failure is contained to a subset of tenants — each partition runs its own full stack, tenants map to exactly one partition, and we roll changes out one partition at a time.",
+      "expected_skill": "cell-based-architecture-designer",
+      "should_not_trigger": ["architecture-advisor"],
+      "note": "SEAM CASE — cells are NOT on the style menu: they partition an already-chosen paradigm for blast radius, not a monolith/microservices/event-driven choice being selected.",
+      "reason": "Whole-stack blast-radius cell partitioning (self-contained cells, thin router, cell-by-cell deploy) is cell-based-architecture-designer. This skill recommends the architecture STYLE; cells partition whatever style is chosen and are deliberately kept off its menu."
     }
   ]
 }

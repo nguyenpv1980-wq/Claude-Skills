@@ -32,6 +32,10 @@ multi-tenant" is a slogan, not an architecture.
   (`saas-cost-architect`).
 - Do NOT use when: judging an existing system for cross-tenant leakage — that
   is `tenant-isolation-reviewer`.
+- Do NOT use when: the task is whole-stack blast-radius partitioning — each
+  partition running its own full stack with cell-by-cell rollout — that is
+  `cell-based-architecture-designer`, a heavier partition layered on top of
+  this skill's per-component pooled/siloed isolation.
 
 ## Inputs to Inspect
 

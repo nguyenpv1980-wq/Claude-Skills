@@ -1,7 +1,16 @@
 {
   "skill": "api-event-architect",
-  "description": "Trigger discrimination for the Phase 3 access & events cluster. Pins external API/event contracts apart from the internal audit record and authorization design.",
-  "overlaps_with": ["audit-log-architect", "authorization-matrix-designer"],
+  "description": "Trigger discrimination for the external API/event CONTRACT (this skill) vs the internal audit record (audit-log-architect) and authorization design (authorization-matrix-designer), plus the newer colliders that already name it: the internal streaming backbone (streaming-event-architect), live client push (realtime-subscription-architect), the internal write-path gateway (command-gateway-architect), the analytics event schema (event-schema-architect), notification/webhook UX (notification-webhook-ux-designer), and the generated reference docs for this contract (api-doc-generator-designer).",
+  "overlaps_with": [
+    "audit-log-architect",
+    "authorization-matrix-designer",
+    "streaming-event-architect",
+    "realtime-subscription-architect",
+    "command-gateway-architect",
+    "event-schema-architect",
+    "notification-webhook-ux-designer",
+    "api-doc-generator-designer"
+  ],
   "cases": [
     {
       "id": "contracts-win-here",
@@ -23,6 +32,48 @@
       "expected_skill": "authorization-matrix-designer",
       "should_not_trigger": ["api-event-architect"],
       "reason": "The permission matrix itself; the API skill only binds an existing matrix into token scopes."
+    },
+    {
+      "id": "internal-streaming-backbone-goes-to-streaming-event-architect",
+      "prompt": "Design how our billing, inventory, and notification services exchange events internally — topics, partition keys, consumer-failure handling, and replay after an outage.",
+      "expected_skill": "streaming-event-architect",
+      "should_not_trigger": ["api-event-architect"],
+      "reason": "Internal service-to-service transport — topics, partitions, DLQ, replay — is streaming-event-architect. This skill owns only the external contract offered to integrators, not the internal data-pipeline that feeds it."
+    },
+    {
+      "id": "live-client-push-goes-to-realtime-subscription-architect",
+      "prompt": "Clients should get live updates over WebSocket when a shared resource changes — subscribe-time authorization, cross-node fan-out, and reconnect that replays what they missed.",
+      "expected_skill": "realtime-subscription-architect",
+      "should_not_trigger": ["api-event-architect"],
+      "reason": "Live push to client connections (subscribe-time authz, fan-out, reconnect/replay) is realtime-subscription-architect. This skill owns request/response APIs and server-to-server webhook delivery, not the live client channel."
+    },
+    {
+      "id": "internal-write-path-goes-to-command-gateway-architect",
+      "prompt": "Every protected mutation should go through one server-side path that authenticates the actor, derives tenant scope, dedups retries, executes, and emits an audit record — with no client able to write around it.",
+      "expected_skill": "command-gateway-architect",
+      "should_not_trigger": ["api-event-architect"],
+      "reason": "The internal mediated write pipeline and its no-bypass invariant are command-gateway-architect. This skill defines the external contract those endpoints expose, not the internal dispatch path behind it."
+    },
+    {
+      "id": "analytics-event-schema-goes-to-event-schema-architect",
+      "prompt": "Define our analytics tracking plan: consistent event names, typed properties with enums, the global properties every event carries, and how anonymous events stitch to identified users.",
+      "expected_skill": "event-schema-architect",
+      "should_not_trigger": ["api-event-architect"],
+      "reason": "Behavioral analytics events for measurement (tracking plan, property schema, identity stitching) are event-schema-architect. This skill's events are an external contract offered to integrators, not a measurement schema."
+    },
+    {
+      "id": "notification-ux-goes-to-notification-webhook-ux-designer",
+      "prompt": "Design the notification preferences center and the developer webhook dashboard — per-category channel controls, a delivery log with replay, and secret-rotation UX.",
+      "expected_skill": "notification-webhook-ux-designer",
+      "should_not_trigger": ["api-event-architect"],
+      "reason": "The human/developer UX over webhooks (preferences, delivery-log dashboard, rotation affordances) is notification-webhook-ux-designer. This skill defines the wire delivery contract those screens surface, not the UI."
+    },
+    {
+      "id": "generated-reference-goes-to-api-doc-generator-designer",
+      "prompt": "Generate our API reference from the schema so it stays in sync, with validated examples and a version selector.",
+      "expected_skill": "api-doc-generator-designer",
+      "should_not_trigger": ["api-event-architect"],
+      "reason": "Generating drift-proof API reference from the source of truth is api-doc-generator-designer. This skill designs the contract itself; the generator only documents it."
     }
   ]
 }

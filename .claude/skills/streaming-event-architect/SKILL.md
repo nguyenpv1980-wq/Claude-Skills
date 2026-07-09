@@ -45,6 +45,12 @@ the internal stream feeds it.
 - Do NOT use when: the payload evolution question is about DATABASE
   schema (tables/columns with deployed readers) — that is
   `schema-evolution-planner`.
+- Do NOT use when: the concern is the worker EXECUTION model that consumes
+  the stream — per-job retry/backoff, visibility timeouts, DLQ ownership,
+  and tenant fairness are `background-job-orchestration-architect`; or live
+  push to CLIENT connections (subscribe-time authz, fan-out,
+  reconnect/replay) — that is `realtime-subscription-architect`. This skill
+  designs the transport both consume, not what runs on top of it.
 
 ## Inputs to Inspect
 

@@ -1,7 +1,12 @@
 {
   "skill": "multi-tenant-data-architect",
-  "description": "Trigger discrimination for the Phase 3 tenant cluster. Pins data-layer design apart from tenant semantics and isolation review.",
-  "overlaps_with": ["tenant-modeler", "tenant-isolation-reviewer"],
+  "description": "Trigger discrimination for the tenant data layer (this skill) vs tenant semantics (tenant-modeler) and isolation review (tenant-isolation-reviewer), plus the newer axes it is confused with: OLTP throughput/size sharding (data-partitioning-sharding-strategist) and a subordinate per-user scope axis below tenant_id (intra-tenant-scope-architect).",
+  "overlaps_with": [
+    "tenant-modeler",
+    "tenant-isolation-reviewer",
+    "data-partitioning-sharding-strategist",
+    "intra-tenant-scope-architect"
+  ],
   "cases": [
     {
       "id": "data-design-wins-here",
@@ -23,6 +28,22 @@
       "expected_skill": "tenant-isolation-reviewer",
       "should_not_trigger": ["multi-tenant-data-architect"],
       "reason": "Verifying the current system's isolation is a review with evidence and negative tests, not a design task."
+    },
+    {
+      "id": "throughput-sharding-goes-to-data-partitioning-sharding-strategist",
+      "prompt": "The transactional primary can't absorb our write volume and the biggest tables are too large to maintain — pick a shard key, choose range vs hash partitioning per table, and plan resharding a hot key.",
+      "expected_skill": "data-partitioning-sharding-strategist",
+      "should_not_trigger": ["multi-tenant-data-architect"],
+      "note": "SEAM CASE — throughput/size distribution (shard key, range/hash, hot-key resharding), not tenant ISOLATION scoping. This skill only enters when a reshard changes the pooled↔silo isolation posture.",
+      "reason": "Distributing an OLTP store for write/size scale is data-partitioning-sharding-strategist — a throughput axis. This skill designs tenant ISOLATION scoping (pooled vs schema vs database per tenant) and context propagation, a different axis."
+    },
+    {
+      "id": "subordinate-scope-axis-goes-to-intra-tenant-scope-architect",
+      "prompt": "Inside a single tenant, users must be limited to a subset of that tenant's data by their site/region while tenant admins see everything — design the per-user scope grants and the row-filter predicate on every scoped table.",
+      "expected_skill": "intra-tenant-scope-architect",
+      "should_not_trigger": ["multi-tenant-data-architect"],
+      "note": "SEAM CASE — a subordinate per-user scope axis BELOW tenant_id, layered on top of the tenant boundary this skill establishes.",
+      "reason": "A second row-filter dimension below tenant_id with per-user grants is intra-tenant-scope-architect. This skill owns the tenant_id axis itself — the pooled/schema/database strategy and tenant-context propagation."
     }
   ]
 }

@@ -505,7 +505,7 @@ but nothing advises on the architecture STYLE/PARADIGM itself (monolith vs modul
 vs microservices vs event-driven vs serverless vs SOA, and hybrids). This pack fills that
 gap:
 
-- `architecture-advisor` *(candidate — not built)* — an ADVISOR that recommends an
+- `architecture-advisor` *(✅ built — D26, 2026-07-07)* — an ADVISOR that recommends an
   architecture STYLE for what the user is building, with honest tradeoffs and a reasoned
   recommendation — NOT a mechanical selector. Its discipline:
   - Understand the need FIRST: interview for domain, load/traffic shape, team size and
@@ -1167,7 +1167,22 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   `source-currency-auditor` all gate any real change behind human review
   (Stop Conditions). To be checked by `skill-quality-reviewer` before final
   trust.
-Aegis-d28-owasp-a09-a10
+
+- **D27 (2026-07-08) — Security scanning & orchestration pack (D12.10)
+  banked as candidates (candidate — not built):
+  `security-scan-orchestrator`, `sast-orchestration-designer`,
+  `dast-safety-harness-designer`.** Fills a real gap (SAST
+  tool-running/orchestration, DAST against running apps, whole-repo
+  security scan aggregation) distinct from the existing JUDGMENT skills
+  (`static-analysis-reviewer` triages findings;
+  `supply-chain-security-reviewer` covers deps). Core principle:
+  orchestrate-and-REPORT, human approves any action — an AI security
+  scanner may READ a repo but must not autonomously fix/PR/configure
+  (Zero-Trust Engineering Discipline). DAST requires written authorization
+  + no-prod-without-sign-off guardrails. Build DEFERRED until AFTER the
+  library-wide `skill-quality-reviewer` sweep and its corrections are
+  complete. Not built.
+
 - **D28 (2026-07-08) — OWASP Web-App Top 10:2025 gap closed:
   `security-logging-alerting-architect` (A09) and
   `error-handling-security-reviewer` (A10) built, the two remaining
@@ -1218,21 +1233,6 @@ Aegis-d28-owasp-a09-a10
   trigger cases pinning the `secrets-identity-hardener` and
   `error-handling-security-reviewer` seams. Grounded in current DoW/LLMjacking
   research. To be checked by `skill-quality-reviewer` in the deferred sweep.
-
-- **D27 (2026-07-08) — Security scanning & orchestration pack (D12.10)
-  banked as candidates (candidate — not built):
-  `security-scan-orchestrator`, `sast-orchestration-designer`,
-  `dast-safety-harness-designer`.** Fills a real gap (SAST
-  tool-running/orchestration, DAST against running apps, whole-repo
-  security scan aggregation) distinct from the existing JUDGMENT skills
-  (`static-analysis-reviewer` triages findings;
-  `supply-chain-security-reviewer` covers deps). Core principle:
-  orchestrate-and-REPORT, human approves any action — an AI security
-  scanner may READ a repo but must not autonomously fix/PR/configure
-  (Zero-Trust Engineering Discipline). DAST requires written authorization
-  + no-prod-without-sign-off guardrails. Build DEFERRED until AFTER the
-  library-wide `skill-quality-reviewer` sweep and its corrections are
-  complete. Not built.
 
 - **D30 (2026-07-08) — SaaS Architecture Depth pack (D12.11) banked as candidates
   (candidate — not built)**, from a private read-only audit of production
@@ -1302,7 +1302,7 @@ Aegis-d28-owasp-a09-a10
   checked by `skill-quality-reviewer` in the deferred sweep; highest mutual-
   overlap risks flagged for that pass: usage-metering ↔ `saas-cost-architect`
   and realtime ↔ offline-first. Validator: 171 skills, exit 0.
-main
+
 - **D32 (2026-07-08) — D12.11 SaaS Architecture Depth LOW-PRIORITY cluster
   built (4 skills). 171→175.** The deferred Build B, completing the D12.11
   pack. The 4: `cell-based-architecture-designer`,
@@ -1364,6 +1364,46 @@ main
   overlap risks flagged for that pass: intra-tenant-scope ↔ `multi-tenant-
   data-architect` (the closest of the two flag decisions) and share-link ↔
   `authorization-matrix-designer`. Validator: 175 skills, exit 0.
+
+- **D33 (2026-07-08) — Applied `skill-quality-reviewer` sweep corrections
+  (19 REVISEs from the completed 8-batch / 80-skill sweep; all nit-level/
+  soft, zero FAILs). Count stays 175 — edits only, no skill created/deleted;
+  no skill logic/scope/posture changed.** Two mechanical classes:
+  - **Built-before-neighbor back-references (Shape A, 8 older hubs):** older
+    skills gained `overlaps_with` entries + discriminating trigger-eval
+    cases + a one-line Use-When boundary for newer colliders that already
+    named them — led by `api-event-architect`'s 6 (`streaming-event-
+    architect`, `realtime-subscription-architect`, `command-gateway-
+    architect`, `event-schema-architect`, `notification-webhook-ux-designer`,
+    `api-doc-generator-designer`). Also `operational-vs-analytical-splitter`
+    (stale write-path misroute retargeted from `multi-tenant-data-architect`/
+    `architecture-designer` to `data-partitioning-sharding-strategist`,
+    isolation-only kept on `multi-tenant-data-architect`; + usage-metering),
+    `streaming-event-architect` (+background-job, +realtime),
+    `multi-tenant-data-architect` (+sharding, +intra-tenant-scope),
+    `saas-cost-architect` (+usage-metering), `architecture-advisor` (+cells),
+    `saas-platform-architect` (+cells), `authorization-matrix-designer`
+    (+admin-console, +intra-tenant-scope, +share-link).
+  - **Eval-completeness nits (Shape A, 8 skills):** `lane-authoring-guide`
+    (+scoped-approval-register), `sharded-validation-with-resume`
+    (+qa-automation-architect, self-referential Gotcha de-housed),
+    `risk-tiered-validation-selector` (+exact-prompt trigger case),
+    `intra-tenant-scope-architect` (+share-link), `error-taxonomy-designer`
+    (+error-handling-security-reviewer), `command-gateway-architect`
+    (+intra-tenant-scope), `standing-approval-and-auto-advance`
+    (+merge-is-deploy-governance), `horizontal-scalability-reviewer`
+    (+data-partitioning-sharding-strategist).
+  - **Staleness (Shape B, 2 skills):** `skill-deprecation-planner` and
+    `context-co-update-ci-gate` had "banked / not built / until it ships /
+    handled manually" wording about the now-SHIPPED `docs-retention-index`
+    and `sunset-deprecation-communicator` replaced with shipped-state
+    wording; all SKILL-vs-DOC and library-vs-product-PM discrimination kept
+    verbatim.
+  The sweep confirmed the library structurally sound — **0 FAIL, 0
+  unroutable, 0 escalation** across 80 skills. Product-agnostic (swept
+  supabase/athena/lovable/aegis/onedrive/personal names/URLs — clean except
+  the standard evals `$schema` URL). Validator: 175 skills, exit 0. **To do
+  next: D12.10 SAST/DAST build (deferred by D27).**
 
 ---
 

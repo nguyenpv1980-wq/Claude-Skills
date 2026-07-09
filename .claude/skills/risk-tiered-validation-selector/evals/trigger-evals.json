@@ -37,6 +37,13 @@
       "expected_skill": "risk-tiered-validation-selector",
       "should_not_trigger": ["change-classification-gate"],
       "reason": "The docs-only definition and its never-docs-only boundary are the selector's artifact (validation cost); no approval-path question is being asked."
+    },
+    {
+      "id": "bare-validation-question-triggers-selector",
+      "prompt": "What validation does this change need?",
+      "expected_skill": "risk-tiered-validation-selector",
+      "should_not_trigger": ["change-classification-gate"],
+      "reason": "A bare 'what validation does this change need' is the depth/cost decision — this selector. change-classification-gate answers what change CLASS it is and its approval path; the validation-tier question routes here even though the two share the class vocabulary."
     }
   ]
 }

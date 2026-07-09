@@ -43,6 +43,10 @@ the honest answer is a boring modular monolith.
 - Do NOT use when: the task is modeling the domain's concepts/entities/
   boundaries — that is `domain-modeler` (which can INFORM style but is a
   different job).
+- Do NOT use when: the task is whole-stack blast-radius partitioning —
+  self-contained cells per tenant-subset with cell-by-cell rollout — that is
+  `cell-based-architecture-designer`; cells partition an already-chosen style
+  and are deliberately not one of the styles this skill recommends.
 
 ## Inputs to Inspect
 

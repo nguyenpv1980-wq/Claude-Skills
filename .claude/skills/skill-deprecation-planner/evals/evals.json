@@ -67,7 +67,7 @@
       "expect": {
         "triggers": false,
         "assertions": [
-          "Does not invoke skill-deprecation-planner: retiring a product FEATURE with customer messaging and migration timelines is a product/PM concern (banked as sunset-deprecation-communicator), not library-skill mechanics.",
+          "Does not invoke skill-deprecation-planner: retiring a product FEATURE with customer messaging and migration timelines is a product/PM concern (sunset-deprecation-communicator, now shipped), not library-skill mechanics.",
           "The words 'sunset' and 'deprecation' alone do not route here — this skill's subject is a skill in an AI skill library, with reverse links, registration rows, and trigger redirection."
         ]
       }

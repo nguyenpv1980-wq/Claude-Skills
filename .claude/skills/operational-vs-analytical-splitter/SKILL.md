@@ -39,10 +39,11 @@ whole split unnecessary (`query-plan-reader`).
   `warehouse-lake-architect`.
 - Do NOT use when: the split is decided and the CDC/event transport needs
   designing — that is `streaming-event-architect`.
-- Do NOT use when: the pressure is write-path scaling (sharding,
-  partitioning the operational store itself) — that is
-  `multi-tenant-data-architect` territory for tenant-keyed stores or
-  `architecture-designer` for general structure.
+- Do NOT use when: the pressure is write-path scaling — sharding or
+  partitioning the operational store itself for write/size throughput is
+  `data-partitioning-sharding-strategist`; re-sharding for tenant
+  ISOLATION (pooled↔silo) is `multi-tenant-data-architect`. Offloading
+  reads does not save a saturated write path.
 - Do NOT use when: the workload is caching a computed result inside the
   request path — `caching-strategy-designer` owns cache design; this
   skill may PRESCRIBE "cache" as a mechanism and then hands over.
@@ -188,9 +189,11 @@ Escape checked:  <the one-bad-query check was performed; result>
 - The store's activity/query statistics are unavailable and interference
   cannot be evidenced → stop and say what instrumentation is needed
   first; splitting blind moves cost without proof of benefit.
-- The real pressure is write-path scaling or tenant re-sharding → route
-  to `multi-tenant-data-architect`; offloading reads will not save a
-  saturated write path.
+- The real pressure is write-path/throughput scaling → route to
+  `data-partitioning-sharding-strategist` (shard key, range/hash
+  partitioning, resharding a hot key); tenant-ISOLATION re-sharding
+  (pooled↔silo) is `multi-tenant-data-architect`. Offloading reads will
+  not save a saturated write path.
 - Asked to also design the destination warehouse, the CDC pipeline, or
   the cache in the same pass → decline those slices and hand off; the
   split decision must stay reviewable on its own.

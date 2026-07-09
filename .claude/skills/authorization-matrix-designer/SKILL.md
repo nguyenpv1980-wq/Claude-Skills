@@ -33,6 +33,13 @@ accumulation of `if (user.isAdmin)` checks discovered later by a pen test.
   emit audit events).
 - Do NOT use when: tenant semantics/membership are undefined — run
   `tenant-modeler` first; roles attach to memberships.
+- Do NOT use when: the task is the operator CONSOLE that enforces policy
+  (tiers, break-glass, impersonation mechanics) — that is
+  `admin-console-architect`, which enforces the matrix this skill authors;
+  a subordinate per-user row-FILTER scope axis below tenant_id
+  (`intra-tenant-scope-architect`, a filter a role carries, not a
+  permission); or anyone-with-the-link bearer access for NON-members
+  (`share-link-access-architect`, a capability, not member RBAC).
 
 ## Inputs to Inspect
 

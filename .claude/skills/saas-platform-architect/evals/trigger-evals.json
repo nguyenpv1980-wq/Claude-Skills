@@ -1,7 +1,11 @@
 {
   "skill": "saas-platform-architect",
-  "description": "Trigger discrimination for the Phase 3 platform/commercial cluster. Pins platform structure apart from entitlement design and cost modeling.",
-  "overlaps_with": ["plan-entitlement-architect", "saas-cost-architect"],
+  "description": "Trigger discrimination for the platform structure (this skill) vs entitlement design (plan-entitlement-architect), cost modeling (saas-cost-architect), and whole-stack blast-radius cell partitioning (cell-based-architecture-designer — a heavier partition layered on this skill's per-component isolation).",
+  "overlaps_with": [
+    "plan-entitlement-architect",
+    "saas-cost-architect",
+    "cell-based-architecture-designer"
+  ],
   "cases": [
     {
       "id": "platform-structure-wins-here",
@@ -23,6 +27,14 @@
       "expected_skill": "saas-cost-architect",
       "should_not_trigger": ["saas-platform-architect"],
       "reason": "Cost attribution and unit economics per tenant/plan, not a structural design question."
+    },
+    {
+      "id": "whole-stack-cells-go-to-cell-based-architecture-designer",
+      "prompt": "Partition the platform so a failure or bad deploy is contained to a subset of tenants: each partition runs its own full stack, tenants map to exactly one partition, and we roll changes out one partition at a time.",
+      "expected_skill": "cell-based-architecture-designer",
+      "should_not_trigger": ["saas-platform-architect"],
+      "note": "SEAM CASE — per-component pooled/siloed isolation (this skill) vs a heavier whole-stack partition for blast radius (cells).",
+      "reason": "Whole-stack blast-radius partitioning (self-contained cells, cell-by-cell rollout) is cell-based-architecture-designer. This skill decides per-component pooled/siloed isolation and the control/data-plane split, not full-stack cells."
     }
   ]
 }
