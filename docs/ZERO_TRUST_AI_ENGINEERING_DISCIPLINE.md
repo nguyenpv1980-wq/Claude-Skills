@@ -1,4 +1,4 @@
-# Zero-Trust Engineering Discipline
+# Zero Trust AI Engineering Discipline
 
 > **Never trust, always verify — every step of the lifecycle.**
 > *Assume drift. Demand evidence. Track everything.*
@@ -12,7 +12,7 @@ network access to the whole engineering process.*
 
 ## Core definition
 
-**Zero-Trust Engineering Discipline is the practice of applying the security principle
+**Zero Trust AI Engineering Discipline is the practice of applying the security principle
 "never trust, always verify" to the ENTIRE software development lifecycle** — every
 decision, code change, test result, completion claim, and piece of documentation is verified
 against concrete evidence rather than trusted from memory, assumption, or assertion,

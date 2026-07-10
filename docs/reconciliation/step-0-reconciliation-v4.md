@@ -444,7 +444,7 @@ pack is pulled forward.
 
 **D12.8 Operational workflow patterns — evidence-extracted (P1)** *(pack added by D15,
 2026-07-07; **all 10 built 2026-07-07, D21** — the concrete, invocable rules of the
-Zero-Trust Engineering Discipline, D16)*: patterns extracted from a read-only audit of two
+Zero Trust AI Engineering Discipline, D16)*: patterns extracted from a read-only audit of two
 production multi-agent repositories ([`docs/research/aegis-workflow-extraction-report.md`](../research/aegis-workflow-extraction-report.md));
 all HIGH confidence (multiple concrete artifacts each); product content stripped at
 extraction; live identifiers templated as placeholders per report §6.3. The pack
@@ -683,7 +683,7 @@ JUDGMENT skills — `static-analysis-reviewer` triages scanner findings it is ha
 `supply-chain-security-reviewer` covers dependencies/provenance — but nothing ORCHESTRATES
 the scanning itself: running a SAST suite over a repo, dynamic testing against a running
 app, or aggregating a whole-repo security scan into one report. This pack fills that gap.
-Core principle for all three (per the Zero-Trust Engineering Discipline, D16, and
+Core principle for all three (per the Zero Trust AI Engineering Discipline, D16, and
 `agent-authorization-matrix`): orchestrate-and-REPORT — an AI security scanner may READ a
 repo and run scanners, but must never autonomously fix, open PRs, or change settings; every
 action is handed to a human.
@@ -692,7 +692,7 @@ action is handed to a human.
   clone/access a repo (READ-ONLY) and run the full security-scan suite (SAST +
   dependency/SCA + secret scanning + IaC/config scanning), then AGGREGATE findings into one
   prioritized report. Orchestrates and REPORTS; recommends fixes but NEVER applies them,
-  opens no PRs, changes no settings — any action is handed to a human (per Zero-Trust
+  opens no PRs, changes no settings — any action is handed to a human (per Zero Trust AI
   Engineering Discipline / `agent-authorization-matrix`). Composes with
   `static-analysis-reviewer` (which does the true-positive/false-positive judgment on the
   SAST output) and `supply-chain-security-reviewer` (dependency/provenance). Tool-agnostic
@@ -969,15 +969,15 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   as placeholders in any derived skill (report §6.3). These patterns carry a stronger
   evidence tier than practice-from-memory: each cites concrete repo artifacts. No skills
   built; no shipped skill modified; validator target unchanged.
-- **D16 (2026-07-07) — Zero-Trust Engineering Discipline coined and documented** at
-  [`docs/ZERO_TRUST_ENGINEERING_DISCIPLINE.md`](../ZERO_TRUST_ENGINEERING_DISCIPLINE.md).
+- **D16 (2026-07-07) — Zero Trust AI Engineering Discipline coined and documented** at
+  [`docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md`](../ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md).
   Tagline "Never trust, always verify — every step of the lifecycle. / Assume drift. Demand
   evidence. Track everything.", deliberately mirroring the Zero Trust security motto. Applies
   "never trust, always verify" to the whole SDLC to prevent drift and rot; its concrete rules
   are the D12.8 patterns; it is the doctrine Aegis itself operates under. Distinct from
   classic network Zero Trust. No skills built; this is doctrine, not a skill.
 - **D17 (2026-07-07) — README reframed to present Aegis as an operating system for
-  engineering software with AI, governed by Zero-Trust Engineering Discipline,** with a
+  engineering software with AI, governed by Zero Trust AI Engineering Discipline,** with a
   "How to use this" operator guide and a "Map of the system" navigation section. Additive
   only; all prior README content (skill catalog, phase plan, validation, CI) preserved.
   No skills built.
@@ -1020,7 +1020,7 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   `chat-backlog-reconciliation`, `context-co-update-ci-gate`, `lane-authoring-guide`,
   `local-ci-mirror-preflight`, `risk-tiered-validation-selector`,
   `sharded-validation-with-resume`, `merge-is-deploy-governance`,
-  `gated-deployment-prompt-template`) — the concrete, invocable rules of the Zero-Trust
+  `gated-deployment-prompt-template`) — the concrete, invocable rules of the Zero Trust AI
   Engineering Discipline (D16). Product-agnostic, sourced from
   [`docs/research/aegis-workflow-extraction-report.md`](../research/aegis-workflow-extraction-report.md).
   96→106 skills. Every skill ships `evals/evals.json` + `evals/trigger-evals.json` with
@@ -1178,7 +1178,7 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   `supply-chain-security-reviewer` covers deps). Core principle:
   orchestrate-and-REPORT, human approves any action — an AI security
   scanner may READ a repo but must not autonomously fix/PR/configure
-  (Zero-Trust Engineering Discipline). DAST requires written authorization
+  (Zero Trust AI Engineering Discipline). DAST requires written authorization
   + no-prod-without-sign-off guardrails. Build DEFERRED until AFTER the
   library-wide `skill-quality-reviewer` sweep and its corrections are
   complete. Not built.
@@ -1404,6 +1404,58 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   supabase/athena/lovable/aegis/onedrive/personal names/URLs — clean except
   the standard evals `$schema` URL). Validator: 175 skills, exit 0. **To do
   next: D12.10 SAST/DAST build (deferred by D27).**
+
+- **D34 (2026-07-10) — Documentation accuracy, coined-term rename, auto-merge
+  reconciliation, and README readability pass (doc-only; count stays 175,
+  validator exit 0; no skill created/edited/renamed/deleted).**
+  - **Coined-term rename.** The project's doctrine term gained **"AI"** and
+    dropped its hyphen — it now reads **"Zero Trust AI Engineering
+    Discipline"** — updated at all 19 verified occurrences across 5 files
+    (README, CONTRIBUTING, the catalog, this reconciliation doc, and the
+    doctrine doc's H1 + definition). The classic network-security concept
+    **"Zero Trust" is deliberately NOT renamed** — README:121, this doc's
+    "Zero Trust security motto" / "classic network Zero Trust", the doctrine
+    doc's "Distinction from classic Zero Trust" section, and the
+    `human-agent-trust-reviewer` "zero trust weight/theater" idiom are all
+    left verbatim. The doctrine file was likewise renamed (Option B — full
+    consistency) to `docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md`, with all
+    5 inbound links updated (README:120/184/453, CONTRIBUTING:3, this doc's
+    D16 entry).
+  - **Accuracy fixes.** CONTRIBUTING rule 8's stale "95 skills" reworded to
+    "exit 0" (no longer hard-codes a count that keeps going stale);
+    CONTRIBUTING "On self-auditing" updated from "banked D13 candidate …
+    when built" to the shipped reality (`skill-quality-reviewer`, built
+    D18). Catalog Status count chain extended through D31→171 / D32→175
+    (current total **175**) and its "Implemented (Phases 0–5)" heading
+    relabeled to "Implemented" (the section runs through D32). README About
+    paragraph brought current through D33 (was stale at D28). README "Map of
+    the system" skills bullet — which omitted 8 shipped packs
+    (D12.2/D12.4/D12.5/D12.6/D12.7/D12.9/D14/D28) — superseded by a pointer
+    to the new roster. Minor: README "~175" → "175"; the validator
+    catalog-integrity claim softened to match actual behavior;
+    `secure-saas-reviewer` subagent "a application" → "an".
+  - **Auto-merge contradiction reconciled** (owner-confirmed truth: Aegis's
+    development used MANUAL merge after green checks; auto-merge is never
+    armed as policy). `auto-merge-policy.md` originally specified an opt-in
+    per-phase auto-merge-*arming* mechanism (`gh pr merge --auto --squash`)
+    that was never adopted; it is corrected forward to describe the actual
+    manual-merge process (original text summarized in-doc for provenance,
+    not silently deleted). README:701 ("Auto-merge is enabled per-phase …")
+    corrected to manual-merge. CONTRIBUTING rule 3 and README:151 were
+    already correct and kept. The one time auto-merge fired — PR #7 — was
+    the unauthorized incident recorded in §6 and captured as an
+    `agent-authorization-matrix` eval; that is the *rationale* for the
+    manual-merge rule, not a counterexample to it.
+  - **README readability.** The ~80-line About wall-of-text broken into
+    digestible paragraphs; a new scannable **"What's in the library"** roster
+    of the 19 shipped pack-families (purpose + example skills each),
+    surfacing `requirements-gathering-facilitator` as the elicitation entry
+    point that feeds `product-spec-writer`; and a concrete **"Getting
+    started"** subsection with copy-pasteable git/Claude-Code steps plus the
+    Claude.ai / non-CLI path.
+  Doc-only: no skill file, validator, or CI config touched — the
+  `secure-saas-reviewer` subagent grammar fix is the sole non-doc,
+  non-skill file. Validator: 175 skills, exit 0.
 
 ---
 

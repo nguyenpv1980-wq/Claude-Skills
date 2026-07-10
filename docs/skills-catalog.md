@@ -24,7 +24,7 @@ checks that every *implemented* skill is listed here and in `README.md`.
 > `eval-runner-designer`, `skill-usage-instrumenter`, and
 > `skill-deprecation-planner`, D22), the
 > D12.8 operational workflow patterns pack (10 evidence-extracted skills —
-> the concrete rules of the Zero-Trust Engineering Discipline, D21), and the
+> the concrete rules of the Zero Trust AI Engineering Discipline, D21), and the
 > data/performance/QA-validation batch (D23: the 7-skill D12.1 data
 > engineering pack, the 6-skill D12.3 performance engineering pack, and the
 > 2 D10 Tier 1 performance/load validation skills — D12.3 designs FOR
@@ -47,7 +47,11 @@ checks that every *implemented* skill is listed here and in `README.md`.
 > Logging and Alerting Failures and `error-handling-security-reviewer`
 > closes A10:2025 Mishandling of Exceptional Conditions — the D8 audit's
 > two zero-coverage categories; all 10 OWASP web-app categories now have
-> an owning skill; 159→161 skills).
+> an owning skill; 159→161 skills). Most recently the D12.11 SaaS
+> architecture-depth pack completed in two builds — the 10-skill STRONG
+> cluster (D31, 161→171) and the 4-skill LOW-PRIORITY set (D32, 171→175) —
+> bringing the library to its current **175 skills** (the D33
+> `skill-quality-reviewer` sweep applied corrections only, no count change).
 > `_template` remains a reference template ignored by the validator.
 > Everything under "Backlog" is planned, not built.
 
@@ -78,7 +82,7 @@ in the reconciliation doc §5.
 
 ---
 
-## Implemented (Phases 0–5)
+## Implemented
 
 ### Foundation (Phase 0)
 
@@ -556,7 +560,7 @@ production multi-agent repositories
 ([`docs/research/aegis-workflow-extraction-report.md`](research/aegis-workflow-extraction-report.md)),
 all HIGH confidence with concrete artifacts, product content stripped at
 extraction (live identifiers templated as placeholders per report §6.3).
-These are the concrete, invocable rules of the **Zero-Trust Engineering
+These are the concrete, invocable rules of the **Zero Trust AI Engineering
 Discipline** (D16) — its TRACK / VERIFY / GOVERN / HAND OFF groups. All 10
 ship `evals/evals.json` **and** `evals/trigger-evals.json`; every skill names
 the neighbor it composes with and discriminates against it in trigger-evals.
@@ -990,7 +994,7 @@ above. Source: the reconciliation doc §3 D13 subsection + D13/D18/D22 in §5.
 ### D12.8 — Operational workflow patterns (evidence-extracted; implemented)
 All 10 skills ✅ **implemented** (D21, 2026-07-07) — moved to
 [Implemented → Skills (D12.8)](#skills-d128--operational-workflow-patterns-pack)
-above: the concrete rules of the Zero-Trust Engineering Discipline (D16).
+above: the concrete rules of the Zero Trust AI Engineering Discipline (D16).
 Source: the reconciliation doc §3 D12.8 subsection (banked by D15) and
 [`docs/research/aegis-workflow-extraction-report.md`](research/aegis-workflow-extraction-report.md).
 `docs-retention-index` (P1) remains banked under D12.4; the D15 enrichment
