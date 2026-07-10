@@ -6,7 +6,7 @@
 
 Project Aegis is an operating system for engineering software with AI — a reusable
 Claude engineering shield: a library of skills, subagents, validation gates, and
-safety patterns, governed by Zero-Trust Engineering Discipline, that turns Claude
+safety patterns, governed by Zero Trust AI Engineering Discipline, that turns Claude
 into a disciplined senior/principal engineering partner for architecture, SaaS,
 security, QA, audit, troubleshooting, and AI safety.
 
@@ -25,86 +25,59 @@ prompt bloat; it is a protected execution framework where Claude models before c
 reads docs before implementation, tests before changes, keeps diffs small, respects
 human approval boundaries, and produces evidence before closeout.
 
-The repo is built in **phases**. **Phase 0** established the foundation — authoring
-standard, templates, eval convention, validator, catalog, the seven read-only reviewer
-subagents, and the Step 0 reconciliation of the two earlier planning tracks. **Phase 1**
-shipped the first real skills: the 8-skill AI engineering **operating-discipline pack**
-(reconciled decision D4). **Phase 2** shipped the 10-skill **core architecture &
-engineering pack**. **Phase 3** shipped the 9-skill **SaaS & tenant isolation pack**.
-**Phase 4** shipped the 9-skill **security, RLS & supply-chain pack**. **Phase 5**
-shipped the 16-skill **QA, E2E, manual QA & evidence pack** (the 13 canonical Phase 5
-skills plus 3 pulled forward from the QA backlog: roadmap #184/#185/#204). **Phase 1.5**
-shipped the 4-skill **AI-SDLC governance completion** (roadmap #261/#268/#279/#280),
-completing the category-08 governance layer Phase 1 started. **Phase 6** shipped the
-10-skill **cloud, DevOps, reliability & release pack**. **Phase 7** shipped the
-14-skill **AI security & LLM systems pack** (v4's 10 plus 4 OWASP LLM Top 10 gap
-additions, D6). **Phase 7.5** shipped the **agentic AI security pack** (OWASP
-Agentic Top 10 for 2026, D7: 6 new skills + 3 extensions of existing skills;
-ASI08+ASI10 merged into one containment reviewer). The **Compliance &
-Governance batch** (D9) ships the 9-skill **compliance pack** — ISO
-27001:2022 + ISO 42001:2023 + SOC 2 with NIST AI RMF as companion: one
-shared control foundation + framework projections + a crosswalk, mapping
-controls that largely already exist and producing auditor-grade evidence on
-top. The first **D13 library-meta pull** (D18) ships `skill-quality-reviewer`
-— the judgment layer atop the mechanical validator, so the library now
-reviews its own additions. The **D13 completion** (D22) ships the remaining
-four library-meta skills — `library-diff-reviewer`, `eval-runner-designer`,
-`skill-usage-instrumenter`, and `skill-deprecation-planner` — so the library
-also reviews its own PRs end-to-end, holds an execution design for its
-evals, can measure which skills actually fire, and can retire a skill as
-deliberately as it ships one. The **D12.8 operational workflow patterns pack**
-(D21) ships the 10 evidence-extracted skills that are the concrete, invocable
-rules of the Zero-Trust Engineering Discipline (D16) — approval registers,
-governed standing approval, chat-backlog reconciliation, the context
-co-update CI gate, lane guides, the local CI mirror preflight, risk-tiered
-validation, sharded validation with resume, merge-is-deploy governance, and
-the gated deployment prompt template. The **data/performance/QA-validation
-batch** (D23) ships three packs at once: the 7-skill **D12.1 data engineering
-pack** (schema evolution, the internal streaming backbone, data-quality
-monitoring, the operational/analytical split, the warehouse/lake estate, PII
-lifecycle, and data-migration runbooks), the 6-skill **D12.3 performance
-engineering pack** (profiling methodology, query-plan reading, N+1
-detection, caching strategy, latency budgets, and frontend performance), and
-the 2-skill **D10 Tier 1 performance/load validation pair**
-(`performance-test-harness` + `load-test-planner`) — closing the QA
-roadmap's headline gap, with the seam pinned both ways: D12.3 designs FOR
-performance, D10 measures it — see
-[Skills (shipped)](#skills-shipped) below. The **product/PM/growth batch**
-(D24) ships three more packs: the 5-skill **D12.2 product-engineering
-craft pack** (pagination cursors, error taxonomies, edge-state UX,
-notification/webhook UX, mobile viewport craft), the 6-skill **D12.5
-PM/product-engineering interface pack** (requirements facilitation,
-product specs, uncertainty-aware roadmaps, prioritization frames,
-feature-flag rollout, and product-sunset communication), and the 4-skill
-**D12.6 growth/analytics engineering pack** (the analytics event schema,
-funnel definitions, A/B testing, and product-analytics instrumentation) —
-with `product-spec-writer`≠`adr-writer` and
-`sunset-deprecation-communicator`≠`skill-deprecation-planner` pinned hard,
-plus the two three-way event/analytics seams. The **docs-engineering
-batch** (D25, PART A of a two-PR set) ships the 8-skill **D12.4 technical
-writing / docs engineering pack** (README craft, ADR-corpus sequencing,
-Diátaxis organization, the docs-as-code pipeline, generated API reference,
-contribution guides, new-hire onboarding, and doc-retention governance) —
-`adr-sequencer` extends `adr-writer`, `docs-retention-index` is the
-doc-lifecycle counterpart to `skill-deprecation-planner` (pinned both
-ways), and `api-doc-generator-designer` documents the contract
-`api-event-architect` owns. The **staff-IC / architecture /
-framework-refresh batch** (D26, PART B of the same set) ships the 7-skill
-**D12.7 staff+ IC craft pack** (tech specs, design-review facilitation,
-cross-team dependency negotiation, roadmap-to-commitments translation,
-staff scope selection, promotion packets, and phased-work handoffs), the
-1-skill **D12.9 architecture-advisory pack** (`architecture-advisor` — the
-STYLE/paradigm advisor), and the 3-skill **D14 framework-refresh /
-source-currency pack** (`framework-edition-tracker` →
-`framework-mapping-refresher`, plus `source-currency-auditor`) that keeps
-the library current with external truth without ever auto-updating a
-mapping. The **OWASP web-app gap-closure pair** (D28) closes the last two
-zero-coverage categories from the D8 OWASP Top 10:2025 audit:
-`security-logging-alerting-architect` (A09 — security-event detection
-coverage, alerting rules, response wiring) and
-`error-handling-security-reviewer` (A10 — fail-closed defaults, error-path
-authorization, exception-driven bypass, leak-free error responses) — all 10
-OWASP web-app categories now have at least one owning skill.
+The repo is built in **phases**, each a validated batch that builds on the ones before it.
+**Phase 0** established the foundation — the authoring standard, templates, eval convention,
+validator, catalog, the seven read-only reviewer subagents, and the Step 0 reconciliation of
+the two earlier planning tracks. On that base, **Phase 1** shipped the 8-skill AI engineering
+**operating-discipline pack** (decision D4); **Phase 1.5** added the 4-skill **AI-SDLC
+governance completion** (roadmap #261/#268/#279/#280), finishing the category-08 governance
+layer Phase 1 began; **Phase 2** shipped the 10-skill **core architecture & engineering
+pack**; **Phase 3** the 9-skill **SaaS & tenant isolation pack**; **Phase 4** the 9-skill
+**security, RLS & supply-chain pack**; and **Phase 5** the 16-skill **QA, E2E, manual QA &
+evidence pack** (13 canonical skills plus 3 pulled forward from the QA backlog: roadmap
+#184/#185/#204).
+
+**Phase 6** shipped the 10-skill **cloud, DevOps, reliability & release pack**; **Phase 7**
+the 14-skill **AI security & LLM systems pack** (v4's 10 plus 4 OWASP LLM Top 10 gap
+additions, D6); and **Phase 7.5** the **agentic AI security pack** (OWASP Agentic Top 10 for
+2026, D7: 6 new skills plus 3 extensions of existing ones, with ASI08 and ASI10 merged into a
+single containment reviewer).
+
+The **Compliance & Governance batch** (D9) shipped the 9-skill **compliance pack** — ISO
+27001:2022 + ISO 42001:2023 + SOC 2 with NIST AI RMF as companion: one shared control
+foundation, framework projections, and a crosswalk that map controls which largely already
+exist and produce auditor-grade evidence on top. The **library-meta pack (D13)** then turned
+the library on itself — `skill-quality-reviewer` (D18) as the judgment layer atop the
+mechanical validator, and D22's four remaining skills (`library-diff-reviewer`,
+`eval-runner-designer`, `skill-usage-instrumenter`, `skill-deprecation-planner`) — so the
+library now reviews its own additions and PRs, designs how its evals run, measures which
+skills actually fire, and can retire a skill as deliberately as it ships one.
+
+A run of **D12 craft packs** followed. The **operational workflow patterns pack** (D12.8, D21)
+shipped the 10 evidence-extracted skills that are the concrete, invocable rules of the
+**Zero Trust AI Engineering Discipline** (D16). The **data/performance/QA-validation batch**
+(D23) shipped three at once — the 7-skill **D12.1 data engineering pack**, the 6-skill
+**D12.3 performance engineering pack**, and the 2-skill **D10 Tier 1 performance/load
+validation pair** (D12.3 designs *for* performance; D10 *measures* it). The
+**product/PM/growth batch** (D24) shipped the 5-skill **D12.2 product-engineering craft
+pack**, the 6-skill **D12.5 PM/product-engineering interface pack**, and the 4-skill **D12.6
+growth/analytics engineering pack**. The **docs-engineering batch** (D25) shipped the 8-skill
+**D12.4 technical writing / docs engineering pack**, and the **staff-IC / architecture /
+framework-refresh batch** (D26) shipped the 7-skill **D12.7 staff+ IC craft pack**, the
+1-skill **D12.9 architecture-advisory pack**, and the 3-skill **D14 framework-refresh /
+source-currency pack**.
+
+The **OWASP web-app gap-closure pair** (D28) closed the last two zero-coverage categories from
+the D8 OWASP Top 10:2025 audit — `security-logging-alerting-architect` (A09) and
+`error-handling-security-reviewer` (A10) — so all 10 web-app categories now have an owning
+skill. The **SaaS architecture-depth pack** (D12.11) then completed in two builds: the
+10-skill **strong cluster** (D31) and the 4-skill **low-priority set** (D32), resolving all 14
+candidates and bringing the library to **175 skills**. Most recently, **D33** ran a
+library-wide `skill-quality-reviewer` sweep that landed corrections only — no change to the
+count.
+
+Full per-pack detail lives in [Skills (shipped)](#skills-shipped) below; for a quick map of
+what *kinds* of help the library offers, see [What's in the library](#whats-in-the-library).
 
 ## What this is
 
@@ -112,26 +85,50 @@ Aegis is not just a collection of skills; it is an **operating system for engine
 software with AI**. It combines (a) a library of ready-to-use skills an AI coding
 assistant follows, (b) read-only specialist reviewers that give independent second
 opinions, (c) validation gates and eval conventions that check the work mechanically,
-and (d) — governing all of it — **Zero-Trust Engineering Discipline**, the doctrine
+and (d) — governing all of it — **Zero Trust AI Engineering Discipline**, the doctrine
 that decides how everything above is allowed to operate.
 
 The discipline's essence in one line: **"Never trust, always verify — every step of the
 lifecycle. Assume drift. Demand evidence. Track everything."** It is documented at
-[docs/ZERO_TRUST_ENGINEERING_DISCIPLINE.md](docs/ZERO_TRUST_ENGINEERING_DISCIPLINE.md)
+[docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md](docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md)
 and deliberately extends the Zero Trust security principle from network access to the
 whole development lifecycle. The problem it solves: AI assistants confidently act on
 stale memory, claim done-when-not-done, and let docs drift away from the code — this
 system replaces that risk with enforced evidence at every step.
 
+The library holds itself to the bar it enforces: `skill-quality-reviewer` (D18) reviews the
+library's own additions, and its sweep corrections were applied in D33.
+
 ## How to use this
 
-**Point an AI coding assistant at the repo.** The skills live under
-[`.claude/skills/`](.claude/skills/); point the assistant at this repository (or copy
-the skill directories into your own project) and it picks them up from there. Skills
-are invoked by their trigger descriptions — each skill's frontmatter states when it
-applies, so the assistant selects the right procedure from the task itself.
-[`docs/skill-generation-standard.md`](docs/skill-generation-standard.md) defines the
-format.
+### Getting started
+
+There are two ways to use Aegis, depending on your setup.
+
+**1. Claude Code (recommended).** Clone the repo; the skills live under
+[`.claude/skills/`](.claude/skills/) and Claude Code discovers them automatically through the
+`.claude/` convention:
+
+```bash
+git clone https://github.com/nguyenpv1980-wq/Project-Aegis.git
+cd Project-Aegis
+# open this folder in Claude Code — skills and subagents load from .claude/
+git pull                      # update to the latest skills whenever you want
+```
+
+Point Claude Code at this repository, or copy the `.claude/skills/<name>/` directories you want
+into your own project's `.claude/skills/`. Skills are invoked by their trigger descriptions —
+each skill's frontmatter states when it applies, so the assistant selects the right procedure
+from the task itself. [`docs/skill-generation-standard.md`](docs/skill-generation-standard.md)
+defines the format.
+
+**2. Claude.ai / the Claude app (no CLI).** Without Claude Code you don't get automatic
+`.claude/` discovery — but the skills are just Markdown procedures, so you can still use them.
+Open the `SKILL.md` you want (from GitHub or a local clone) and paste its content into your
+project's custom instructions / project knowledge, or reference the pattern directly in the
+conversation. This gives you the procedure and its discipline; it does **not** give you the
+automatic trigger selection, the read-only subagents, or the CI validator — those are Claude
+Code features.
 
 **Run the core loop.** Every change, large or small, follows the same rhythm:
 
@@ -162,16 +159,10 @@ entry in the reconciliation doc.
 
 ## Map of the system
 
-- **Skills** ([`.claude/skills/`](.claude/skills/)) — the ~175 shipped procedures,
-  grouped by the phase categories in the catalog: operating discipline, AI-SDLC
-  governance, core architecture & engineering, SaaS & tenant isolation, security &
-  supply chain, QA & evidence, cloud & reliability & release, AI/LLM security, agentic
-  AI security, compliance & governance, library meta (self-application), the
-  D12.8 operational workflow patterns (the Zero-Trust Engineering Discipline's
-  concrete rules), data engineering (D12.1), performance engineering (D12.3),
-  performance/load validation (D10 Tier 1), and SaaS architecture depth
-  (D12.11 — strong cluster D31 + low-priority set D32). Full list in
-  [Skills (shipped)](#skills-shipped) below.
+- **Skills** ([`.claude/skills/`](.claude/skills/)) — the 175 shipped procedures,
+  grouped into 19 discipline families. See **[What's in the library](#whats-in-the-library)**
+  below for the roster (each family, its purpose, and example skills), and
+  [Skills (shipped)](#skills-shipped) for the full per-skill tables.
 - **Subagents** — seven read-only specialist reviewers, one per lens; see
   [Subagents (read-only reviewers)](#subagents-read-only-reviewers).
 - **The planning record**
@@ -181,11 +172,102 @@ entry in the reconciliation doc.
   work (the D12.8 pack graduated from banked to built with D21; the D13
   library-meta scope completed with D22).
 - **The doctrine**
-  ([docs/ZERO_TRUST_ENGINEERING_DISCIPLINE.md](docs/ZERO_TRUST_ENGINEERING_DISCIPLINE.md))
+  ([docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md](docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md))
   and **the operating rules** ([CONTRIBUTING.md](CONTRIBUTING.md)) — why the system
   works this way, and the eight enforceable rules every session follows.
 - **Validation + CI** — the local structural gate ([Validation](#validation)) and the
   merge gate ([CI (merge gate)](#ci-merge-gate)).
+
+## What's in the library
+
+**Skill roles at a glance.** The 175 skills sit in **19 discipline families** (each a shipped
+build batch). This is the scannable map of what *kinds* of help exist; the full per-skill
+tables are in [Skills (shipped)](#skills-shipped) below.
+
+1. **Operating discipline** *(Phase 1, 8)* — the always-on rules that keep AI-assisted work
+   honest: classify before acting, verify against evidence, keep diffs small, halt for
+   approval, close out honestly. *e.g.* `change-classification-gate`, `human-approval-boundary`,
+   `reviewable-diff-discipline`, `ai-closeout-reporter`.
+2. **AI-SDLC governance** *(Phase 1.5, 4)* — the human+agent lifecycle contract: named stages
+   and gates, standing agent authority, memory governance, after-the-fact process audit.
+   *e.g.* `ai-sdlc-operating-model`, `agent-authorization-matrix`, `agent-memory-governance`,
+   `agent-governance-audit`.
+3. **Core architecture & engineering** *(Phase 2, 10)* — modeling and building systems well:
+   domain models, architecture design, ADRs, docs-first + test-first implementation, debugging,
+   code review. *e.g.* `domain-modeler`, `architecture-designer`, `adr-writer`, `tdd-engineer`,
+   `systematic-debugger`.
+4. **SaaS & tenant isolation** *(Phase 3, 9)* — multi-tenant foundations: platform structure,
+   tenant semantics, per-store scoping, roles/permissions, plans, audit trail, cost, external
+   API contracts. *e.g.* `saas-platform-architect`, `tenant-isolation-reviewer`,
+   `authorization-matrix-designer`, `audit-log-architect`, `api-event-architect`.
+5. **Security, RLS & supply chain** *(Phase 4, 9)* — hands-on appsec: threat modeling, RLS
+   policy audit, secrets hardening, supply-chain review, security PR review, migration safety,
+   SAST triage. *e.g.* `threat-modeler`, `rls-policy-auditor`, `secrets-identity-hardener`,
+   `supply-chain-security-reviewer`, `security-pr-reviewer`.
+6. **QA, E2E & evidence** *(Phase 5, 16)* — test strategy through execution and proof: QA
+   strategy, test plans, coverage mapping, Playwright/unit/build QA, flake control, test data,
+   evidence policy. *e.g.* `qa-strategy-architect`, `test-coverage-mapper`,
+   `playwright-e2e-engineer`, `flaky-test-detective`, `screenshot-evidence-planner`.
+7. **Cloud, DevOps, reliability & release** *(Phase 6, 10)* — running it in production: cloud
+   choice, Azure/AWS mapping, IaC review, CI pipelines, release readiness, rollback,
+   observability, SLOs, incidents. *e.g.* `cloud-architecture-decider`, `iac-reviewer`,
+   `release-readiness-reviewer`, `rollback-runbook-author`, `slo-reliability-architect`.
+8. **AI security & LLM systems** *(Phase 7, 14)* — securing LLM features against the OWASP LLM
+   Top 10: injection, RAG/tool safety, output handling, evals, cost guardrails, disclosure,
+   routing. *e.g.* `ai-threat-modeler`, `prompt-injection-defender`, `rag-security-architect`,
+   `ai-evaluation-harness`, `ai-cost-guardrail-designer`.
+9. **Agentic AI security** *(Phase 7.5, 6)* — the OWASP Agentic Top 10 risks layered on top of
+   the LLM ones: goal hijack, agent identity/privilege, memory poisoning, inter-agent comms,
+   containment, human-trust. *e.g.* `agent-goal-hijack-defender`,
+   `agent-identity-privilege-reviewer`, `memory-context-poisoning-reviewer`,
+   `agent-containment-reviewer`.
+10. **Compliance & governance** *(D9, 9)* — auditor-grade readiness for ISO 27001 / ISO 42001 /
+    SOC 2 (+ NIST AI RMF): one control foundation, framework projections, a crosswalk, evidence,
+    gap audit. *e.g.* `compliance-control-foundation`, `multi-framework-crosswalk`,
+    `compliance-gap-auditor`, `soc2-trust-criteria-mapper`.
+11. **Library meta / self-application** *(D13, 5)* — the library applied to itself: quality
+    review, whole-PR review, eval-execution design, usage instrumentation, deprecation planning.
+    *e.g.* `skill-quality-reviewer`, `library-diff-reviewer`, `eval-runner-designer`,
+    `skill-deprecation-planner`.
+12. **Operational workflow patterns** *(D12.8, 10)* — the concrete, invocable rules of the
+    **Zero Trust AI Engineering Discipline**: approval registers, CI-mirror preflight,
+    risk-tiered + sharded validation, merge-is-deploy governance. *e.g.*
+    `scoped-approval-register`, `local-ci-mirror-preflight`, `risk-tiered-validation-selector`,
+    `merge-is-deploy-governance`.
+13. **Data + performance engineering & load validation** *(D23, 15)* — the data plane and its
+    speed: schema evolution, streaming, data quality, warehouse/lake, PII; profiling, query
+    plans, N+1, caching, latency; plus perf/load test harnesses. *e.g.*
+    `schema-evolution-planner`, `pii-lifecycle-designer`, `query-plan-reader`,
+    `n-plus-one-detector`, `load-test-planner`.
+14. **Product, PM & growth** *(D24, 15)* — turning product intent into shippable, measured work.
+    **Start a project here:** `requirements-gathering-facilitator` elicits requirements from
+    structured questions and plans the work end-to-end via elicitation, feeding
+    `product-spec-writer`; from there you prioritize, roll out behind flags, and instrument
+    analytics. *e.g.* `requirements-gathering-facilitator`, `product-spec-writer`,
+    `prioritization-frame-picker`, `feature-flag-rollout-strategist`, `event-schema-architect`,
+    `ab-test-designer`.
+15. **Docs engineering** *(D25, 8)* — durable documentation as a discipline: README craft,
+    ADR-corpus sequencing, Diátaxis organization, the docs-as-code pipeline, generated API
+    reference, onboarding. *e.g.* `readme-craftsman`, `diataxis-doc-organizer`,
+    `docs-as-code-architect`, `api-doc-generator-designer`, `onboarding-doc-designer`.
+16. **Staff+ IC, architecture advisory & framework refresh** *(D26, 11)* — technical leadership
+    and currency: tech specs, design review, dependency negotiation, promotion/scope, the
+    architecture-style advisor, framework-edition tracking. *e.g.* `tech-spec-writer`,
+    `design-review-facilitator`, `staff-scope-selector`, `architecture-advisor`,
+    `framework-edition-tracker`.
+17. **OWASP web-app gap closure** *(D28, 2)* — the two web-app categories that previously had no
+    owner: security logging/alerting design (A09) and error-path security review (A10). *e.g.*
+    `security-logging-alerting-architect`, `error-handling-security-reviewer`.
+18. **SaaS architecture depth — strong cluster** *(D31, 10)* — deep multi-tenant surfaces: the
+    command gateway, realtime, background jobs, horizontal scaling, search, file storage, usage
+    metering, synthetic monitoring, offline-first, admin console. *e.g.*
+    `command-gateway-architect`, `realtime-subscription-architect`,
+    `background-job-orchestration-architect`, `admin-console-architect`.
+19. **SaaS architecture depth — low-priority set** *(D32, 4)* — the scale-stage partitioning
+    surfaces: cell-based architecture, OLTP sharding, a below-tenant scope axis, and guest
+    share-link access. *e.g.* `cell-based-architecture-designer`,
+    `data-partitioning-sharding-strategist`, `intra-tenant-scope-architect`,
+    `share-link-access-architect`.
 
 ## Start here (canonical reading order)
 
@@ -225,7 +307,7 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | 7.5 | Agentic AI security (OWASP Agentic Top 10, D7: 6 new + 3 extensions) | P1 | ✅ merged |
 | D9 | Compliance & Governance batch (9 = 3 shared foundation + 3 framework projections + 3 cross-cutting; ISO 27001 + ISO 42001 + SOC 2, NIST AI RMF companion) | P1 | ✅ merged |
 | D13 | Library meta / self-application (5 = `skill-quality-reviewer`, D18, + the 4 completing the scope: `library-diff-reviewer`, `eval-runner-designer`, `skill-usage-instrumenter`, `skill-deprecation-planner`, D22) | P1 | ✅ shipped (D18 + D22) |
-| D12.8 | Operational workflow patterns (10 evidence-extracted skills — the concrete rules of the Zero-Trust Engineering Discipline, D16/D21; sourced from the workflow extraction report) | P1 | ✅ shipped (D21) |
+| D12.8 | Operational workflow patterns (10 evidence-extracted skills — the concrete rules of the Zero Trust AI Engineering Discipline, D16/D21; sourced from the workflow extraction report) | P1 | ✅ shipped (D21) |
 | D23 | Data + performance + QA-validation batch (15 = D12.1 data engineering 7 + D12.3 performance engineering 6 + D10 Tier 1 perf/load validation 2; D12.3 designs FOR performance, D10 measures it — seam pinned both sides) | P1 | ✅ shipped (D23) |
 | D24 | Product / PM / growth batch (15 = D12.2 product-engineering craft 5 + D12.5 PM/product-engineering interface 6 + D12.6 growth/analytics engineering 4; two hard seams — `product-spec-writer`≠`adr-writer`, `sunset-deprecation-communicator`≠`skill-deprecation-planner` — and the two three-way event/analytics seams pinned in trigger-evals) | P1/P2 | ✅ shipped (D24) |
 | D25 | Docs engineering batch (8 = D12.4 technical writing / docs engineering; `adr-sequencer` extends `adr-writer`, `docs-retention-index`≠`skill-deprecation-planner` pinned both ways, `api-doc-generator-designer`≠`api-event-architect`) — PART A of the D12.4+D12.7+D12.9+D14 two-PR batch, 140→148 | P1 | ✅ shipped (D25) |
@@ -450,7 +532,7 @@ D12.8 — operational workflow patterns (D21): the 10 evidence-extracted
 patterns from the read-only audit of two production multi-agent repositories
 ([extraction report](docs/research/aegis-workflow-extraction-report.md)) —
 the concrete, invocable rules of the
-[Zero-Trust Engineering Discipline](docs/ZERO_TRUST_ENGINEERING_DISCIPLINE.md)
+[Zero Trust AI Engineering Discipline](docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md)
 (D16), product-agnostic with identifiers templated as placeholders:
 
 | Skill | What it does | Invocation |
@@ -673,8 +755,8 @@ python scripts/validate-skills.py
 Checks: `name` matches directory; `description` present and < 1024 chars; no broad
 `allowed-tools`; `SKILL.md` < 500 lines; all required sections present; `evals/evals.json`
 exists and parses (structural only — no runner yet); `evals/trigger-evals.json` parses when
-present; catalog integrity (every skill listed in catalog + README, none claimed that don't
-exist); bundled-name collision and duplicate-name checks.
+present; catalog integrity (every on-disk skill is listed in the catalog and README);
+bundled-name collision and duplicate-name checks.
 
 Behavior: `_template` is ignored. When `_template` is the only skill directory, the validator
 prints a "no skills found" status and exits `0`. Exit `0` = clean (warnings allowed); non-zero
@@ -698,8 +780,9 @@ Notes:
 - A `gate-guard` failure is not a defect; it is the intended signal that the change needs
   human eyes. Fixing the gate to "make CI green" defeats its purpose.
 - The gate uses only `actions/checkout` and `actions/setup-python` — no third-party actions.
-- Auto-merge is enabled per-phase via `gh pr merge --auto --squash` — never for changes
-  touching the merge gate itself (see
+- Merge is manual: a human merges each PR after the required checks pass — auto-merge is
+  never armed for this project's development, and changes touching the merge gate itself always
+  require manual review regardless (see
   [`docs/reconciliation/auto-merge-policy.md`](docs/reconciliation/auto-merge-policy.md)).
 
 ## Target repository layout

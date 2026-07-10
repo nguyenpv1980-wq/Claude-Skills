@@ -1,6 +1,6 @@
 # Contributing
 
-Contributing to this project follows **[Zero-Trust Engineering Discipline](docs/ZERO_TRUST_ENGINEERING_DISCIPLINE.md)** —
+Contributing to this project follows **[Zero Trust AI Engineering Discipline](docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md)** —
 *"Never trust, always verify — every step of the lifecycle. Assume drift. Demand evidence.
 Track everything."* This project teaches that discipline as a skill library; it also
 practices it on itself. Whether you are a human contributor or an AI assistant, the rules
@@ -55,7 +55,7 @@ own proven practice, including failures it absorbed during its own construction.
    neighbor session's work or pushing to the wrong branch.
 
 8. **The validator is the structural gate.** `python scripts/validate-skills.py` must pass
-   (currently **95 skills, exit 0**) before any PR. Skills that do not register in the
+   (**exit 0**) before any PR. Skills that do not register in the
    catalog and README fail validation.
    *Why:* the validator is the one automated check that the library's structure is intact; a
    red validator means the change is not shippable, full stop.
@@ -81,8 +81,8 @@ a prior entry to change history — supersede it with a new, forward-correcting 
 
 ## On self-auditing
 
-Rules 2 and 8 are currently enforced by human review plus the validator. The banked D13
-candidate skill **`skill-quality-reviewer`** (see the reconciliation doc, §3), when built,
-will automate that self-audit — checking a skill-adding change against the generation
-standard and the validator gate so every future addition gets the review the standard
+Rules 2 and 8 are enforced by human review plus the validator — and now by the library's own
+judgment layer. The shipped skill **`skill-quality-reviewer`** (built D18; see the
+reconciliation doc, §3) automates that self-audit — checking a skill-adding change against the
+generation standard and the validator gate so every addition gets the review the standard
 demands.
