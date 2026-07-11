@@ -101,6 +101,35 @@ system replaces that risk with enforced evidence at every step.
 The library holds itself to the bar it enforces: `skill-quality-reviewer` (D18) reviews the
 library's own additions, and its sweep corrections were applied in D33.
 
+## The roles Aegis can play
+
+Under the hood, Aegis is a library of 176 skills organized into 19 discipline families. In
+practical terms, Aegis can make Claude act as:
+
+| Aegis can act as… | What that means for you | Example skills |
+|---|---|---|
+| **an AI engineering governance lead** | Sets the rules for how humans and AI build software together — and audits that they were actually followed. | `ai-sdlc-operating-model`, `agent-governance-audit` |
+| **a principal software architect** | Designs how the whole system fits together and where each new piece belongs. | `architecture-designer`, `architecture-advisor` |
+| **a domain-driven design facilitator** | Turns how your business actually works into a clear model the software is built around. | `domain-modeler` |
+| **a staff or principal software engineer** | Writes the code the disciplined way — tests first, small reviewable changes, honest review. | `tdd-engineer`, `code-reviewer` |
+| **a SaaS platform and multi-tenancy architect** | Designs how many customers share one system without ever seeing each other's data. | `saas-platform-architect`, `tenant-isolation-reviewer` |
+| **an application security and RLS specialist** | Hardens the app and locks down exactly who can read which rows in the database. | `rls-policy-auditor`, `security-pr-reviewer` |
+| **a QA automation and Playwright engineer** | Builds automated tests that click through your app like a real user and catch breakage before customers do. | `playwright-e2e-engineer`, `qa-automation-architect` |
+| **a cloud, DevOps and reliability architect** | Decides where and how it runs in production — and keeps it up. | `cloud-architecture-decider`, `slo-reliability-architect` |
+| **an AI security and agentic-red-team architect** | Attacks your own AI features before an outsider does — prompt injection, data leaks, runaway agents. | `ai-threat-modeler`, `prompt-injection-defender` |
+| **an ISO 27001, ISO 42001 and SOC 2 readiness advisor** | Gets you audit-ready for the security and AI-governance certifications enterprise customers ask for. | `iso-27001-isms-architect`, `soc2-trust-criteria-mapper` |
+| **a product discovery and specification facilitator** | Interviews you to turn a vague idea into clear written requirements and a spec. | `requirements-gathering-facilitator`, `product-spec-writer` |
+| **a product analytics and experimentation architect** | Decides what to measure and runs honest A/B tests, so decisions rest on evidence, not guesses. | `product-analytics-instrumenter`, `ab-test-designer` |
+| **a technical writer and documentation engineer** | Writes the docs — READMEs, guides, API references — and keeps them from drifting out of date. | `readme-craftsman`, `docs-as-code-architect` |
+| **a staff+ technical leadership advisor** | Brings the senior-engineer judgment call: what's worth building, how to scope it, when to say no. | `staff-scope-selector`, `tech-spec-writer` |
+| **a full-codebase auditor** | Reads an entire codebase and reports its real health, risks, and technical debt. | `full-codebase-auditor`, `principal-code-analyst` |
+| **a senior production troubleshooter** | When something breaks, drives from symptom to root cause instead of guessing. | `systematic-debugger`, `incident-response-runbook` |
+
+You never have to pick from this list yourself — Aegis selects and coordinates the right role
+for each step. Not a developer? See [From idea to shipped: the no-experience
+path](#from-idea-to-shipped-the-no-experience-path) for the guided path that puts the right
+one to work for you.
+
 ## The discipline behind it: Zero Trust AI Engineering Discipline
 
 Security taught the industry its hardest lesson decades ago: never trust by default —
@@ -132,6 +161,102 @@ operate under it. In practice it comes down to six rules:
 
 The full doctrine:
 [docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md](docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md).
+
+## From idea to shipped: the no-experience path
+
+You do not need to be a developer to use this. You do not need to know a single skill name, or
+what "RLS" or "CI" or "architecture" means. If you have a real problem and the patience to
+answer questions about your own business, Aegis supplies the engineering discipline to take you
+from that idea to a working, shipped product.
+
+**The deal, stated plainly.** You bring the business truth — the problem, how your business
+actually works, who's involved, what "done" looks like, and the decisions only you can make.
+Aegis brings the engineering — the questions you didn't know to ask, the technical translation,
+the architecture, the security, the tests, the reviews, and the evidence that it all works. You
+are never asked to know a technical term. You are asked to know your business, and to decide.
+
+**The one prompt to start.** Paste this into Claude Code (see [Getting started](#getting-started)
+for how to get it running first). This one message is the whole on-ramp:
+
+> "I have an idea for an application, but I'm not a developer and I don't know what questions I
+> should be asking. Guide me from the idea through requirements, design, development, testing,
+> security review and deployment. Ask me one plain-language question at a time. Don't expect me
+> to know technical terminology — select and coordinate the right expertise yourself, explain
+> decisions in business language, bring me in when a human decision or approval is needed, and
+> never move to coding until the earlier stage is confirmed."
+
+You don't have to name a skill: `project-orchestrator` picks this up automatically, works out
+where your project is, and drives the rest.
+
+**What it actually feels like.** A short, real exchange — not the whole interview, just enough to
+show the shape of it:
+
+> **You:** "I run a small maintenance company. We use text messages and spreadsheets to assign
+> work. Jobs get missed, technicians lose instructions, and customers keep calling for updates. I
+> think I need an app, but I don't know how to build one."
+>
+> **Aegis:** "Before we decide what to build, I'll help you understand the problem — who
+> experiences it, what happens today, and what success would change. One question at a time, no
+> technical terms needed. Walk me through what happens today when a customer calls with a request,
+> from the phone call to the job being finished."
+>
+> *…several plain-language questions later, a technical decision arrives as a business question:*
+>
+> **Aegis:** "When you send a customer a link to check their job's status, should that link
+> expire after 30 days, stay available indefinitely, or stop working once the job is closed?"
+
+Notice the last one. Under the hood that is a decision about scoped, revocable access links — but
+you are never asked to design that. You are asked the business question: how long should a
+customer be able to see their job? You answer in the language of your business; Aegis handles the
+engineering it implies.
+
+**The nine stages, in plain language.** Every project walks the same path. At each stage Aegis
+does the engineering work and brings you the decisions that are genuinely yours:
+
+1. **Understand the problem** — Aegis interviews you; you describe how the business really works
+   and what success would change.
+2. **Define the product** — what's in the first version, and what's deliberately left out for
+   later. You approve the scope.
+3. **Design the system** — the structure, the data, who can see what. You approve the tradeoffs in
+   business terms: cost, time, risk.
+4. **Design the security** — keeping each customer's data separate, how customer links work,
+   uploads, AI safety. You choose the business behavior (for example, how long a customer link
+   stays alive).
+5. **Plan the build** — the work is broken into small, demonstrable releases. You approve the
+   order things get built.
+6. **Build each slice** — docs first, tests first, small reviewable changes, security review,
+   evidence at every step. You approve anything irreversible before it happens.
+7. **Test and accept** — automated tests, plus a short list of real-world scenarios for a human to
+   walk through. Aegis writes the step-by-step instructions; you (or a business tester on your
+   team) follow them.
+8. **Prepare to deploy** — hosting, cost, uptime, backups, and a way to undo a bad release. You
+   answer the business questions: how much downtime can you tolerate, what monthly cost is
+   acceptable?
+9. **Decide to release** — independent reviewers check the architecture, security, testing and
+   readiness, and you get a plain-language **GO / CONDITIONAL GO / NO-GO** with the evidence behind
+   it. **You** authorize the release. Aegis never merges or deploys on its own.
+
+**What you decide vs. what Aegis decides.** The line is bright, and it is the point of the whole
+system: you own the business decisions, Aegis owns the engineering ones — and always tells you
+their cost, time, and risk so you can judge:
+
+| You decide (the business) | Aegis decides (the engineering) — and explains in business terms |
+|---|---|
+| What goes in the first release | The data architecture and how records relate |
+| Whether a completed job can be reopened | Retry and failure behavior when something goes wrong |
+| Who can see what | How access control is implemented and enforced |
+| How customers are notified | Caching, performance, and reliability targets |
+| Your pricing tiers | The CI pipeline and how each change is validated |
+| Whether to accept a known risk | Infrastructure layout and AI rate limits |
+| The final authorization to deploy | The test strategy and what it covers |
+
+You are never asked to choose the right-hand column. But you are always told what it costs you in
+money, time, or risk — so the business decisions on the left are made with real information.
+
+**One honest line.** This doesn't remove the need for judgment, it doesn't guarantee your product
+will succeed in the market, and it doesn't take you out of the loop — you remain the person who
+says yes. What it does is make sure that when you say yes, you're saying it to work that was done
+with discipline and backed by evidence.
 
 ## How to use this
 

@@ -1622,6 +1622,51 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     `requirements-gathering-facilitator` anywhere it shouldn't?).
   - Validator: 176 skills, exit 0.
 
+- **D39 (2026-07-11) — README beginner-journey + "the roles Aegis can play" (doc-only;
+  count unchanged at 176; validator exit 0; no skill file touched).**
+  - **Why.** `project-orchestrator` (D38) shipped the beginner-facing *skill*, but the
+    README still had no human-facing section that TELLS a non-developer the idea-to-shipped
+    path is real and shows them the on-ramp. D39 adds that section — the repo's most
+    important surface for its target audience (founders, non-developer "vibe coders",
+    technical leaders evaluating whether the library is real).
+  - **ADD 1 — `## From idea to shipped: the no-experience path`.** Placed high, immediately
+    after `## The discipline behind it` and BEFORE `## How to use this` (a non-developer hits
+    it early); deliberately distinct from and NON-colliding with the engineer-facing `## Start
+    here (canonical reading order)` further down (which is untouched). Six parts: (a) the
+    promise (you bring the business truth, Aegis brings the engineering discipline; you never
+    need a skill name or a technical term); (b) THE paste-ready opening prompt in a quote block
+    (the single most important thing on the page — `project-orchestrator` picks it up
+    automatically, cross-linked to Getting started); (c) a tight 2–3-exchange worked example
+    on the **generic maintenance-company** illustration, showing a technical decision (scoped
+    revocable access link) arriving as a plain business question (how long should a customer's
+    status link live?); (d) the **nine stages** in plain language (1–2 lines each — understand
+    → define → design system → design security → plan build → build slice → test/accept →
+    prepare deploy → decide to release), each naming what the USER decides; (e) a **you decide
+    (business) vs. Aegis decides (engineering)** two-column table — the trust-building split;
+    (f) one honest line on what this is NOT (doesn't remove judgment, doesn't guarantee market
+    success, you remain the person who says yes).
+  - **ADD 2 — `## The roles Aegis can play`.** Placed right after `## What this is` (the
+    positioning hook a CTO/founder scanning the repo hits early). Intro line "In practical
+    terms, Aegis can make Claude act as:" then the **16 roles VERBATIM** (owner's words) as a
+    3-column table (role | plain-language meaning | 1–2 example skills). Forward-links to ADD 1
+    for the non-developer path.
+  - **Accuracy gate (Zero Trust — every claim verified against disk).** All 16 roles are
+    backed by real shipped skills; every example skill named in the table was confirmed present
+    on disk (`.claude/skills/<name>/SKILL.md`) before it was written — 31 distinct skills,
+    all OK, zero missing. No role claims a capability the library can't back. Product-agnostic:
+    the maintenance-company example is generic (no real product/company names — swept lines
+    104–260, clean).
+  - **Files.** `README.md` only (two new sections, lightly cross-linked; no existing section
+    removed or restructured — Getting started, the discipline section, the roster, the phase
+    plan, and canonical reading order all intact) + this §5 entry. No `.claude/skills/**`
+    touched.
+  - **Six grep confirmations (all pass).** (1) beginner-journey section (line 165) ABOVE
+    `## How to use this` (line 261); (2) paste-ready opening prompt present; (3) all nine
+    plain-language stages present; (4) the you-decide-vs-Aegis-decides split present; (5) all
+    16 verbatim roles present (each ×1); (6) `## Start here (canonical reading order)` (line
+    562) still intact and NOT collided with.
+  - Validator: 176 skills, exit 0.
+
 ---
 
 ## 6. Post-merge corrections
