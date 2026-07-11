@@ -50,8 +50,13 @@ checks that every *implemented* skill is listed here and in `README.md`.
 > an owning skill; 159→161 skills). Most recently the D12.11 SaaS
 > architecture-depth pack completed in two builds — the 10-skill STRONG
 > cluster (D31, 161→171) and the 4-skill LOW-PRIORITY set (D32, 171→175) —
-> bringing the library to its current **175 skills** (the D33
-> `skill-quality-reviewer` sweep applied corrections only, no count change).
+> bringing the library to **175 skills** (the D33 `skill-quality-reviewer`
+> sweep applied corrections only, no count change; D34–D36 were
+> documentation-only). Most recently the **D38** build added
+> `project-orchestrator` — the beginner-facing, top-level lifecycle router that
+> takes a non-developer from a vague idea to a shipped product by detecting the
+> current stage and routing to the library's existing skills (175→176) —
+> bringing the library to its current **176 skills**.
 > `_template` remains a reference template ignored by the validator.
 > Everything under "Backlog" is planned, not built.
 
@@ -154,6 +159,33 @@ audit) and against the Phase 1 pack (`human-approval-boundary`,
 `change-classification-gate`), Phase 2's `code-reviewer` and
 `full-codebase-auditor`, and Phase 3's `authorization-matrix-designer`
 (agent authority vs end-user RBAC).
+
+### Skills (D38 — beginner-facing lifecycle orchestrator / library front door)
+
+The library's top-level entry point for a **non-developer**: one skill that takes
+a vague idea to a shipped product by DETECTING the current lifecycle stage,
+ROUTING to the owning stage skill by name along the library's existing hand-off
+seams, TRANSLATING every technical decision into a plain-language business
+question, and recording each dated decision in a persistent `docs/project-state.md`
+in the user's product repo. It **composes, never restates**: the stage list,
+gates, and authority model are cited from `ai-sdlc-operating-model`'s
+`references/stage-gate-map.md`, the change-rigor matrix from
+`change-classification-gate`, and the human gate from `human-approval-boundary` +
+`agent-authorization-matrix` — the anti-duplication condition. Model-invocable (it
+must fire on the cold vague prompt), but its output is proposals-and-questions and
+every irreversible step routes through the human gate. Ships `evals/evals.json`
+**and** `evals/trigger-evals.json`.
+
+| Skill | Build | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `project-orchestrator` | D38 | yes | Beginner-facing front door: runtime stage detection (reads `docs/project-state.md` + inspects the repo) → next-skill routing by name → plain-language business-question translation → dated `docs/project-state.md` decision log; keeps the human as the approval/merge gate on every irreversible step. Composes `ai-sdlc-operating-model`'s stage-gate map (cited, never copied), `change-classification-gate`, `human-approval-boundary`, `agent-authorization-matrix`. Defers elicitation to `requirements-gathering-facilitator` and team-policy authoring to `ai-sdlc-operating-model`. |
+
+Trigger-overlap coverage (`evals/trigger-evals.json`): wins the meta-navigation
+framing ("where do I start / what comes next / idea-to-shipped") and discriminates
+against `requirements-gathering-facilitator` (the discovery interview it INVOKES
+as stage 1), `ai-sdlc-operating-model` (team policy vs one beginner's project),
+`product-spec-writer` (spec authoring), and `code-reviewer` (a single-stage
+request from a user who already knows the next step).
 
 ### Skills (Phase 2 — core architecture & engineering pack)
 

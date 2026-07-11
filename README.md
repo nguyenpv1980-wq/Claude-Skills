@@ -72,9 +72,11 @@ the D8 OWASP Top 10:2025 audit — `security-logging-alerting-architect` (A09) a
 `error-handling-security-reviewer` (A10) — so all 10 web-app categories now have an owning
 skill. The **SaaS architecture-depth pack** (D12.11) then completed in two builds: the
 10-skill **strong cluster** (D31) and the 4-skill **low-priority set** (D32), resolving all 14
-candidates and bringing the library to **175 skills**. Most recently, **D33** ran a
-library-wide `skill-quality-reviewer` sweep that landed corrections only — no change to the
-count.
+candidates and bringing the library to **175 skills**. **D33** then ran a library-wide
+`skill-quality-reviewer` sweep that landed corrections only, and D34–D36 were
+documentation-only — no change to the count. Most recently, **D38** added
+`project-orchestrator`, the beginner-facing top-level lifecycle router that is the library's
+front door (175→176), bringing it to **176 skills**.
 
 Full per-pack detail lives in [Skills (shipped)](#skills-shipped) below; for a quick map of
 what *kinds* of help the library offers, see [What's in the library](#whats-in-the-library).
@@ -171,7 +173,7 @@ pick whichever matches how you work. The current full list is at
    claude
    ```
 
-3. That's the whole setup. Claude Code auto-discovers everything under `.claude/` — the 175
+3. That's the whole setup. Claude Code auto-discovers everything under `.claude/` — the 176
    skills and 7 subagents load automatically. There is no registration step.
 4. **How you invoke a skill** — skills are trigger-invoked, not slash-commanded. You invoke
    one by *describing a task that matches its trigger*, or by *naming it*. Two literal
@@ -261,11 +263,19 @@ cp -r .claude/skills/tdd-engineer /path/to/your-repo/.claude/skills/
 [`docs/skill-generation-standard.md`](docs/skill-generation-standard.md) defines the
 format if you want to write your own.
 
-**Your first session — start a project from questions.** If you're starting something new,
-begin with `requirements-gathering-facilitator`: it runs structured discovery (users,
-jobs-to-be-done, what "done" means), separates the real problem from the solution the
-stakeholder walked in with, and produces a requirements brief that feeds
-`product-spec-writer`. Literal first prompt to paste:
+**Your first session — from a vague idea.** If you're not a developer and you have an idea but
+no idea what to do first, name the front door: `project-orchestrator`. It works out where your
+project is, asks you one plain-language business question at a time, routes each step to the
+right skill for you (no skill name needed), keeps a human as the approval gate on anything
+irreversible, and records the decisions in a `docs/project-state.md` so you can stop and resume
+anytime. Literal first prompt to paste:
+
+> "I run a maintenance company and jobs keep getting missed — I think I need an app but I'm not
+> a developer and don't know where to start. Use the project-orchestrator skill to guide me."
+
+`project-orchestrator` opens your project by handing the discovery step to
+`requirements-gathering-facilitator`. If you already KNOW you need the requirements interview,
+you can name that skill directly instead:
 
 > "I'm starting a new feature. Use the requirements-gathering-facilitator skill: interview
 > me with structured questions until we have a requirements brief, then hand off to
@@ -273,7 +283,8 @@ stakeholder walked in with, and produces a requirements brief that feeds
 
 From there the natural chain is `requirements-gathering-facilitator` → `product-spec-writer`
 → the architecture and tech-spec skills (`architecture-designer`, `tech-spec-writer`) → build,
-with the discipline skills below enforcing the loop.
+with the discipline skills below enforcing the loop — and `project-orchestrator` walking you
+across the whole chain if you'd rather not track it yourself.
 
 **Run the core loop.** Every change, large or small, follows the same rhythm:
 
@@ -304,15 +315,16 @@ entry in the reconciliation doc.
 
 ## Map of the system
 
-- **Skills** ([`.claude/skills/`](.claude/skills/)) — the 175 shipped procedures,
-  grouped into 19 discipline families. See **[What's in the library](#whats-in-the-library)**
-  below for the roster (each family, its purpose, and example skills), and
-  [Skills (shipped)](#skills-shipped) for the full per-skill tables.
+- **Skills** ([`.claude/skills/`](.claude/skills/)) — the 176 shipped procedures: 19
+  discipline families, fronted by `project-orchestrator`, the beginner-facing router that
+  walks a non-developer through them from idea to shipped. See **[What's in the
+  library](#whats-in-the-library)** below for the roster (each family, its purpose, and
+  example skills), and [Skills (shipped)](#skills-shipped) for the full per-skill tables.
 - **Subagents** — seven read-only specialist reviewers, one per lens; see
   [Subagents (read-only reviewers)](#subagents-read-only-reviewers).
 - **The planning record**
   ([`docs/reconciliation/step-0-reconciliation-v4.md`](docs/reconciliation/step-0-reconciliation-v4.md))
-  — the dated decisions (D1–D36) in §5 are the project's immutable decision log; the
+  — the dated decisions (D1–D38) in §5 are the project's immutable decision log; the
   D12/D14 candidate scopes recorded there are banked-but-not-built future
   work (the D12.8 pack graduated from banked to built with D21; the D13
   library-meta scope completed with D22).
@@ -325,9 +337,17 @@ entry in the reconciliation doc.
 
 ## What's in the library
 
-**Skill roles at a glance.** The 175 skills sit in **19 discipline families** (each a shipped
-build batch). This is the scannable map of what *kinds* of help exist; the full per-skill
-tables are in [Skills (shipped)](#skills-shipped) below.
+**Skill roles at a glance.** The 176 skills sit in **19 discipline families** (each a shipped
+build batch), fronted by one beginner-facing orchestrator. This is the scannable map of what
+*kinds* of help exist; the full per-skill tables are in [Skills (shipped)](#skills-shipped) below.
+
+**Start here — `project-orchestrator` (the front door).** If you're a non-developer with an
+idea and no idea what to do first, this is the one skill to name. It isn't a 20th family — it's
+the navigator *above* the other 19: it works out which stage your project is in, routes you to
+the right skill below (you never need its name), turns every technical choice into a
+plain-language business question, records each dated decision in a `docs/project-state.md`, and
+keeps a human as the approval gate on anything irreversible. See
+*[Your first session](#getting-started)* for the opening prompt.
 
 1. **Operating discipline** *(Phase 1, 8)* — the always-on rules that keep AI-assisted work
    honest: classify before acting, verify against evidence, keep diffs small, halt for
@@ -460,6 +480,7 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | D28 | OWASP web-app gap-closure pair (2 = `security-logging-alerting-architect` closes A09:2025 + `error-handling-security-reviewer` closes A10:2025 — the D8 audit's two zero-coverage categories; all 10 OWASP web-app categories now owned), 159→161. Seams: A09 skill ≠ `audit-log-architect`/`observability-operator`/`slo-reliability-architect`/`incident-response-runbook`; A10 skill ≠ `security-pr-reviewer`/`appsec-implementer`/`static-analysis-reviewer`/`error-taxonomy-designer` | P1 | ✅ shipped (D28) |
 | D31 | SaaS architecture depth — D12.11 STRONG cluster (10 = `command-gateway-architect`, `realtime-subscription-architect`, `background-job-orchestration-architect`, `horizontal-scalability-reviewer`, `search-architecture-designer`, `file-upload-storage-architect`, `usage-metering-and-cost-attribution-pipeline-designer`, `synthetic-monitoring-architect`, `offline-first-sync-architect`, `admin-console-architect`), 161→171. Hard-pinned seams: usage-metering ≠ `saas-cost-architect` (pipeline vs cost model), background-job ≠ `streaming-event-architect` (execution vs transport), realtime ↔ offline-first (online push vs offline sync, in-batch); `command-gateway-architect` enforces `authorization-matrix-designer`'s policy. usage-metering resolved STANDALONE. The 4 low-priority D12.11 candidates remain unbuilt (Build B). | P1 | ✅ shipped (D31) |
 | D32 | SaaS architecture depth — D12.11 LOW-PRIORITY set (4 = `cell-based-architecture-designer`, `data-partitioning-sharding-strategist`, `intra-tenant-scope-architect`, `share-link-access-architect`), 171→175. Completes the D12.11 pack (all 14 candidates resolved: 10 strong D31 + 4 low-priority D32). Both flags resolved STANDALONE: `intra-tenant-scope-architect` ≠ `multi-tenant-data-architect` (subordinate per-user scope axis vs the tenant_id axis), `share-link-access-architect` ≠ `authorization-matrix-designer` (bearer-capability guest access vs member RBAC). Seams also pinned: cell-based ≠ `saas-platform-architect`/`architecture-advisor`/`agent-containment-reviewer`; sharding ≠ `multi-tenant-data-architect`/`warehouse-lake-architect`/`operational-vs-analytical-splitter`. | P2 | ✅ shipped (D32) |
+| D38 | Beginner-facing lifecycle orchestrator / library front door (1 = `project-orchestrator`), 175→176. The top-level navigator that takes a non-developer from a vague idea to a shipped product: runtime stage detection + next-skill routing along existing seams + plain-language business-question translation + a persistent dated `docs/project-state.md`. Composes `ai-sdlc-operating-model`'s stage-gate map (**cited, never copied** — the anti-duplication condition) and keeps the human as the approval/merge gate via `human-approval-boundary` + `change-classification-gate` + `agent-authorization-matrix`. Defers elicitation to `requirements-gathering-facilitator`, team-policy authoring to `ai-sdlc-operating-model`. | P1 | ✅ shipped (D38) |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
 
 ## Subagents (read-only reviewers)
@@ -478,6 +499,13 @@ read-only by default. Each maps to a v4 orchestrator role (see reconciliation §
 | `release-readiness-reviewer` | CI/build/test evidence, migrations, rollback, go/no-go. |
 
 ## Skills (shipped)
+
+**Start here — the beginner's front door** (D38; full detail:
+[`docs/skills-catalog.md`](docs/skills-catalog.md)):
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `project-orchestrator` | The top-level, beginner-facing navigator: takes a non-developer from a vague idea to a shipped product. Detects the current lifecycle stage (reads `docs/project-state.md` + inspects the repo), routes to the owning stage skill by name, turns every technical decision into one plain-language business question, and records each dated decision in `docs/project-state.md`. Keeps a human as the approval/merge gate on every irreversible step — composes `ai-sdlc-operating-model`'s stage-gate map (cited, never copied), `change-classification-gate`, `human-approval-boundary`, `agent-authorization-matrix`. Defers the requirements interview to `requirements-gathering-facilitator` and team-policy authoring to `ai-sdlc-operating-model`. | auto + manual |
 
 Phase 1 — AI engineering operating-discipline pack, under `.claude/skills/<name>/`
 (full detail: [`docs/skills-catalog.md`](docs/skills-catalog.md)):

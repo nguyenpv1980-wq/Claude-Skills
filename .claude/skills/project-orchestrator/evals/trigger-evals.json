@@ -1,0 +1,50 @@
+{
+  "skill": "project-orchestrator",
+  "description": "Trigger discrimination for the beginner's WHOLE-JOURNEY navigator (this skill) vs the requirements INTERVIEW itself (requirements-gathering-facilitator), the TEAM AI-SDLC policy (ai-sdlc-operating-model), WRITING the spec (product-spec-writer), and a SINGLE-STAGE request from someone who knows their next step (code-reviewer). This skill wins the meta-navigation framing ('where do I start / what's next / take me idea-to-shipped') and INVOKES the others as it routes; it must not steal their primary triggers.",
+  "overlaps_with": [
+    "requirements-gathering-facilitator",
+    "ai-sdlc-operating-model",
+    "product-spec-writer",
+    "code-reviewer"
+  ],
+  "cases": [
+    {
+      "id": "meta-navigation-wins-here",
+      "prompt": "I'm not a developer. I have an idea for a product but I genuinely don't know where to start or what the steps are. Take me from idea to shipped.",
+      "expected_skill": "project-orchestrator",
+      "should_not_trigger": ["requirements-gathering-facilitator", "ai-sdlc-operating-model"],
+      "note": "SEAM CASE (primary) — the beginner asking WHERE they are and WHAT COMES NEXT across the whole journey is this skill. It will invoke requirements-gathering-facilitator as stage 1, but the framing is navigate-the-journey, not run-the-interview.",
+      "reason": "Runtime stage detection + next-skill routing + plain-language translation for a non-developer who does not know the next step is this skill's core scope."
+    },
+    {
+      "id": "elicitation-goes-to-the-facilitator",
+      "prompt": "Interview me with structured questions until we have a clear requirements brief for this feature — separate the real problem from my proposed solution.",
+      "expected_skill": "requirements-gathering-facilitator",
+      "should_not_trigger": ["project-orchestrator"],
+      "note": "SEAM CASE (sharpest rival) — the user is asking for the discovery INTERVIEW itself, not for navigation across the lifecycle. That is the facilitator, which this skill delegates to.",
+      "reason": "Running the elicitation (users/jobs, problem-vs-solution, non-goals, conflict) is requirements-gathering-facilitator. project-orchestrator invokes it; it does not run the interview."
+    },
+    {
+      "id": "team-policy-goes-to-operating-model",
+      "prompt": "Define how our engineering team and our AI agents should plan, implement, review, and merge work together — the stages, the gates, and who has authority at each.",
+      "expected_skill": "ai-sdlc-operating-model",
+      "should_not_trigger": ["project-orchestrator"],
+      "note": "SEAM CASE — authoring the end-to-end operating model / authority map for a technical TEAM is ai-sdlc-operating-model. project-orchestrator drives ONE beginner's ONE project through that map and cites it, never authors it.",
+      "reason": "Writing the lifecycle policy (stages, gates, authority holders) is the operating model. This skill consumes that map to navigate a specific project, not to define team policy."
+    },
+    {
+      "id": "spec-writing-goes-to-product-spec-writer",
+      "prompt": "Requirements are settled and signed off. Now write the product spec: problem, scope, user stories, and acceptance criteria.",
+      "expected_skill": "product-spec-writer",
+      "should_not_trigger": ["project-orchestrator"],
+      "reason": "With requirements known, authoring the specification is product-spec-writer. project-orchestrator would ROUTE to it at stage 2, but a direct 'write the spec' request from someone who knows their step goes straight to the owning skill."
+    },
+    {
+      "id": "single-stage-diff-review-goes-to-code-reviewer",
+      "prompt": "Review this diff and tell me what's wrong with it.",
+      "expected_skill": "code-reviewer",
+      "should_not_trigger": ["project-orchestrator"],
+      "reason": "A single, well-scoped stage request from a user who already knows their next step is the owning stage skill. The whole-journey navigator is for the user who does NOT know the next step."
+    }
+  ]
+}

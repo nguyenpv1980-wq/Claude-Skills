@@ -1548,6 +1548,80 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   Doc-only: README.md and this entry are the only files touched.
   Validator: 175 skills, exit 0.
 
+- **D37 (2026-07-11) — Banked read-only discovery for `project-orchestrator`
+  (verbal; no files touched; count stays 175).**
+  - Ran a read-only discovery pass before the D38 build: read
+    `docs/skill-generation-standard.md`, `scripts/validate-skills.py`,
+    `ai-sdlc-operating-model` (SKILL.md + `references/stage-gate-map.md`),
+    `requirements-gathering-facilitator`, `phased-work-handoff-designer`,
+    `scoped-approval-register`, `human-approval-boundary`,
+    `agent-authorization-matrix`, and `change-classification-gate` to fix the
+    compose-not-restate boundary before writing anything.
+  - **Key finding.** `ai-sdlc-operating-model` OWNS the per-change INNER
+    lifecycle (context→classify→…→merge→close) and its stage-gate / authority /
+    evidence table; a beginner-facing OUTER product arc (idea→discovery→…→
+    release) that DELEGATES the inner loop back to that map is a genuine gap —
+    and `ai-sdlc-operating-model` explicitly disclaims in-flight single-project
+    navigation ("Do NOT use to enforce a single stage in-flight"). That
+    disclaimed gap is what D38 builds.
+  - Recorded so the D38 build's "grounded in the D37 read-only discovery"
+    reference resolves and the §5 sequence stays gapless (no silent D36→D38
+    jump — the Zero Trust AI Engineering Discipline applied to the decision
+    log). No files changed in D37; count stays 175.
+
+- **D38 (2026-07-11) — Built `project-orchestrator` — the beginner-facing,
+  top-level lifecycle router (175→176; validator exit 0; one new skill).**
+  - **What.** The library's front door: takes a non-developer from a vague idea
+    to a shipped product via (1) runtime stage detection (reads
+    `docs/project-state.md` + inspects the user's repo to locate the project on
+    the lifecycle map — a vague prompt with no state file = stage zero →
+    discovery; an approved spec but no code = ready for architecture), (2)
+    next-skill routing along the library's existing hand-off seams (invokes the
+    owning stage skill BY NAME — discovery→`requirements-gathering-facilitator`,
+    product-def→`product-spec-writer`…, build-loop→`ai-sdlc-operating-model`'s
+    inner lifecycle, release→`release-readiness-reviewer`; conditional skills
+    invoked by evidence of the feature, not on the default path), (3)
+    plain-language business-question translation (every technical fork surfaces
+    as ONE business question about cost/time/risk/customer experience; the user
+    answers business questions only, never engineering mechanics), and (4) a
+    persistent, append-only, dated `docs/project-state.md` in the USER's product
+    repo.
+  - **Compose, never restate (the anti-duplication tripwire).** SKILL.md CITES
+    `ai-sdlc-operating-model`'s `references/stage-gate-map.md` for the stage
+    list / gates / authority model, and `change-classification-gate` for the
+    change-rigor matrix — reproducing NEITHER inline (a grep confirms no inline
+    stage-gate / authority-level / classification table). The
+    `docs/project-state.md` schema COMPOSES `phased-work-handoff-designer`'s
+    decision-ID register (still-binding flag; a changed decision is a new
+    flagged deviation, never an overwrite) + `scoped-approval-register`'s
+    approval-citation pattern (Status / Scope allowed / Scope FORBIDDEN /
+    Evidence) + the house decision-log format.
+  - **Human gate (composed, never relaxed).** Every irreversible step
+    (migration, deploy, auth change, deletion, merge, release) routes through
+    `human-approval-boundary` + `change-classification-gate` +
+    `agent-authorization-matrix`; presents GO / CONDITIONAL-GO / NO-GO with
+    plain-language reasons; the user authorizes. Model-invocable (fires on the
+    cold vague prompt) but its output is proposals-and-questions.
+  - **Trigger.** Wins the beginner meta-navigation framing ("I have an idea but
+    don't know where to start / I'm not a developer / what do I do first / what
+    comes next / take me from idea to shipped"). Defers (should_not_trigger
+    trigger-evals + Use-When "Do NOT use"): elicitation →
+    `requirements-gathering-facilitator` (INVOKED as stage 1), team AI-SDLC
+    policy → `ai-sdlc-operating-model`, spec authoring → `product-spec-writer`,
+    single-stage request → the owning skill (e.g. `code-reviewer`).
+  - **Files.** New `.claude/skills/project-orchestrator/` — SKILL.md (286
+    lines; description 941 chars < 1024), `references/project-state-template.md`
+    (the one reference file — the state schema, with a generic maintenance-
+    company worked example), `evals/evals.json` (happy cold-idea path +
+    mid-flight state-file edge + refusals) and `evals/trigger-evals.json` (the 4
+    deferrals). Registered in `docs/skills-catalog.md` and `README.md` (surfaced
+    as the top-level "Start here" front door). Product-agnostic (generic
+    domains only). Grounded in the D37 read-only discovery. To be checked by
+    `skill-quality-reviewer` + `library-diff-reviewer` for the compose-not-
+    restate condition (does it overlap `ai-sdlc-operating-model` or
+    `requirements-gathering-facilitator` anywhere it shouldn't?).
+  - Validator: 176 skills, exit 0.
+
 ---
 
 ## 6. Post-merge corrections
