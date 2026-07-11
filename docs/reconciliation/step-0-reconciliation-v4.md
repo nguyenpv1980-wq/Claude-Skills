@@ -1457,6 +1457,46 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   `secure-saas-reviewer` subagent grammar fix is the sole non-doc,
   non-skill file. Validator: 175 skills, exit 0.
 
+- **D35 (2026-07-10) — Getting Started rewrite: real step-by-step onboarding
+  + first-session entry point relocated (doc-only; README.md + this entry;
+  count stays 175, validator exit 0; no skill file touched).**
+  - **Problem (owner feedback).** The previous "Getting started" stopped at
+    `git clone` plus a vague "open this folder in Claude Code" — a capable
+    engineer who had never used Claude Code was left guessing. And the
+    "Start a project here: `requirements-gathering-facilitator`" journey
+    guidance was buried mid-paragraph in the D24 roster family (a catalog
+    section) instead of living in Getting Started where a new user looks.
+  - **Fix 1 — step-by-step onboarding.** Getting Started rewritten as
+    numbered, copy-pasteable steps per environment: Step 1 get-the-repo
+    (`git clone` / `cd` / `git pull`, one novice-friendly line each);
+    Option 1 Claude Code CLI (install via the official docs at
+    code.claude.com/docs — linked, not copied, because install commands
+    drift; requires a Claude subscription or Console API access; run
+    `claude` from the repo folder; `.claude/` auto-discovery of the 175
+    skills + 7 subagents; the previously missing KEY explanation that
+    skills are trigger-invoked, not slash-commanded, with two literal
+    example prompts; `claude --continue`); Option 2 VS Code / Cursor
+    (official Anthropic extension, Open Folder on the repo, Spark-icon
+    panel, same engine as the CLI); Option 3 JetBrains plugin, with the
+    honest note that Visual Studio (classic) has no native plugin — the
+    CLI-in-terminal path is the way; Option 4 Claude.ai / apps kept with
+    its honest no-auto-trigger framing; plus a labeled
+    "Using the skills in your own project" copy-the-folders step.
+    Deliberately NO `npm install -g` instructions (deprecated install
+    method; the official page is the single source).
+  - **Fix 2 — "Your first session" block added inside Getting Started:**
+    start from questions with `requirements-gathering-facilitator`, a
+    literal paste-ready first prompt, and the natural chain →
+    `product-spec-writer` → architecture/tech-spec skills → build under
+    the discipline loop.
+  - **Fix 3 — roster cross-reference.** The buried "Start a project here:"
+    sentence in the D24 roster family replaced with a one-line pointer to
+    *Your first session* in Getting Started; the family still names
+    `requirements-gathering-facilitator` as a member skill — only the
+    journey instruction moved.
+  Doc-only: README.md and this entry are the only files touched.
+  Validator: 175 skills, exit 0.
+
 ---
 
 ## 6. Post-merge corrections

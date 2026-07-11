@@ -103,32 +103,89 @@ library's own additions, and its sweep corrections were applied in D33.
 
 ### Getting started
 
-There are two ways to use Aegis, depending on your setup.
+Step 1 gets you the repo; then pick the option that matches how you work. Options 1–3 are
+the same Claude Code engine in three different places — the skills behave identically in all
+of them. Option 4 is the honest no-CLI fallback.
 
-**1. Claude Code (recommended).** Clone the repo; the skills live under
-[`.claude/skills/`](.claude/skills/) and Claude Code discovers them automatically through the
-`.claude/` convention:
+**Step 1 — get the repo** (every option starts here):
 
 ```bash
 git clone https://github.com/nguyenpv1980-wq/Project-Aegis.git
 cd Project-Aegis
-# open this folder in Claude Code — skills and subagents load from .claude/
-git pull                      # update to the latest skills whenever you want
 ```
 
-Point Claude Code at this repository, or copy the `.claude/skills/<name>/` directories you want
-into your own project's `.claude/skills/`. Skills are invoked by their trigger descriptions —
-each skill's frontmatter states when it applies, so the assistant selects the right procedure
-from the task itself. [`docs/skill-generation-standard.md`](docs/skill-generation-standard.md)
-defines the format.
+`git clone` copies the library to your machine; `cd` puts you in the folder every option
+below starts from. Later, run `git pull` from the same folder to update to the latest skills.
 
-**2. Claude.ai / the Claude app (no CLI).** Without Claude Code you don't get automatic
-`.claude/` discovery — but the skills are just Markdown procedures, so you can still use them.
-Open the `SKILL.md` you want (from GitHub or a local clone) and paste its content into your
-project's custom instructions / project knowledge, or reference the pattern directly in the
-conversation. This gives you the procedure and its discipline; it does **not** give you the
-automatic trigger selection, the read-only subagents, or the CI validator — those are Claude
-Code features.
+**Option 1 — Claude Code CLI (terminal, any OS, works alongside any editor).**
+
+1. Install Claude Code — follow the install steps on the official docs at
+   [https://code.claude.com/docs](https://code.claude.com/docs). It requires a Claude
+   subscription (Pro/Max/Team/Enterprise) or Console API access. (Install commands change
+   over time; the official page is always current, so we link instead of copying them here.)
+2. From the cloned repo folder, run:
+
+   ```bash
+   claude
+   ```
+
+3. That's the whole setup. Claude Code auto-discovers everything under `.claude/` — the 175
+   skills and 7 subagents load automatically. There is no registration step.
+4. **How you invoke a skill** — skills are trigger-invoked, not slash-commanded. You invoke
+   one by *describing a task that matches its trigger*, or by *naming it*. Two literal
+   prompts to type at the Claude Code prompt:
+   - "I want to build a new feature but the requirements are vague — use the
+     requirements-gathering-facilitator skill to run discovery with me."
+   - "Review this diff for tenant-isolation problems." (no skill named — the matching skill
+     is selected from the task itself)
+5. Leaving and coming back: `claude --continue` resumes your most recent session in this repo.
+
+**Option 2 — VS Code (and VS Code-based editors like Cursor).**
+
+1. Install the official **Claude Code** extension by Anthropic: open the Extensions view
+   (`Ctrl+Shift+X` / `Cmd+Shift+X`), search "Claude Code", and install the one from verified
+   publisher Anthropic.
+2. **File → Open Folder** → the cloned `Project-Aegis` folder. Claude Code works on the
+   workspace root, so the skills under `.claude/` are picked up from there.
+3. Open the panel via the Spark icon in the editor toolbar (or Command Palette →
+   "Claude Code"). First launch signs you in via your browser.
+4. Type the same trigger-style prompts as in Option 1 — the extension and the CLI are the
+   same Claude Code. Prefer a terminal? Open the integrated terminal
+   (`` Ctrl+` `` / `` Cmd+` ``) and run `claude` there instead.
+
+**Option 3 — JetBrains IDEs (IntelliJ, PyCharm, WebStorm, Rider…).** Install the official
+Claude Code plugin from the JetBrains Marketplace, restart the IDE, open the cloned folder,
+and prompt the same way as above — see
+[https://code.claude.com/docs](https://code.claude.com/docs) for specifics. Visual Studio
+(classic) and other IDEs without a plugin: there is no native plugin — use Option 1 and run
+`claude` in any terminal opened at the repo folder; the CLI works alongside any editor.
+
+**Option 4 — Claude.ai / the Claude apps (no CLI at all).** Without Claude Code you don't get
+automatic `.claude/` discovery — but the skills are just Markdown procedures, so you can
+still use them. Open the `SKILL.md` you want (from GitHub or a local clone) and paste its
+content into your project's custom instructions / project knowledge, or reference the pattern
+directly in the conversation. This gives you the procedure and its discipline; it does
+**not** give you the automatic trigger selection, the read-only subagents, or the CI
+validator — those are Claude Code features.
+
+**Using the skills in your own project.** Copy the `.claude/skills/<name>/` folders you want
+into your own repo's `.claude/skills/` — Claude Code discovers them there exactly the same
+way. [`docs/skill-generation-standard.md`](docs/skill-generation-standard.md) defines the
+format if you want to write your own.
+
+**Your first session — start a project from questions.** If you're starting something new,
+begin with `requirements-gathering-facilitator`: it runs structured discovery (users,
+jobs-to-be-done, what "done" means), separates the real problem from the solution the
+stakeholder walked in with, and produces a requirements brief that feeds
+`product-spec-writer`. Literal first prompt to paste:
+
+> "I'm starting a new feature. Use the requirements-gathering-facilitator skill: interview
+> me with structured questions until we have a requirements brief, then hand off to
+> product-spec-writer."
+
+From there the natural chain is `requirements-gathering-facilitator` → `product-spec-writer`
+→ the architecture and tech-spec skills (`architecture-designer`, `tech-spec-writer`) → build,
+with the discipline skills below enforcing the loop.
 
 **Run the core loop.** Every change, large or small, follows the same rhythm:
 
@@ -167,7 +224,7 @@ entry in the reconciliation doc.
   [Subagents (read-only reviewers)](#subagents-read-only-reviewers).
 - **The planning record**
   ([`docs/reconciliation/step-0-reconciliation-v4.md`](docs/reconciliation/step-0-reconciliation-v4.md))
-  — the dated decisions (D1–D33) in §5 are the project's immutable decision log; the
+  — the dated decisions (D1–D35) in §5 are the project's immutable decision log; the
   D12/D14 candidate scopes recorded there are banked-but-not-built future
   work (the D12.8 pack graduated from banked to built with D21; the D13
   library-meta scope completed with D22).
@@ -239,11 +296,11 @@ tables are in [Skills (shipped)](#skills-shipped) below.
     plans, N+1, caching, latency; plus perf/load test harnesses. *e.g.*
     `schema-evolution-planner`, `pii-lifecycle-designer`, `query-plan-reader`,
     `n-plus-one-detector`, `load-test-planner`.
-14. **Product, PM & growth** *(D24, 15)* — turning product intent into shippable, measured work.
-    **Start a project here:** `requirements-gathering-facilitator` elicits requirements from
-    structured questions and plans the work end-to-end via elicitation, feeding
-    `product-spec-writer`; from there you prioritize, roll out behind flags, and instrument
-    analytics. *e.g.* `requirements-gathering-facilitator`, `product-spec-writer`,
+14. **Product, PM & growth** *(D24, 15)* — turning product intent into shippable, measured work:
+    requirements elicitation feeding specs, then prioritization, flag-gated rollout, and
+    analytics instrumentation — see *Your first session* in
+    [Getting started](#getting-started) for the entry-point walkthrough.
+    *e.g.* `requirements-gathering-facilitator`, `product-spec-writer`,
     `prioritization-frame-picker`, `feature-flag-rollout-strategist`, `event-schema-architect`,
     `ab-test-designer`.
 15. **Docs engineering** *(D25, 8)* — durable documentation as a discipline: README craft,
