@@ -12,8 +12,9 @@ network access to the whole engineering process.*
 
 ## Core definition
 
-**Zero Trust AI Engineering Discipline is the practice of applying the security principle
-"never trust, always verify" to the ENTIRE software development lifecycle** — every
+**Zero Trust AI Engineering Discipline (Zet-AI Engineering for short, pronounced
+"zet-eye") is the practice of applying the security principle "never trust, always verify"
+to the ENTIRE software development lifecycle** — every
 decision, code change, test result, completion claim, and piece of documentation is verified
 against concrete evidence rather than trusted from memory, assumption, or assertion,
 continuously at every step.
@@ -68,8 +69,16 @@ record, before it is trusted.
 
 ## The concrete rules
 
-The doctrine is not abstract. Its building blocks are the ten operational workflow patterns
-banked as pack **D12.8** in
+The discipline has six pillars — four outward-facing (**TRACK**, **VERIFY**, **GOVERN**,
+**HAND OFF**), governing the work, and two inward-facing (**CONSTRAIN**, **CURATE**),
+governing the AI's own operating environment. What the industry calls harness engineering,
+context engineering, and loop engineering falls out of the inward half — the harness is
+CONSTRAIN's subject, the context window is CURATE's, and the agentic loop splits between
+them (its bounds and stops are CONSTRAIN; its observe-and-validate step is CURATE): the
+industry's disciplines expressed in this doctrine's voice, not competitors to it.
+
+The doctrine is not abstract. The outward pillars' building blocks are the ten operational
+workflow patterns banked as pack **D12.8** in
 [`docs/reconciliation/step-0-reconciliation-v4.md`](reconciliation/step-0-reconciliation-v4.md),
 extracted with HIGH-confidence evidence from a read-only audit documented in
 [`docs/research/aegis-workflow-extraction-report.md`](research/aegis-workflow-extraction-report.md).
@@ -94,6 +103,9 @@ Each pattern is one rule of the discipline:
 - **`sharded-validation-with-resume` (P6)** — run validation in named shards with persisted
   status and resume-after-timeout, plus a catch-shard, under one aggregate required check.
 
+*A verifier that cannot fail is theater with an exit code — every check must be proven able
+to fail before it counts.*
+
 ### GOVERN — hold the merge/deploy gate with human authority
 
 - **`standing-approval-and-auto-advance` (P3)** — the ONLY governed way to thin low-risk
@@ -114,6 +126,45 @@ The doctrine's answer to documentation **rot** specifically is **`docs-retention
 (P1)**, banked under D12.4: a numbered index that governs every workflow doc's lifecycle —
 retention category, reason-to-keep, superseded-by, and cleanup rule — so retiring a document
 becomes an approvable operation rather than something that never happens.
+
+The four pillars above govern **the work** from the outside — records, proof, gates,
+knowledge transfer. The two below govern **the AI's own operating environment** from the
+inside: the harness it runs in, the context it is fed, the loop it executes.
+
+### CONSTRAIN — build the operating environment so the AI cannot exceed its authority
+
+*The harness is the contract. An agent's authority should be a property of its environment,
+not of its obedience.*
+
+- **`agent-harness-architect` (planned — D42)** — every model call passes ONE server-side
+  choke point that verifies identity from credentials (never from payload) and walks a
+  deny-by-default ladder (permission, entitlement, budget, input policy) before the model
+  runs; the tool/provider registry is closed so an unknown capability fails closed;
+  instructions are server-side versioned artifacts no untrusted party can supply; and the
+  audit write is fail-closed — an action that cannot be recorded does not happen.
+- **`agentic-loop-designer` (planned — D42)** — every loop has clamped iterations, typed
+  retryability, and honest terminal states: a policy rejection is never retried; a failed
+  check is retried once on identical input to classify flake vs deterministic; an empty
+  result is a legitimate stop, never forced into output.
+- **`agent-authorization-matrix` (P-existing)** — the standing human-vs-agent authority
+  matrix is the policy this environment enforces; the harness is how that matrix becomes
+  physics instead of promise.
+
+### CURATE — control what enters and leaves the context; an unverified input is an unverified output
+
+*The context window is a supply chain. Feed the model a curated diet, not access.*
+
+- **`model-context-designer` (planned — D42)** — what enters the window is assembled
+  server-side under hard caps and closed input schemas; secrets, personal data, and raw
+  payloads are minimized or ride a transient never-persisted channel; what the model saw is
+  reconstructible afterward; and exclusions are designed and documented, not accidental.
+- **`structured-output-validator` (P-existing, extended in D42)** — nothing downstream
+  trusts model output until it passes parse → strict schema → policy scan; failures are
+  logged as safety evidence and rejected, never silently repaired; where possible the
+  contract is encoded in types so a non-compliant output is unrepresentable.
+- **`ai-evaluation-harness` (P-existing)** — the curated input diet and the output contract
+  are pinned by evals, so a prompt/model/retrieval change that degrades them fails a gate,
+  not a user.
 
 ## Proof from this project's own history
 

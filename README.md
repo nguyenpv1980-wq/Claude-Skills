@@ -6,7 +6,8 @@
 
 Project Aegis is an operating system for engineering software with AI — a reusable
 Claude engineering shield: a library of skills, subagents, validation gates, and
-safety patterns, governed by Zero Trust AI Engineering Discipline, that turns Claude
+safety patterns, governed by Zero Trust AI Engineering Discipline (Zet-AI Engineering
+for short), that turns Claude
 into a disciplined senior/principal engineering partner for architecture, SaaS,
 security, QA, audit, troubleshooting, and AI safety.
 

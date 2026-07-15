@@ -1,6 +1,7 @@
 # Contributing
 
-Contributing to this project follows **[Zero Trust AI Engineering Discipline](docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md)** —
+Contributing to this project follows **[Zero Trust AI Engineering Discipline](docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md)**
+(Zet-AI Engineering for short) —
 *"Never trust, always verify — every step of the lifecycle. Assume drift. Demand evidence.
 Track everything."* This project teaches that discipline as a skill library; it also
 practices it on itself. Whether you are a human contributor or an AI assistant, the rules

@@ -444,7 +444,8 @@ pack is pulled forward.
 
 **D12.8 Operational workflow patterns — evidence-extracted (P1)** *(pack added by D15,
 2026-07-07; **all 10 built 2026-07-07, D21** — the concrete, invocable rules of the
-Zero Trust AI Engineering Discipline, D16)*: patterns extracted from a read-only audit of two
+Zero Trust AI Engineering Discipline (Zet-AI Engineering for short), D16)*: patterns
+extracted from a read-only audit of two
 production multi-agent repositories ([`docs/research/aegis-workflow-extraction-report.md`](../research/aegis-workflow-extraction-report.md));
 all HIGH confidence (multiple concrete artifacts each); product content stripped at
 extraction; live identifiers templated as placeholders per report §6.3. The pack
@@ -1665,6 +1666,55 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     plain-language stages present; (4) the you-decide-vs-Aegis-decides split present; (5) all
     16 verbatim roles present (each ×1); (6) `## Start here (canonical reading order)` (line
     562) still intact and NOT collided with.
+  - Validator: 176 skills, exit 0.
+
+- **D41 (2026-07-15) — Doctrine extended with its inward-facing half: CONSTRAIN + CURATE
+  pillars + "Zet-AI Engineering" shorthand (doc-only; count unchanged at 176; validator
+  exit 0; no skill logic touched).**
+  - **Why.** The Zero Trust AI Engineering Discipline's four pillars (TRACK / VERIFY /
+    GOVERN / HAND OFF) all govern THE WORK from the outside — records, proof, gates,
+    knowledge transfer — and were silent on the AI's own operating environment: the
+    harness it runs in, the context it is fed, the loop it executes. Two independent
+    real-production implementations, mined in the D40 read-only discovery, converged on
+    the same extension — two inward-facing pillars. This closes the "engineering OF AI"
+    half the title has always claimed (previously the doctrine governed engineering WITH
+    AI only). Evidence-extracted, like the D12.8 patterns — not invented.
+  - **ADD 1 — the two inward pillars** in `docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md`,
+    after the four outward pillars, in the existing `### VERB — gloss` format:
+    **CONSTRAIN** (build the operating environment so the AI cannot exceed its authority;
+    the harness is the contract — authority as a property of the environment, not of
+    obedience) citing `agent-harness-architect` (planned — D42), `agentic-loop-designer`
+    (planned — D42), and shipped `agent-authorization-matrix`; **CURATE** (control what
+    enters and leaves the context; an unverified input is an unverified output; the
+    context window is a supply chain — a curated diet, not access) citing
+    `model-context-designer` (planned — D42), shipped `structured-output-validator`
+    (extended in D42), and shipped `ai-evaluation-harness`. A six-pillar half-framing
+    added at the top of "The concrete rules" expresses the industry disciplines in the
+    doctrine's voice (harness engineering ⇒ CONSTRAIN; context engineering ⇒ CURATE; the
+    loop's bounds/stops ⇒ CONSTRAIN, its observe/validate step ⇒ CURATE) — superset
+    framing, not competitors. New cross-cutting principle woven into VERIFY: *a verifier
+    that cannot fail is theater with an exit code — every check must be proven able to
+    fail before it counts.*
+  - **ADD 2 — the "Zet-AI Engineering" shorthand** (pronounced "zet-eye"), introduced
+    next to the FIRST occurrence of the full term in all 6 files that name the discipline
+    (the doctrine doc's core definition, `README.md`, `CONTRIBUTING.md`, this
+    reconciliation doc, `docs/skills-catalog.md`, and `project-orchestrator`'s SKILL.md —
+    prose only). Deliberately and partially reverses D34's full-term-only
+    standardization: the full term stays CANONICAL; the shorthand is ADDITIVE, placed
+    next to the full term so it is repeatable and recognizable. No file renamed; no
+    classic-"Zero Trust" security reference touched.
+  - **Honesty gate (shipped vs planned).** The three new skills the pillars cite
+    (`agent-harness-architect`, `model-context-designer`, `agentic-loop-designer`) are
+    NOT built here — they are D42. Marked "(planned — D42)" in the doctrine; NOT added to
+    `docs/skills-catalog.md` or README's shipped lists. `structured-output-validator`,
+    `agent-authorization-matrix`, and `ai-evaluation-harness` exist on disk and are cited
+    as shipped.
+  - **Files.** `docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md` (pillars + framing +
+    shorthand + VERIFY principle), `README.md`, `CONTRIBUTING.md`,
+    `docs/skills-catalog.md`, `.claude/skills/project-orchestrator/SKILL.md` (the one
+    skill file touched — ONLY prose that names the discipline; no logic/workflow/eval
+    change), + this §5 entry. Product-agnostic: pillar rules generalized from the D40
+    patterns; no product/company names, private paths, or PR numbers.
   - Validator: 176 skills, exit 0.
 
 ---

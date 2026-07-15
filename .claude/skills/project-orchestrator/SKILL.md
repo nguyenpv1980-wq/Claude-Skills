@@ -187,8 +187,9 @@ only after the user confirms.
 a decision entry every time a decision is made or a stage advances (schema and
 template: [references/project-state-template.md](references/project-state-template.md)).
 Append-only: a correction is a NEW dated entry that flags the change, never a
-silent overwrite — the Zero Trust AI Engineering Discipline applied to the build
-journey. Then restate the single next recommended action in plain language.
+silent overwrite — the Zero Trust AI Engineering Discipline (Zet-AI Engineering
+for short) applied to the build journey. Then restate the single next recommended
+action in plain language.
 
 ## Output Format
 

@@ -24,7 +24,8 @@ checks that every *implemented* skill is listed here and in `README.md`.
 > `eval-runner-designer`, `skill-usage-instrumenter`, and
 > `skill-deprecation-planner`, D22), the
 > D12.8 operational workflow patterns pack (10 evidence-extracted skills —
-> the concrete rules of the Zero Trust AI Engineering Discipline, D21), and the
+> the concrete rules of the Zero Trust AI Engineering Discipline —
+> Zet-AI Engineering for short — D21), and the
 > data/performance/QA-validation batch (D23: the 7-skill D12.1 data
 > engineering pack, the 6-skill D12.3 performance engineering pack, and the
 > 2 D10 Tier 1 performance/load validation skills — D12.3 designs FOR
