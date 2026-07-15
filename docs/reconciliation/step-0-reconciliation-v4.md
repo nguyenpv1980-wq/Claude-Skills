@@ -677,9 +677,8 @@ noisy-neighbor defense; needs a NAME when pulled), and
 `resilience-architecture-reviewer` (Phase 6 — circuit
 breakers/bulkheads/timeouts/graceful degradation).
 
-**D12.10 Security scanning & orchestration** *(pack added by D27, 2026-07-08; all 3:
-candidate — not built; build DEFERRED until AFTER the library-wide `skill-quality-reviewer`
-sweep and its corrections are complete)*: the library's existing security skills are
+**D12.10 Security scanning & orchestration** *(pack added by D27, 2026-07-08; **all 3 BUILT by D44, 2026-07-16** — the LAST banked
+capability, built after the library-wide `skill-quality-reviewer` sweep (D33) as planned)*: the library's existing security skills are
 JUDGMENT skills — `static-analysis-reviewer` triages scanner findings it is handed,
 `supply-chain-security-reviewer` covers dependencies/provenance — but nothing ORCHESTRATES
 the scanning itself: running a SAST suite over a repo, dynamic testing against a running
@@ -689,7 +688,7 @@ Core principle for all three (per the Zero Trust AI Engineering Discipline, D16,
 repo and run scanners, but must never autonomously fix, open PRs, or change settings; every
 action is handed to a human.
 
-- `security-scan-orchestrator` *(candidate — not built)* — guides an assistant to
+- `security-scan-orchestrator` *(built — D44)* — guides an assistant to
   clone/access a repo (READ-ONLY) and run the full security-scan suite (SAST +
   dependency/SCA + secret scanning + IaC/config scanning), then AGGREGATE findings into one
   prioritized report. Orchestrates and REPORTS; recommends fixes but NEVER applies them,
@@ -698,11 +697,11 @@ action is handed to a human.
   `static-analysis-reviewer` (which does the true-positive/false-positive judgment on the
   SAST output) and `supply-chain-security-reviewer` (dependency/provenance). Tool-agnostic
   (references scanner CATEGORIES, not one vendor's CLI).
-- `sast-orchestration-designer` *(candidate — not built)* — selects and configures the
+- `sast-orchestration-designer` *(built — D44)* — selects and configures the
   right static-analysis approach for a codebase/language, runs it, and hands findings to
   `static-analysis-reviewer` for triage. Compose-don't-duplicate:
   `static-analysis-reviewer` JUDGES findings; this one PRODUCES them.
-- `dast-safety-harness-designer` *(candidate — not built)* — designs dynamic (running-app)
+- `dast-safety-harness-designer` *(built — D44)* — designs dynamic (running-app)
   security testing with MANDATORY guardrails: only against systems the user owns and has
   WRITTEN authorization to test, never production without explicit human sign-off, scoped
   target allowlists, rate limits, and a documented blast-radius/rollback. DAST sends attack
@@ -1787,6 +1786,55 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     docstring), + this §5 entry. No `.claude/skills/**` logic/workflow/eval touched. The map
     is now held to the territory for README counts mechanically, not by memory.
   - Validator: 179 skills, exit 0 (new checks active and passing, 0 warnings).
+
+- **D44 (2026-07-16) — Built the D12.10 Security scanning & orchestration pack
+  (179→182), the LAST banked capability (banked D27, deferred until after the
+  D33 `skill-quality-reviewer` sweep, now complete).**
+  - **What.** Three skills that fill the ORCHESTRATION gap the library's JUDGMENT
+    security skills left open (`static-analysis-reviewer` triages the findings it
+    is handed; `supply-chain-security-reviewer` covers deps/provenance) — nothing
+    RAN or AGGREGATED the scans themselves:
+    - `security-scan-orchestrator` — orchestrate a WHOLE-REPO static scan (SAST +
+      dependency/SCA + secret + IaC/config) and aggregate it into ONE prioritized
+      report (scope, tool-agnostic coordination, cross-tool normalization/dedup,
+      severity aggregation, coverage/GAP account).
+    - `sast-orchestration-designer` — design HOW a SAST suite is RUN (category-
+      level analyzer selection, ruleset/config, baseline + diff-scanning, a GOVERNED
+      FP suppression list, incremental-vs-full, fail-closed CI integration).
+    - `dast-safety-harness-designer` — design a SAFE DAST harness against a running
+      app: written-authorization gate (composes `human-approval-boundary`, classified
+      via `change-classification-gate`), staging-only unless prod is explicitly
+      authorized, rate/impact limits + abort, no destructive probes without sign-off,
+      data-handling; NOT a pen-test playbook (no exploit enumeration).
+  - **The hard seam — orchestrate-and-REPORT, human-approves-action.** These skills
+    RUN and AGGREGATE; they never fix, act on, or triage findings. Finding TRIAGE is
+    yielded to `static-analysis-reviewer` (MANDATORY in the two static skills — pinned
+    in Use When + a discriminating trigger-eval); dep/provenance judgment to
+    `supply-chain-security-reviewer`; DAST authorization to `human-approval-boundary`.
+    The in-batch `security-scan-orchestrator` ↔ `sast-orchestration-designer` seam is
+    pinned both ways.
+  - **Fail-closed threaded through all three:** a scanner/probe that errors, times out,
+    or can't reach its target is a REPORTED GAP, never a silent pass — *a scan that
+    cannot run is not a clean scan* — and each ships the designed proof its failure
+    path surfaces (*a verifier that cannot fail is theater with an exit code*).
+  - **Posture.** All three are DESIGN/orchestration skills producing scan plans/
+    aggregated reports and edit nothing → model-invocable (no `disable-model-invocation`);
+    Stop Conditions forbid acting on/fixing findings and running DAST without written
+    authorization. No NEW doctrine pillar (they APPLY the orchestrate-and-report principle
+    of the Zero Trust AI Engineering Discipline / `agent-authorization-matrix`, D16) — no
+    doctrine change. Roles table: no new row — the pack is orchestration tooling that
+    FEEDS the existing application-security role and whose defining seam is that it does
+    NOT do the security JUDGMENT; a new row would blur that (judgment call, CONTRIBUTING 3e).
+  - **Registration (D43 enforcement).** Catalog D44 section (+ intro), README
+    Skills-(shipped) D44 table, a NEW roster family 21 (Security scanning & orchestration,
+    D12.10, 3), phase-plan D44 row, and the count bumps: README `SKILL-COUNT` 179→182 and
+    `FAMILY-COUNT` 20→21 (+ the human-readable 182-skills/21-families prose across
+    About/roles/map/getting-started, and the D1–D42→D1–D44 decisions range). Banked
+    D12.10 candidate block marked BUILT.
+  - **Product-agnostic** (swept scanner vendors + supabase/athena/lovable/aegis/onedrive/
+    personal/URLs — clean; tool CATEGORIES only). Validator: **182 skills, exit 0**, D43
+    count/family checks passing. To be checked by `skill-quality-reviewer` +
+    `library-diff-reviewer` for the orchestrate-vs-triage seam.
 
 ---
 

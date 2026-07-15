@@ -1,0 +1,52 @@
+{
+  "skill": "dast-safety-harness-designer",
+  "description": "Trigger discrimination for designing the SAFE DAST harness (this skill) vs defining WHAT is worth testing (threat-modeler), tenant-isolation testing (multi-tenant-security-tester), the sign-off and classification it composes (human-approval-boundary, change-classification-gate), and static code scanning (security-scan-orchestrator). Also separates the harness from a penetration-testing playbook, which is out of scope.",
+  "overlaps_with": [
+    "threat-modeler",
+    "multi-tenant-security-tester",
+    "human-approval-boundary",
+    "change-classification-gate",
+    "security-scan-orchestrator"
+  ],
+  "cases": [
+    {
+      "id": "dast-harness-wins-here",
+      "prompt": "We're authorized to dynamically test our staging app. Design the safety harness around the run — the written authorization record, the target allowlist, rate and impact limits with an abort condition, no destructive probes without sign-off, how we handle anything sensitive it surfaces, and the run/result contract.",
+      "expected_skill": "dast-safety-harness-designer",
+      "should_not_trigger": ["threat-modeler", "multi-tenant-security-tester", "security-scan-orchestrator"],
+      "note": "SEAM CASE (primary) — authorization gate, allowlist, rate/impact limits, no-destructive-probes default, data-handling, and the run/result contract ARE the harness's parts. No threat enumeration, no tenant-isolation focus, no static scanning, no exploit list is requested.",
+      "reason": "The subject is the SAFE RUN of dynamic testing — the harness. It composes human-approval-boundary for the sign-off and yields WHAT to test to threat-modeler; it is neither of those."
+    },
+    {
+      "id": "what-to-test-goes-to-threat-modeler",
+      "prompt": "Before we test anything, work out the assets, trust boundaries, and the threats worth going after for this app — where an attacker would push.",
+      "expected_skill": "threat-modeler",
+      "should_not_trigger": ["dast-safety-harness-designer"],
+      "note": "WHAT-vs-SAFE-RUN SEAM — enumerating assets, boundaries, and threats is threat-modeler. This skill designs the safe RUN of what that identifies; it does not derive the threats.",
+      "reason": "Deciding what is worth testing is threat-modeler. dast-safety-harness-designer takes that as input and designs the authorized, safe way to run the dynamic test."
+    },
+    {
+      "id": "tenant-isolation-goes-to-multi-tenant-security-tester",
+      "prompt": "Specifically test that one tenant can't reach another tenant's data through our APIs — cross-tenant access, IDOR across tenant ids, the isolation boundary.",
+      "expected_skill": "multi-tenant-security-tester",
+      "should_not_trigger": ["dast-safety-harness-designer"],
+      "reason": "Testing tenant-isolation specifically is multi-tenant-security-tester. dast-safety-harness-designer designs the general safe dynamic-testing harness, not the tenant-isolation test methodology."
+    },
+    {
+      "id": "sign-off-goes-to-human-approval-boundary",
+      "prompt": "This dynamic test touches a live environment — get the explicit human approval and record the blast radius and reversibility before anyone proceeds.",
+      "expected_skill": "human-approval-boundary",
+      "should_not_trigger": ["dast-safety-harness-designer"],
+      "note": "COMPOSE SEAM — obtaining and recording the human sign-off is human-approval-boundary. The harness COMPOSES that gate as its authorization step; it does not replace it.",
+      "reason": "Halting for explicit human approval on a boundary-crossing action is human-approval-boundary. dast-safety-harness-designer composes it as the authorization gate but is the broader safe-run harness design."
+    },
+    {
+      "id": "static-scanning-goes-to-security-scan-orchestrator",
+      "prompt": "Scan the whole repository's code and config for security issues and give me one aggregated report — no running app involved.",
+      "expected_skill": "security-scan-orchestrator",
+      "should_not_trigger": ["dast-safety-harness-designer"],
+      "note": "DYNAMIC-vs-STATIC SEAM — scanning code/config with no running app is static. This skill is for testing a RUNNING app under a safety harness.",
+      "reason": "Static whole-repo scanning is security-scan-orchestrator. dast-safety-harness-designer is dynamic (running-app) testing and carries the written-authorization gate that static scanning does not."
+    }
+  ]
+}

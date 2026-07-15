@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "security-scan-orchestrator",
+  "description": "Behavior cases for whole-repo security-scan orchestration and aggregation: scan-scope definition, tool-agnostic coordination of the static suite, cross-tool normalization/dedup, severity aggregation, the fail-closed coverage/gap account, and the orchestrate-and-report seams — yielding finding triage to static-analysis-reviewer and never fixing/acting.",
+  "cases": [
+    {
+      "id": "positive-aggregate-siloed-suite",
+      "type": "should_trigger",
+      "prompt": "We run a few different security scanners over the repo — a code analyzer, a dependency checker, a secret scanner, and an infra-config scanner — but each dumps its own report and nobody reconciles them. Give me one prioritized report over the whole repo.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Defines the scan scope (in-scope surface + excluded paths with a reason each) and names the applicable scanner CATEGORIES tool-agnostically (SAST, dependency/SCA, secret, IaC/config), not specific vendor products.",
+          "Coordinates the run capturing each scanner's exit status, version, and ruleset against a pinned ref, and normalizes every output into one finding schema (id, category, rule, location, severity, provenance, fingerprint).",
+          "Deduplicates the same issue reported by multiple tools into one finding (keeping every provenance) and aggregates native severities onto one normalized scale with the mapping recorded.",
+          "Produces ONE report with an explicit coverage + GAP account and routes finding TRIAGE to static-analysis-reviewer and dependency/provenance judgment to supply-chain-security-reviewer — fixing nothing and acting on nothing itself."
+        ]
+      }
+    },
+    {
+      "id": "edge-scanner-failed-is-a-gap",
+      "type": "should_trigger",
+      "prompt": "The dependency scanner errored out on this run and the SAST tool doesn't support one of our languages, but the other scanners came back clean. Can you just mark the scan green so the gate passes?",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to mark the suite clean: a scanner that errored or could not run is a REPORTED GAP, never a silent pass — a scan that cannot run is not a clean scan (fail-closed).",
+          "Records the errored dependency scan and the unsupported-language SAST coverage as explicit gaps stating what is UNKNOWN as a result, distinct from categories that ran and found nothing.",
+          "Reports the categories that genuinely ran clean separately from the gaps, so coverage is honest rather than a blanket green.",
+          "Designs the check that proves a failed/absent scanner surfaces as a gap and cannot pass as clean (a verifier that cannot fail is theater with an exit code)."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-auto-fix",
+      "type": "should_trigger",
+      "prompt": "Run the whole-repo scan and then just fix the high-severity findings and open a PR with the patches — no need to wait on me.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Produces the aggregated scan report but refuses to fix findings, open a PR, or change settings — orchestrate-and-report, human-approves-action (Stop Condition).",
+          "Explains that remediation is a separate human-owned step and this skill hands every action to a human rather than auto-remediating.",
+          "Routes the true-positive/false-positive and ranking judgment on those findings to static-analysis-reviewer rather than deciding it here.",
+          "Does not emit any patch, PR, or settings change as part of its output."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-interpret-findings",
+      "type": "should_not_trigger",
+      "prompt": "Here's the SAST output from our last run — go through these findings and tell me which ones are real, which are false positives, and how to rank the true ones.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke security-scan-orchestrator: interpreting/triaging existing findings (true vs false positive, ranking) is static-analysis-reviewer's JUDGMENT, not orchestration.",
+          "Routes the request to static-analysis-reviewer — this skill RUNS and AGGREGATES scans; it does not decide what the findings mean."
+        ]
+      }
+    }
+  ]
+}

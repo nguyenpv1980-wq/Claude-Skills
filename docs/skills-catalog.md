@@ -56,13 +56,18 @@ checks that every *implemented* skill is listed here and in `README.md`.
 > documentation-only). The **D38** build added
 > `project-orchestrator` — the beginner-facing, top-level lifecycle router that
 > takes a non-developer from a vague idea to a shipped product by detecting the
-> current stage and routing to the library's existing skills (175→176). Most
-> recently the **D42** build made the doctrine's D41 inward-facing pillars real —
+> current stage and routing to the library's existing skills (175→176). The
+> **D42** build made the doctrine's D41 inward-facing pillars real —
 > the CONSTRAIN/CURATE design pack (`agent-harness-architect`,
 > `model-context-designer`, `agentic-loop-designer`, plus an extension of
 > `structured-output-validator`), the DESIGN skills for the AI's own operating
 > environment (harness, context, loop) that PRODUCE what the agentic-security
-> clusters REVIEW (176→179) — bringing the library to its current **179 skills**.
+> clusters REVIEW (176→179). Most recently the **D44** build shipped the
+> **D12.10 Security scanning & orchestration pack** (`security-scan-orchestrator`,
+> `sast-orchestration-designer`, `dast-safety-harness-designer`) — the last
+> banked capability, the ORCHESTRATION layer that RUNS and AGGREGATES security
+> scans while yielding finding TRIAGE to the judgment skills (179→182) —
+> bringing the library to its current **182 skills**.
 > `_template` remains a reference template ignored by the validator.
 > Everything under "Backlog" is planned, not built.
 
@@ -930,6 +935,33 @@ production without human approval. All ship both eval files.
 | `data-partitioning-sharding-strategist` | reconciliation §3 D12.11 (LOW) | yes | OLTP partitioning/sharding for WRITE/size scale: shard-key selection (tenant_id + its hot-tenant limit), range/hash/list partitioning, cross-shard cost, reshard/rebalance runbook (designed, not run) — gated behind DON'T-SHARD-PREMATURELY (single well-indexed primary + replicas first; shard only on evidenced ceiling). ≠ `multi-tenant-data-architect` (isolation scoping, not throughput), `warehouse-lake-architect` (analytical partitioning), `operational-vs-analytical-splitter` (what leaves the OLTP store). |
 | `intra-tenant-scope-architect` | reconciliation §3 D12.11 (LOW/flag) — **resolved STANDALONE (D32)** | yes | A second mandatory scoping axis BELOW the tenant (site/region/org-unit): per-user scope-grant model, the composite tenant+scope row-filter predicate on every scoped table, scope-restricted vs tenant-wide roles, server-derived propagation through app+edge, live add-axis migration (designed, not run). ≠ `tenant-modeler` (tenant semantics/hierarchy — a child tenant is a separate boundary), `multi-tenant-data-architect` (the tenant_id storage axis this presupposes), `authorization-matrix-designer` (roles×permissions vs a row-filter dimension), `command-gateway-architect` (execute-time write scope vs the standing read-side axis). |
 | `share-link-access-architect` | reconciliation §3 D12.11 (LOW/flag) — **resolved STANDALONE (D32)** | yes | Guest/public share-link (bearer-capability) access: opaque high-entropy expiring revocable tokens, per-link scope (one resource, one permission), ephemeral guest sessions (not memberships), optional password/OTP gate, enumeration/abuse defense (no existence oracle), audit — the link exposes exactly its resource, never a hole into the tenant. ≠ `authorization-matrix-designer` (member RBAC + impersonation, not anyone-with-the-link), `api-event-architect` (machine API credentials / webhook signing). |
+
+### Skills (D44 — Security scanning & orchestration pack, D12.10)
+
+The 3-skill D12.10 pack (reconciliation §3 D12.10 / D27; built by D44,
+2026-07-16) — the LAST banked capability (banked D27, deferred until after the
+D33 library-wide `skill-quality-reviewer` sweep). The library's existing
+security skills are JUDGMENT skills — `static-analysis-reviewer` triages the
+findings it is handed, `supply-chain-security-reviewer` covers deps/provenance —
+but nothing ORCHESTRATED the scanning itself: running a SAST suite, dynamic
+testing a running app, or aggregating a whole-repo scan into one report. This
+pack fills that gap with one hard seam: **orchestrate-and-report,
+human-approves-action** — these skills RUN and AGGREGATE scans and NEVER fix,
+act on, or triage findings; the finding TRIAGE is yielded to
+`static-analysis-reviewer` (mandatory in the two static skills) and the DAST
+authorization to `human-approval-boundary`. Fail-closed throughout: a
+scanner/probe that errors, times out, or can't reach its target is a REPORTED
+GAP, never a silent pass — *a scan that cannot run is not a clean scan.*
+Product-agnostic (scanner CATEGORIES — SAST/DAST/SCA/secret/IaC — not named
+vendors). The in-batch `security-scan-orchestrator` ↔ `sast-orchestration-designer`
+seam is pinned both ways. All three DESIGN/orchestrate (no autonomous action) →
+**model-invocable**; all ship both eval files.
+
+| Skill | Source (D12.10 / D44) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `security-scan-orchestrator` | reconciliation §3 D12.10 (D27) | yes | Orchestrate a WHOLE-REPO scan and aggregate it into ONE prioritized report: scan-scope definition, tool-agnostic coordination of the static suite (SAST + dependency/SCA + secret + IaC/config), normalization + cross-tool dedup into one finding schema, severity aggregation onto one scale, and an explicit coverage/GAP account. RUNS and AGGREGATES; never fixes/PRs/configures — every action is the human's. Yields finding TRIAGE to `static-analysis-reviewer` and dependency/provenance JUDGMENT to `supply-chain-security-reviewer` (orchestrates the dep-scan RUN, not the judgment). Fail-closed: a scanner that can't run is a GAP, not a clean pass. ≠ `sast-orchestration-designer` (in-batch: the SAST run it aggregates), `dast-safety-harness-designer` (dynamic vs static), `ci-pipeline-architect` (pipeline vs scan contract). |
+| `sast-orchestration-designer` | reconciliation §3 D12.10 (D27) | yes | Design HOW a SAST suite is RUN: category-level analyzer selection (not a vendor), ruleset/config versioned in-repo, baseline + diff-scanning (gate NEW-since-baseline on PRs vs full scans on a cadence), incremental-vs-full strategy on the CI latency budget, a GOVERNED false-positive suppression list (rationale/owner/date/review — never silent inline muting), and fail-closed CI integration. Designs the RUN that PRODUCES findings; the INTERPRETATION (TP/FP, ranking, the suppression VERDICT) is `static-analysis-reviewer`'s (yield). Feeds `security-scan-orchestrator` (in-batch, both ways). ≠ `supply-chain-security-reviewer` (SCA vs SAST). |
+| `dast-safety-harness-designer` | reconciliation §3 D12.10 (D27) | yes | Design a SAFE dynamic (running-app) DAST harness — the safety harness IS the deliverable: EXPLICIT WRITTEN AUTHORIZATION before any run (scope/target/window/blast-radius recorded — composes `human-approval-boundary`, classified via `change-classification-gate`), staging-only unless prod is explicitly authorized, rate/impact limits with an abort condition (no self-DoS), no destructive/state-mutating probes without separate sign-off, data-handling for surfaced secrets/PII, and the run/result contract. Fail-closed: no authorization → no run. NOT a pen-test playbook and enumerates no exploits (out of scope); WHAT to test → `threat-modeler`. ≠ `multi-tenant-security-tester` (tenant-isolation testing). |
 
 ---
 

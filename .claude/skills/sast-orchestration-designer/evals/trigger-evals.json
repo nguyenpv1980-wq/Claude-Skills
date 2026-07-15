@@ -1,0 +1,50 @@
+{
+  "skill": "sast-orchestration-designer",
+  "description": "Trigger discrimination for designing the SAST RUN (this skill) vs the finding-triage JUDGMENT it yields to (static-analysis-reviewer), the whole-repo multi-tool aggregation it feeds (security-scan-orchestrator, in-batch pinned both ways), the dependency/SCA category it is not (supply-chain-security-reviewer), and the delivery pipeline it produces a stage contract for (ci-pipeline-architect).",
+  "overlaps_with": [
+    "static-analysis-reviewer",
+    "security-scan-orchestrator",
+    "supply-chain-security-reviewer",
+    "ci-pipeline-architect"
+  ],
+  "cases": [
+    {
+      "id": "sast-run-design-wins-here",
+      "prompt": "Design how our SAST should run over this repo: which analyzer category per language, the ruleset and severity thresholds versioned in-repo, a baseline plus diff-scanning that gates only new findings on a PR with a full scan nightly, a governed suppression list, and where it sits in CI with a fail-closed rule.",
+      "expected_skill": "sast-orchestration-designer",
+      "should_not_trigger": ["static-analysis-reviewer", "security-scan-orchestrator", "ci-pipeline-architect"],
+      "note": "SEAM CASE (primary) — analyzer selection, ruleset/config, baseline+diff, governed suppression, incremental-vs-full, and fail-closed CI integration ARE this skill's parts. No finding interpretation, no whole-repo multi-tool aggregation is requested.",
+      "reason": "The subject is the design of the SAST RUN itself. It yields finding interpretation to static-analysis-reviewer and feeds one input to security-scan-orchestrator's aggregate; it is neither of those."
+    },
+    {
+      "id": "triage-goes-to-static-analysis-reviewer",
+      "prompt": "Go through this SAST output and decide which findings are real, rank the true positives by exploitability, and record the rationale for the ones we're calling false positives.",
+      "expected_skill": "static-analysis-reviewer",
+      "should_not_trigger": ["sast-orchestration-designer"],
+      "note": "ORCHESTRATE-vs-TRIAGE SEAM (mandatory) — deciding TP/FP, ranking, and writing the suppression VERDICT is the triage judgment. This skill designs the run that produces findings; static-analysis-reviewer judges them and owns the verdict the governed list records.",
+      "reason": "Interpreting findings and writing suppression verdicts is static-analysis-reviewer. sast-orchestration-designer designs the governed suppression LIST and the run; it does not decide which findings are false positives."
+    },
+    {
+      "id": "whole-repo-aggregation-goes-to-security-scan-orchestrator",
+      "prompt": "Coordinate all our scanners over the whole repo — SAST, the dependency scanner, the secret scanner, the infra-config scanner — and give me one aggregated, deduplicated report with a coverage and gap list.",
+      "expected_skill": "security-scan-orchestrator",
+      "should_not_trigger": ["sast-orchestration-designer"],
+      "note": "IN-BATCH SEAM (pinned both ways) — coordinating the whole multi-category suite and aggregating into one report is the orchestrator's job. This skill designs the SAST category's run, which is one input to that aggregate.",
+      "reason": "Whole-repo multi-tool aggregation is security-scan-orchestrator. sast-orchestration-designer designs only the SAST run and hands its normalized output to that aggregator."
+    },
+    {
+      "id": "dependency-scanning-goes-to-supply-chain-security-reviewer",
+      "prompt": "We need to scan our dependencies and lockfile for vulnerable and typosquatted packages and check the install scripts.",
+      "expected_skill": "supply-chain-security-reviewer",
+      "should_not_trigger": ["sast-orchestration-designer"],
+      "reason": "Dependency/SCA scanning and provenance judgment is supply-chain-security-reviewer. sast-orchestration-designer is first-party-code static analysis (SAST), a different category from dependency scanning."
+    },
+    {
+      "id": "pipeline-goes-to-ci-pipeline-architect",
+      "prompt": "Design our whole CI pipeline — the stage graph from lint through deploy, merge-blocking semantics, secret governance, and rollback primitives.",
+      "expected_skill": "ci-pipeline-architect",
+      "should_not_trigger": ["sast-orchestration-designer"],
+      "reason": "Designing the delivery pipeline is ci-pipeline-architect. sast-orchestration-designer produces the SAST stage's contract (placement, merge-blocking, fail-closed rule) that plugs into that pipeline; it does not design the pipeline."
+    }
+  ]
+}

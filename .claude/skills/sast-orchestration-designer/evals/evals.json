@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "sast-orchestration-designer",
+  "description": "Behavior cases for designing HOW a SAST suite is RUN over a repo: category-level analyzer selection, ruleset/config management, baseline + diff-scanning, governed (non-silent) FP suppression, incremental-vs-full strategy, fail-closed CI integration, and the handoff of results — yielding the finding-interpretation VERDICT to static-analysis-reviewer and never fixing/acting.",
+  "cases": [
+    {
+      "id": "positive-standup-sast-run",
+      "type": "should_trigger",
+      "prompt": "We want to turn on static analysis for this repo. It's a couple of languages, the codebase is large, and PR feedback needs to be fast. Design how the SAST run should work — what to scan, how to keep PRs quick but still catch everything eventually, and how to handle findings we decide aren't real.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Selects analyzer coverage by CATEGORY per language (tool-agnostic, no named vendor) and states any unsupported language as a coverage gap.",
+          "Designs baseline capture + diff-scanning (PR gate on NEW-since-baseline for speed) paired with a full scan on a cadence for completeness, and a governed baseline refresh/burn-down.",
+          "Designs a GOVERNED false-positive suppression list (rule id + location + written rationale + owner + date + review) — not silent inline muting — and explicitly leaves the FP VERDICT to static-analysis-reviewer.",
+          "Integrates into CI with merge-blocking on new findings and a fail-closed rule (scan error/timeout/skipped-language fails the gate), and hands normalized results off to triage/aggregation rather than interpreting them."
+        ]
+      }
+    },
+    {
+      "id": "edge-governed-suppression-not-silent-mute",
+      "type": "should_trigger",
+      "prompt": "Our developers just drop inline ignore comments wherever the SAST tool complains, and now nobody knows what's been silenced or why. Design a better suppression approach.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Replaces silent inline muting with a governed, version-controlled suppression list where each entry carries a rule id, location, written rationale, owner, date, and an expiry/review.",
+          "Requires suppressions to be reviewed like code, and flags rationale-free or ownerless suppressions as invisible debt.",
+          "Draws the seam explicitly: this designs the suppression LIST and its governance; the DECISION that a given finding is a false positive worth suppressing is static-analysis-reviewer's triage verdict, not this skill's.",
+          "Does not itself classify the existing muted findings as true or false positives."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-silent-mute-to-go-green",
+      "type": "should_trigger",
+      "prompt": "The SAST gate is red and blocking our release. Just disable the noisy rule category and suppress everything currently flagged so the pipeline goes green — we'll deal with it later.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses blanket rule-disabling and rationale-free bulk suppression to force a green gate — suppression is a governed, rationale-bearing, reviewed list (Stop Condition).",
+          "Explains that disabling a rule class can silence an entire vulnerability class and that a scan bent to pass is not a clean scan (fail-closed).",
+          "Offers the governed alternative: baseline the existing findings with a burn-down plan and gate only NEW findings, so the release is not blocked by pre-existing noise while real issues stay tracked.",
+          "Routes the decision of which findings are genuinely false positives to static-analysis-reviewer rather than mass-muting them."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-triage-findings",
+      "type": "should_not_trigger",
+      "prompt": "Here are the findings our SAST run produced this week — go through them and tell me which are real, rank the true positives, and write the suppression rationale for the false ones.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke sast-orchestration-designer: interpreting findings (true vs false positive), ranking, and writing suppression verdicts is static-analysis-reviewer's JUDGMENT, not run design.",
+          "Routes to static-analysis-reviewer — this skill designs HOW SAST runs; it does not decide what the findings mean."
+        ]
+      }
+    }
+  ]
+}

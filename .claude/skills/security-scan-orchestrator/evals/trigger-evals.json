@@ -1,0 +1,59 @@
+{
+  "skill": "security-scan-orchestrator",
+  "description": "Trigger discrimination for whole-repo scan orchestration + aggregation (this skill) vs the finding-triage JUDGMENT it yields to (static-analysis-reviewer), the dependency/provenance judgment it folds in but does not make (supply-chain-security-reviewer), the in-batch SAST-run design it aggregates (sast-orchestration-designer, pinned both ways), the dynamic running-app testing it excludes (dast-safety-harness-designer), and the pipeline it produces a contract for (ci-pipeline-architect).",
+  "overlaps_with": [
+    "static-analysis-reviewer",
+    "supply-chain-security-reviewer",
+    "sast-orchestration-designer",
+    "dast-safety-harness-designer",
+    "ci-pipeline-architect"
+  ],
+  "cases": [
+    {
+      "id": "orchestration-wins-here",
+      "prompt": "Coordinate a security scan across the whole repo — the code analyzer, the dependency/SCA scanner, the secret scanner, and the infra-config scanner — capture what ran and what failed, dedup findings that show up in more than one tool, put severities on one scale, and hand me a single report.",
+      "expected_skill": "security-scan-orchestrator",
+      "should_not_trigger": ["static-analysis-reviewer", "sast-orchestration-designer", "dast-safety-harness-designer"],
+      "note": "SEAM CASE (primary) — coordinating the multi-category suite, capturing coverage/gaps, cross-tool normalization/dedup, and one aggregated report ARE this skill's four parts. No triage verdict, no single-tool run design, no live-app testing is requested.",
+      "reason": "The subject is running and aggregating the whole-repo scan into one report. It yields the finding triage to static-analysis-reviewer and orchestrates (not judges) the dependency scan."
+    },
+    {
+      "id": "triage-goes-to-static-analysis-reviewer",
+      "prompt": "Take this scanner output and work out which findings are true positives, which are false positives, and rank the real ones by reachability and impact.",
+      "expected_skill": "static-analysis-reviewer",
+      "should_not_trigger": ["security-scan-orchestrator"],
+      "note": "ORCHESTRATE-vs-TRIAGE SEAM (mandatory) — deciding what findings MEAN, sorting TP/FP, and ranking is the triage JUDGMENT. This skill produces the findings; static-analysis-reviewer judges them.",
+      "reason": "Interpreting and ranking findings is static-analysis-reviewer. security-scan-orchestrator RUNS and AGGREGATES the scan and hands the findings to triage; it never decides their disposition."
+    },
+    {
+      "id": "sast-run-design-goes-to-sast-orchestration-designer",
+      "prompt": "Design how our SAST specifically should run over this repo — which analyzers per language, ruleset config, a baseline plus diff-scanning that only gates new findings on a PR, and a governed false-positive suppression list.",
+      "expected_skill": "sast-orchestration-designer",
+      "should_not_trigger": ["security-scan-orchestrator"],
+      "note": "IN-BATCH SEAM (pinned both ways) — designing the SAST RUN (selection, config, baseline/diff, governed suppression) is one category's run design. This skill aggregates that output with the other categories into the whole-repo report.",
+      "reason": "SAST-run design is sast-orchestration-designer. security-scan-orchestrator coordinates the whole suite and folds the SAST results into one aggregate; it does not design the SAST run."
+    },
+    {
+      "id": "dependency-judgment-goes-to-supply-chain-security-reviewer",
+      "prompt": "Look at our dependencies and lockfile — which CVEs actually matter given what's reachable, is anything typosquatted or unpinned, and are the install/build scripts safe?",
+      "expected_skill": "supply-chain-security-reviewer",
+      "should_not_trigger": ["security-scan-orchestrator"],
+      "reason": "Judging dependency/provenance risk (reachability, typosquat, pinning, install scripts) is supply-chain-security-reviewer. security-scan-orchestrator orchestrates the dependency-scan RUN and includes its output in the aggregate; it does not make the supply-chain judgment."
+    },
+    {
+      "id": "dynamic-testing-goes-to-dast-safety-harness-designer",
+      "prompt": "We want to security-test the running application in staging — send test traffic at the live app and see what holds up.",
+      "expected_skill": "dast-safety-harness-designer",
+      "should_not_trigger": ["security-scan-orchestrator"],
+      "note": "STATIC-vs-DYNAMIC SEAM — testing a RUNNING app is dynamic and carries a written-authorization gate. This skill's suite is static (repo) scanning only.",
+      "reason": "Dynamic running-app testing is dast-safety-harness-designer (authorization + safety harness). security-scan-orchestrator scans the repo statically and does not fold live-app testing into that."
+    },
+    {
+      "id": "pipeline-goes-to-ci-pipeline-architect",
+      "prompt": "Design our CI delivery pipeline end to end — the stage graph, merge-blocking rules, secret governance, and deploy gates.",
+      "expected_skill": "ci-pipeline-architect",
+      "should_not_trigger": ["security-scan-orchestrator"],
+      "reason": "Designing the delivery pipeline is ci-pipeline-architect. security-scan-orchestrator produces the scan/report contract that a pipeline's security stage runs; it does not design the pipeline."
+    }
+  ]
+}

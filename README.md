@@ -77,11 +77,11 @@ candidates and bringing the library to **175 skills**. **D33** then ran a librar
 `skill-quality-reviewer` sweep that landed corrections only, and D34–D36 were
 documentation-only — no change to the count. **D38** added
 `project-orchestrator`, the beginner-facing top-level lifecycle router that is the library's
-front door (175→176). Most recently, **D42** built the **CONSTRAIN/CURATE design pack** —
+front door (175→176). **D42** built the **CONSTRAIN/CURATE design pack** —
 `agent-harness-architect`, `model-context-designer`, and `agentic-loop-designer`, plus an
 extension of `structured-output-validator` — making the doctrine's D41 inward-facing pillars
 real: the DESIGN skills for the AI's own operating environment (harness, context, loop) that
-produce what the agentic-security clusters review (176→179), bringing it to **179 skills**.
+produce what the agentic-security clusters review (176→179). Most recently, **D44** built the **Security scanning & orchestration pack** (D12.10, the last banked capability) — `security-scan-orchestrator`, `sast-orchestration-designer`, and `dast-safety-harness-designer` — the ORCHESTRATION layer that runs and aggregates security scans (SAST/DAST/whole-repo) and yields finding TRIAGE to the judgment skills, bringing it to **182 skills** (179→182).
 
 Full per-pack detail lives in [Skills (shipped)](#skills-shipped) below; for a quick map of
 what *kinds* of help the library offers, see [What's in the library](#whats-in-the-library).
@@ -108,7 +108,7 @@ library's own additions, and its sweep corrections were applied in D33.
 
 ## The roles Aegis can play
 
-Under the hood, Aegis is a library of 179 skills organized into 20 discipline families. In
+Under the hood, Aegis is a library of 182 skills organized into 21 discipline families. In
 practical terms, Aegis can make Claude act as:
 
 | Aegis can act as… | What that means for you | Example skills |
@@ -304,7 +304,7 @@ pick whichever matches how you work. The current full list is at
    claude
    ```
 
-3. That's the whole setup. Claude Code auto-discovers everything under `.claude/` — the 179
+3. That's the whole setup. Claude Code auto-discovers everything under `.claude/` — the 182
    skills and 7 subagents load automatically. There is no registration step.
 4. **How you invoke a skill** — skills are trigger-invoked, not slash-commanded. You invoke
    one by *describing a task that matches its trigger*, or by *naming it*. Two literal
@@ -446,7 +446,7 @@ entry in the reconciliation doc.
 
 ## Map of the system
 
-- **Skills** ([`.claude/skills/`](.claude/skills/)) — the 179 shipped procedures: 20
+- **Skills** ([`.claude/skills/`](.claude/skills/)) — the 182 shipped procedures: 21
   discipline families, fronted by `project-orchestrator`, the beginner-facing router that
   walks a non-developer through them from idea to shipped. See **[What's in the
   library](#whats-in-the-library)** below for the roster (each family, its purpose, and
@@ -455,7 +455,7 @@ entry in the reconciliation doc.
   [Subagents (read-only reviewers)](#subagents-read-only-reviewers).
 - **The planning record**
   ([`docs/reconciliation/step-0-reconciliation-v4.md`](docs/reconciliation/step-0-reconciliation-v4.md))
-  — the dated decisions (D1–D42) in §5 are the project's immutable decision log; the
+  — the dated decisions (D1–D44) in §5 are the project's immutable decision log; the
   D12/D14 candidate scopes recorded there are banked-but-not-built future
   work (the D12.8 pack graduated from banked to built with D21; the D13
   library-meta scope completed with D22).
@@ -468,13 +468,13 @@ entry in the reconciliation doc.
 
 ## What's in the library
 
-**Skill roles at a glance.** The <!-- SKILL-COUNT -->179<!-- /SKILL-COUNT --> skills sit in **<!-- FAMILY-COUNT -->20<!-- /FAMILY-COUNT --> discipline families** (each a shipped
+**Skill roles at a glance.** The <!-- SKILL-COUNT -->182<!-- /SKILL-COUNT --> skills sit in **<!-- FAMILY-COUNT -->21<!-- /FAMILY-COUNT --> discipline families** (each a shipped
 build batch), fronted by one beginner-facing orchestrator. This is the scannable map of what
 *kinds* of help exist; the full per-skill tables are in [Skills (shipped)](#skills-shipped) below.
 
 **Start here — `project-orchestrator` (the front door).** If you're a non-developer with an
-idea and no idea what to do first, this is the one skill to name. It isn't a 20th family — it's
-the navigator *above* the other 19: it works out which stage your project is in, routes you to
+idea and no idea what to do first, this is the one skill to name. It isn't one of the 21 families — it's
+the navigator *above* them all: it works out which stage your project is in, routes you to
 the right skill below (you never need its name), turns every technical choice into a
 plain-language business question, records each dated decision in a `docs/project-state.md`, and
 keeps a human as the approval gate on anything irreversible. See
@@ -569,6 +569,10 @@ keeps a human as the approval gate on anything irreversible. See
     model/tool call passes through, the curated context diet, and the honestly-bounded agentic
     loop — they produce what the AI-security families (8–9) review. *e.g.*
     `agent-harness-architect`, `model-context-designer`, `agentic-loop-designer`.
+21. **Security scanning & orchestration** *(D12.10, 3)* — running and aggregating security
+    scans (SAST/DAST/whole-repo) and the DAST safety harness — orchestrate-and-report,
+    human-approves-action, yielding finding triage to the judgment skills. *e.g.*
+    `security-scan-orchestrator`, `sast-orchestration-designer`, `dast-safety-harness-designer`.
 
 ## Start here (canonical reading order)
 
@@ -618,6 +622,7 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | D32 | SaaS architecture depth — D12.11 LOW-PRIORITY set (4 = `cell-based-architecture-designer`, `data-partitioning-sharding-strategist`, `intra-tenant-scope-architect`, `share-link-access-architect`), 171→175. Completes the D12.11 pack (all 14 candidates resolved: 10 strong D31 + 4 low-priority D32). Both flags resolved STANDALONE: `intra-tenant-scope-architect` ≠ `multi-tenant-data-architect` (subordinate per-user scope axis vs the tenant_id axis), `share-link-access-architect` ≠ `authorization-matrix-designer` (bearer-capability guest access vs member RBAC). Seams also pinned: cell-based ≠ `saas-platform-architect`/`architecture-advisor`/`agent-containment-reviewer`; sharding ≠ `multi-tenant-data-architect`/`warehouse-lake-architect`/`operational-vs-analytical-splitter`. | P2 | ✅ shipped (D32) |
 | D38 | Beginner-facing lifecycle orchestrator / library front door (1 = `project-orchestrator`), 175→176. The top-level navigator that takes a non-developer from a vague idea to a shipped product: runtime stage detection + next-skill routing along existing seams + plain-language business-question translation + a persistent dated `docs/project-state.md`. Composes `ai-sdlc-operating-model`'s stage-gate map (**cited, never copied** — the anti-duplication condition) and keeps the human as the approval/merge gate via `human-approval-boundary` + `change-classification-gate` + `agent-authorization-matrix`. Defers elicitation to `requirements-gathering-facilitator`, team-policy authoring to `ai-sdlc-operating-model`. | P1 | ✅ shipped (D38) |
 | D42 | CONSTRAIN/CURATE design pack (3 new + 1 extension = `agent-harness-architect`, `model-context-designer`, `agentic-loop-designer` + `structured-output-validator` extended with type-level policy encoding and the parse → strict schema → policy/banned-content scan ladder), 176→179. Makes the doctrine's D41 inward-facing pillars real: the DESIGN skills for harness/context/loop engineering. Hard seam: **design-not-review** — each yields the attack review explicitly (harness → `prompt-injection-defender`/`agent-tool-safety-guard`/`agent-containment-reviewer`; context → `memory-context-poisoning-reviewer`; loop → `agent-goal-hijack-defender`/`ai-threat-modeler`); in-batch harness ↔ loop seam pinned both ways. Threads *"a verifier that cannot fail is theater with an exit code."* Generalized from the D40 read-only production audit. | P1 | ✅ shipped (D42) |
+| D44 | Security scanning & orchestration pack (D12.10, 3 = `security-scan-orchestrator`, `sast-orchestration-designer`, `dast-safety-harness-designer`), 179→182. The last banked capability (banked D27, deferred until after the D33 sweep). The ORCHESTRATION layer the JUDGMENT security skills lacked: RUN and AGGREGATE security scans (SAST/DAST/whole-repo) into one report, never triaging or fixing. Hard seam: **orchestrate-and-report, human-approves-action** — finding TRIAGE yielded to `static-analysis-reviewer` (mandatory in skills 1–2), dep/provenance judgment to `supply-chain-security-reviewer`, DAST authorization to `human-approval-boundary` (written authorization, staging-only, rate/impact limits, no destructive probes); in-batch `security-scan-orchestrator` ↔ `sast-orchestration-designer` pinned both ways. Fail-closed: a scan that can't run is not a clean scan. Product-agnostic (tool categories, no vendors). | P2 | ✅ shipped (D44) |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
 
 ## Subagents (read-only reviewers)
@@ -1056,6 +1061,22 @@ production without human approval — they design, they do not run.
 | `data-partitioning-sharding-strategist` | OLTP partitioning/sharding for WRITE/size scale: shard-key selection (tenant_id + its hot-tenant limit), range/hash/list partitioning, cross-shard cost, reshard/rebalance runbook — gated behind DON'T-SHARD-PREMATURELY (single well-indexed primary + replicas first; shard only on evidenced ceiling). ≠ `multi-tenant-data-architect` (isolation scoping), `warehouse-lake-architect` (analytical partitioning), `operational-vs-analytical-splitter` (what leaves the OLTP store). | auto + manual |
 | `intra-tenant-scope-architect` | A second mandatory scoping axis BELOW the tenant (site/region/org-unit): per-user scope-grant model, the composite tenant+scope row-filter predicate on every scoped table, scope-restricted vs tenant-wide roles, server-derived propagation, live add-axis migration. **STANDALONE (D32).** ≠ `tenant-modeler` (tenant semantics/hierarchy), `multi-tenant-data-architect` (tenant_id-axis storage), `authorization-matrix-designer` (roles×permissions vs a row-filter), `command-gateway-architect` (execute-time write scope). | auto + manual |
 | `share-link-access-architect` | Guest/public share-link (bearer-capability) access: opaque expiring revocable tokens, per-link scope, ephemeral guest sessions, optional password/OTP gate, enumeration/abuse defense, audit — the link exposes exactly its resource, never a hole into the tenant. **STANDALONE (D32).** ≠ `authorization-matrix-designer` (member RBAC + impersonation), `api-event-architect` (machine API credentials / webhook signing). | auto + manual |
+
+D44 — Security scanning & orchestration pack (D12.10, the last banked
+capability): the ORCHESTRATION layer the JUDGMENT security skills lacked —
+RUN and AGGREGATE security scans (SAST/DAST/whole-repo) into one report,
+never triaging or fixing. Orchestrate-and-report, human-approves-action:
+finding TRIAGE is yielded to `static-analysis-reviewer` (mandatory in the two
+static skills), DAST authorization to `human-approval-boundary`. Fail-closed
+— a scan that can't run is not a clean scan. Product-agnostic (scanner
+categories, not vendors). All three DESIGN/orchestrate and edit nothing →
+model-invocable:
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `security-scan-orchestrator` | Orchestrates a WHOLE-REPO scan and aggregates it into ONE prioritized report: scan-scope definition, tool-agnostic coordination of the static suite (SAST + dependency/SCA + secret + IaC/config), cross-tool normalization/dedup into one finding schema, severity aggregation, and an explicit coverage/GAP account. RUNS and AGGREGATES; never fixes/PRs/configures. Yields finding TRIAGE to `static-analysis-reviewer`, dependency/provenance judgment to `supply-chain-security-reviewer`. Fail-closed: a scanner that can't run is a GAP, not a clean pass. ≠ `sast-orchestration-designer` (in-batch: the SAST run it aggregates), `dast-safety-harness-designer` (dynamic vs static), `ci-pipeline-architect` (pipeline vs scan contract). | auto + manual |
+| `sast-orchestration-designer` | Designs HOW a SAST suite is RUN: category-level analyzer selection (not a vendor), ruleset/config versioned in-repo, baseline + diff-scanning (gate NEW-since-baseline on PRs vs full scans), incremental-vs-full strategy on the CI latency budget, a GOVERNED false-positive suppression list (rationale/owner/date/review — never silent inline muting), fail-closed CI integration. Designs the RUN that PRODUCES findings; the INTERPRETATION (TP/FP, ranking, suppression VERDICT) is `static-analysis-reviewer`'s (yield). Feeds `security-scan-orchestrator` (in-batch, both ways). ≠ `supply-chain-security-reviewer` (SCA vs SAST). | auto + manual |
+| `dast-safety-harness-designer` | Designs a SAFE dynamic (running-app) DAST harness — the safety harness IS the deliverable: EXPLICIT WRITTEN AUTHORIZATION before any run (scope/target/window/blast-radius recorded — composes `human-approval-boundary`, classified via `change-classification-gate`), staging-only unless prod is explicitly authorized, rate/impact limits + abort condition (no self-DoS), no destructive/state-mutating probes without separate sign-off, data-handling for surfaced secrets/PII, run/result contract. Fail-closed: no authorization → no run. NOT a pen-test playbook; enumerates no exploits (out of scope) — WHAT to test → `threat-modeler`. ≠ `multi-tenant-security-tester` (tenant-isolation testing). | auto + manual |
 
 ## Authoring a new skill
 
