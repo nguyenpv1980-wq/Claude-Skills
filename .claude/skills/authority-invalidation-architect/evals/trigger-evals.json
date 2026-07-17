@@ -1,0 +1,87 @@
+{
+  "skill": "authority-invalidation-architect",
+  "description": "Trigger discrimination for the symptom-layer entry to the 'change didn't take effect' access-bug class (this skill) vs the mechanism owners it composes: cache design (caching-strategy-designer), authorization-matrix authoring and never-worked correctness (authorization-matrix-designer), RLS policy auditing (rls-policy-auditor), live-channel cross-tenant leaks (realtime-subscription-architect), plan design (plan-entitlement-architect), share-link design (share-link-access-architect), credential rotation/custody (secrets-identity-hardener), and the generic unknown-cause method (systematic-debugger). The load-bearing discriminator: did access behave correctly BEFORE a change? Yes and now it doesn't → this skill. It never behaved correctly → correctness owners. No authority shape at all → the generic debugger.",
+  "overlaps_with": [
+    "caching-strategy-designer",
+    "authorization-matrix-designer",
+    "rls-policy-auditor",
+    "realtime-subscription-architect",
+    "plan-entitlement-architect",
+    "share-link-access-architect",
+    "secrets-identity-hardener",
+    "systematic-debugger"
+  ],
+  "cases": [
+    {
+      "id": "symptom-wins-here",
+      "prompt": "We removed a contractor from the workspace last week, but she can still open projects and sees new activity. Permissions worked fine before we removed her — the removal just didn't stick everywhere. Find where her access is still alive and design the fix.",
+      "expected_skill": "authority-invalidation-architect",
+      "should_not_trigger": ["caching-strategy-designer", "authorization-matrix-designer", "rls-policy-auditor", "systematic-debugger"],
+      "note": "SEAM CASE (primary) — the victim speaks pure symptom language and cannot name a mechanism. 'Worked fine before the change' passes the never-worked discriminator, so this is propagation, not correctness; naming no cache keeps caching-strategy-designer out; the domain differential (which surface holds the stale copy) beats the generic debugger.",
+      "reason": "A change that failed to take effect is this skill's owned symptom entry: inventory the surfaces, locate the holder, design invalidation against a revocation-latency bound, verify deny-direction first."
+    },
+    {
+      "id": "revoked-link-symptom-stays-here",
+      "prompt": "I revoked a share link to a customer document, but the link still opens the document. Work out why revoking it didn't take and fix the design.",
+      "expected_skill": "authority-invalidation-architect",
+      "should_not_trigger": ["share-link-access-architect"],
+      "note": "SYMPTOM-vs-DESIGN-TIME SEAM — 'revoked but still works' enters at the symptom layer because the holder is unknown (the link check? a CDN-cached response? a client copy?). The differential locates it, then routes link-token mechanics to share-link-access-architect.",
+      "reason": "The user reports a change that didn't take effect, not a request to design share links. This skill runs the differential across surfaces and composes share-link-access-architect for the link's own revocation check."
+    },
+    {
+      "id": "cache-design-goes-to-caching-strategy-designer",
+      "prompt": "Add a cache in front of our project-list endpoint — decide the layer, the TTLs, the key scheme, and how invalidation should work.",
+      "expected_skill": "caching-strategy-designer",
+      "should_not_trigger": ["authority-invalidation-architect"],
+      "note": "COMPOSE SEAM — cache mechanics (layers, TTLs, keys, invalidation patterns) are caching-strategy-designer's own workflow. This skill only consumes its output as one surface in the inventory.",
+      "reason": "Designing a cache is cause-side work with no failed authority change; caching-strategy-designer owns candidate analysis, envelopes, keys, and invalidation."
+    },
+    {
+      "id": "never-worked-goes-to-authorization-matrix-designer",
+      "prompt": "Since launch, every member of a workspace has been able to change billing settings — we never designed permissions at all. Build the roles and permission matrix and where each check is enforced.",
+      "expected_skill": "authorization-matrix-designer",
+      "should_not_trigger": ["authority-invalidation-architect"],
+      "note": "THE DISCRIMINATOR CASE — there is no before-state in which access behaved correctly, so nothing failed to propagate. Authority that was never wired is correctness/design work, exactly what this skill's Stop Conditions route away.",
+      "reason": "Access that never worked correctly is authorization design (the matrix, enforcement points, negative tests), not a propagation failure."
+    },
+    {
+      "id": "rls-audit-goes-to-rls-policy-auditor",
+      "prompt": "Review the RLS policies on our tenant tables for missing tenant scope and write-side holes, and give us the negative tests proving cross-tenant access is denied.",
+      "expected_skill": "rls-policy-auditor",
+      "should_not_trigger": ["authority-invalidation-architect"],
+      "note": "POLICY-vs-CONTEXT SEAM — policy SQL correctness and its per-command negative tests are rls-policy-auditor. This skill enters only when a correct policy reads a STALE claim/context after an authority change.",
+      "reason": "Auditing and authoring RLS policy text is rls-policy-auditor's owned scope; no authority change has failed to take effect."
+    },
+    {
+      "id": "live-cross-tenant-leak-goes-to-realtime",
+      "prompt": "Our live feed is delivering events from other tenants — anyone who subscribes with a guessed channel name receives another company's updates. Fix the channel authorization design.",
+      "expected_skill": "realtime-subscription-architect",
+      "should_not_trigger": ["authority-invalidation-architect"],
+      "note": "LEAK-vs-STALE SEAM — a subscriber receiving data they were NEVER entitled to is a cross-tenant authorization leak (client-named channels, subscribe-time checks), not a formerly-entitled principal retaining access after a change.",
+      "reason": "Channel-model and subscribe-time authorization design is realtime-subscription-architect; this skill composes only its mid-connection teardown for removed principals."
+    },
+    {
+      "id": "plan-design-goes-to-plan-entitlement-architect",
+      "prompt": "Design our Free, Pro, and Enterprise plans — which features each includes, the usage quotas, and what happens on downgrade when a tenant is over the new limit.",
+      "expected_skill": "plan-entitlement-architect",
+      "should_not_trigger": ["authority-invalidation-architect"],
+      "reason": "Defining plans, entitlements, metering, and transition behavior is plan-entitlement-architect's matrix work; nothing here is a plan change that failed to show up."
+    },
+    {
+      "id": "leaked-credential-goes-to-secrets-identity-hardener",
+      "prompt": "We found our service key committed to the repo. Rotate it, move our secrets out of source, and fix which env vars reach the client bundle.",
+      "expected_skill": "secrets-identity-hardener",
+      "should_not_trigger": ["authority-invalidation-architect"],
+      "note": "CUSTODY SEAM — credential custody, rotation, and bundle exposure are secrets-identity-hardener (manual-only). This skill hands it named session/token controls; it does not perform custody work from a symptom.",
+      "reason": "A leaked credential needs rotation and custody remediation, not a stale-authority differential."
+    },
+    {
+      "id": "generic-unknown-cause-goes-to-systematic-debugger",
+      "prompt": "Our nightly export job intermittently produces wrong totals and nobody knows why. Get to the root cause.",
+      "expected_skill": "systematic-debugger",
+      "should_not_trigger": ["authority-invalidation-architect"],
+      "note": "METHOD-vs-DIFFERENTIAL SEAM — an unknown-cause failure with no authority-change shape (nobody was removed, revoked, logged out, downgraded, or deleted) belongs to the generic reproduce→isolate method, not this symptom family's domain map.",
+      "reason": "systematic-debugger owns unknown-cause bugs in general; this skill is the domain differential only for access changes that failed to propagate."
+    }
+  ]
+}

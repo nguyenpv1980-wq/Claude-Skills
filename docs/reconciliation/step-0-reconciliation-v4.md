@@ -1920,6 +1920,101 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     markers unchanged at 182/21). To be checked by `skill-quality-reviewer` for
     the decide-vs-map seam and the brands-as-examples framing.
 
+- **D46 (2026-07-18) — Built `authority-invalidation-architect` (182→183), the
+  symptom-triggered owner of the "change didn't take effect" access-bug class:
+  a removed user still sees the data, a revoked role still works, logout
+  doesn't end the session, a plan change still shows the old tier, a deleted
+  item stays visible.**
+  - **The gap (from the read-only D46 discovery, independently run twice —
+    2026-07-17 and re-verified from scratch 2026-07-18, same verdict).** The
+    MECHANISM existed as fragments across ≥8 skills — but every fragment is
+    design-time, cause-vocabulary, or manual-only, and **no skill triggered on
+    the symptom as the victim experiences it** (zero trigger-surface hits
+    corpus-wide for "still has access" / "removed but still sees" / "didn't
+    propagate"-class language). Three content blocks existed NOWHERE: (1)
+    JWT/token-claims staleness — "JWT" appeared in exactly one skill
+    (`rls-policy-auditor`, as trusted context source) and
+    session-version/epoch/token-denylist had zero auth-context hits; (2)
+    client-side state/data-cache purge on authority-change and logout (zero
+    client-data-cache vocabulary corpus-wide); (3) the cross-surface verify
+    battery for the CHANGED principal (`multi-tenant-security-tester` has no
+    formerly-authorized actor class; the corpus DEMANDS the property three
+    times — `authorization-matrix-designer`'s "state the mechanism",
+    realtime's teardown, a `tenant-isolation-reviewer` reference probe — and
+    designs it nowhere). Outcome A (widen existing descriptions) was rejected
+    on measured arithmetic — the four candidates sit at 999/970/956/946 chars
+    against the 1024 cap — and because N skills widened onto one symptom
+    creates N-way routing ambiguity on exactly the attribution the victim
+    lacks; Outcome C (adequately covered) was rejected because for the
+    README's non-developer audience a fix reachable only through cause
+    vocabulary is not coverage.
+  - **What.** ONE skill owning the lifecycle CHANGE → PROPAGATE → VERIFY:
+    classify the change and direction (deny first — revoked access must
+    actually revoke; the removed user reports nothing, which is why the bug
+    survives), inventory the eleven surfaces where old authority survives
+    (per-surface map in `references/stale-authority-surface-map.md`: server
+    sessions, JWT/token claims, client stores/data caches, shared HTTP/CDN
+    caches, in-process/distributed caches, DB session context, realtime
+    subscriptions, share links, entitlement resolution, search indexes,
+    signed URLs), locate the holder by diagnostic tell ("works in incognito"
+    → client copy; "fixes at a fixed interval" → token TTL), state an
+    owner-confirmed revocation-latency bound (the sibling of
+    caching-strategy-designer's consistency envelope, applied to authority),
+    design invalidation per surface — OWNED: the token-policy menu
+    (short-TTL+refresh vs session-version/epoch vs denylist, tradeoffs and
+    resulting latency stated; a stateless token's revocation latency IS its
+    access TTL unless a server-side check exists), server-session
+    invalidation (replay rejected; clearing the client is presentation, not
+    revocation), and client-state purge on logout AND authority-change
+    (incl. the next-user-on-shared-device leak) — and verify with the
+    deny-direction-first cross-surface battery for the CHANGED principal
+    (not a fresh test user), grant direction and positive control included.
+  - **The hard seam — compose, never restate (the D38 `project-orchestrator`
+    pattern).** Cache mechanics stay with `caching-strategy-designer` — its
+    authorization-caching Safety Rule is CITED as governing, never restated
+    or re-approved; mid-connection re-auth/teardown with
+    `realtime-subscription-architect`; plan resolution + webhook-lag with
+    `plan-entitlement-architect`; link revocation with
+    `share-link-access-architect`; RLS policy SQL with `rls-policy-auditor`
+    (the new skill owns the FRESHNESS of the context feeding policies, plus
+    pool reset); custody implementation with `secrets-identity-hardener`
+    (manual-only — the new skill produces the named control it requires);
+    the generic unknown-cause method with `systematic-debugger` (the new
+    skill is the domain differential). Never-worked access routes to the
+    correctness owners via the load-bearing discriminator *"did it behave
+    correctly before the change?"* — pinned in Use When, Stop Conditions,
+    and a trigger-eval. Per the discovery's anti-double-routing rule, NO
+    existing skill's description was widened — the new skill is the single
+    symptom-layer entry; the mechanism skills keep their cause-language
+    triggers.
+  - **Posture.** Design/diagnosis only — edits nothing, executes nothing
+    against live systems → model-invocable (no `disable-model-invocation`).
+    Stop Conditions: live purge/session-kill execution follows the ops
+    approval path (`human-approval-boundary`); a proposed authz-result cache
+    is never green-lit from here; an active cross-tenant leak routes to the
+    isolation path immediately. Ships both eval files (evals + trigger-evals
+    discriminating against 8 neighbors).
+  - **Registration (D43 enforcement).** Catalog D46 section (+ intro
+    narrative), README Skills-(shipped) D46 table, a NEW roster family 22
+    (Authority invalidation & propagation, D46, 1), phase-plan D46 row,
+    count bumps README `SKILL-COUNT` 182→183 and `FAMILY-COUNT` 21→22 (+ the
+    human-readable prose across About/roles/map/getting-started, and the
+    D1–D45→D1–D46 decisions range). Roles table: NEW row "an
+    access-revocation and stale-authority specialist" (CONTRIBUTING 3e
+    judgment, D42-row precedent: a genuinely new user-facing capability the
+    table did not name — and the discovery's core finding was precisely this
+    symptom's undiscoverability for the README's non-developer audience).
+  - **Product-agnostic.** Brands appear only as house-style e.g. examples
+    inside durable categories: "managed-auth platforms (e.g. Supabase,
+    Firebase)" — Supabase named only alongside a peer, consistent with the
+    D45 sweep rule and the existing `rls-policy-auditor` reference — and
+    "query/data-cache libraries (e.g. React Query, SWR, Apollo)"
+    (`secrets-identity-hardener`'s VITE_/NEXT_PUBLIC_ precedent). No private
+    project names, paths, or URLs.
+  - Validator: **183 skills, exit 0**; description 1021 chars (< 1024). To
+    be checked by `skill-quality-reviewer` + `library-diff-reviewer` for the
+    compose-vs-restate seam.
+
 ---
 
 ## 6. Post-merge corrections

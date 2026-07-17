@@ -62,12 +62,19 @@ checks that every *implemented* skill is listed here and in `README.md`.
 > `model-context-designer`, `agentic-loop-designer`, plus an extension of
 > `structured-output-validator`), the DESIGN skills for the AI's own operating
 > environment (harness, context, loop) that PRODUCE what the agentic-security
-> clusters REVIEW (176→179). Most recently the **D44** build shipped the
+> clusters REVIEW (176→179). The **D44** build shipped the
 > **D12.10 Security scanning & orchestration pack** (`security-scan-orchestrator`,
 > `sast-orchestration-designer`, `dast-safety-harness-designer`) — the last
 > banked capability, the ORCHESTRATION layer that RUNS and AGGREGATES security
-> scans while yielding finding TRIAGE to the judgment skills (179→182) —
-> bringing the library to its current **182 skills**.
+> scans while yielding finding TRIAGE to the judgment skills (179→182); **D45**
+> then extended `cloud-architecture-decider` with the full deployment
+> abstraction ladder (rung × provider × posture; no count change). Most
+> recently the **D46** build shipped `authority-invalidation-architect` — the
+> symptom-triggered owner of the "change didn't take effect" access-bug class
+> (a removed user still sees data, a revoked role still works, logout doesn't
+> end the session), composing the per-surface mechanism owners rather than
+> restating them (182→183) — bringing the library to its current **183
+> skills**.
 > `_template` remains a reference template ignored by the validator.
 > Everything under "Backlog" is planned, not built.
 
@@ -962,6 +969,36 @@ seam is pinned both ways. All three DESIGN/orchestrate (no autonomous action) �
 | `security-scan-orchestrator` | reconciliation §3 D12.10 (D27) | yes | Orchestrate a WHOLE-REPO scan and aggregate it into ONE prioritized report: scan-scope definition, tool-agnostic coordination of the static suite (SAST + dependency/SCA + secret + IaC/config), normalization + cross-tool dedup into one finding schema, severity aggregation onto one scale, and an explicit coverage/GAP account. RUNS and AGGREGATES; never fixes/PRs/configures — every action is the human's. Yields finding TRIAGE to `static-analysis-reviewer` and dependency/provenance JUDGMENT to `supply-chain-security-reviewer` (orchestrates the dep-scan RUN, not the judgment). Fail-closed: a scanner that can't run is a GAP, not a clean pass. ≠ `sast-orchestration-designer` (in-batch: the SAST run it aggregates), `dast-safety-harness-designer` (dynamic vs static), `ci-pipeline-architect` (pipeline vs scan contract). |
 | `sast-orchestration-designer` | reconciliation §3 D12.10 (D27) | yes | Design HOW a SAST suite is RUN: category-level analyzer selection (not a vendor), ruleset/config versioned in-repo, baseline + diff-scanning (gate NEW-since-baseline on PRs vs full scans on a cadence), incremental-vs-full strategy on the CI latency budget, a GOVERNED false-positive suppression list (rationale/owner/date/review — never silent inline muting), and fail-closed CI integration. Designs the RUN that PRODUCES findings; the INTERPRETATION (TP/FP, ranking, the suppression VERDICT) is `static-analysis-reviewer`'s (yield). Feeds `security-scan-orchestrator` (in-batch, both ways). ≠ `supply-chain-security-reviewer` (SCA vs SAST). |
 | `dast-safety-harness-designer` | reconciliation §3 D12.10 (D27) | yes | Design a SAFE dynamic (running-app) DAST harness — the safety harness IS the deliverable: EXPLICIT WRITTEN AUTHORIZATION before any run (scope/target/window/blast-radius recorded — composes `human-approval-boundary`, classified via `change-classification-gate`), staging-only unless prod is explicitly authorized, rate/impact limits with an abort condition (no self-DoS), no destructive/state-mutating probes without separate sign-off, data-handling for surfaced secrets/PII, and the run/result contract. Fail-closed: no authorization → no run. NOT a pen-test playbook and enumerates no exploits (out of scope); WHAT to test → `threat-modeler`. ≠ `multi-tenant-security-tester` (tenant-isolation testing). |
+
+### Skills (D46 — Authority invalidation & propagation)
+
+The 1-skill D46 build (reconciliation §5 D46; built 2026-07-18 from a
+twice-independently-verified read-only discovery) — the symptom-layer owner
+of the "change didn't take effect" access-bug class. The discovery's finding:
+the MECHANISM existed as islands across ≥8 skills, but no skill triggered on
+the symptom as the victim experiences it ("I removed her but she can still
+see everything" — zero trigger-surface hits corpus-wide), and three content
+blocks existed nowhere: JWT/token-claims staleness (short-TTL+refresh vs
+session-version/epoch vs denylist, with the stateless-token latency truth),
+client-side state/data-cache purge (on authority-change AND logout, incl.
+the next-user-on-shared-device leak), and the cross-surface verify battery
+for the CHANGED principal (the app-layer testers only probe cross-tenant,
+never the formerly-authorized actor). The hard seam: **compose, never
+restate** (the D38 `project-orchestrator` pattern) — cache mechanics stay
+with `caching-strategy-designer` (its authorization-caching Safety Rule is
+cited, never re-approved), mid-connection teardown with
+`realtime-subscription-architect`, plan resolution with
+`plan-entitlement-architect`, link revocation with
+`share-link-access-architect`, policy SQL with `rls-policy-auditor`, custody
+implementation with `secrets-identity-hardener` (manual-only), the generic
+method with `systematic-debugger`; never-worked access routes to the
+correctness owners via the discriminator *"did it behave correctly before
+the change?"*. Design/diagnosis only, edits nothing and executes no purges
+→ **model-invocable**; ships both eval files.
+
+| Skill | Source (D46) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `authority-invalidation-architect` | reconciliation §5 D46 (stale-authority discovery, independently verified twice) | yes | The "change didn't take effect" access-bug class: a removed user still sees data, a revoked role still works, logout doesn't end the session, a plan change shows the old tier, a deleted item stays visible. CHANGE → PROPAGATE → VERIFY: classify the change (deny direction first), inventory the eleven surfaces where old authority survives (server sessions, JWT/token claims, client stores/data caches, server/CDN caches, DB session context, realtime subscriptions, share links, entitlements, search indexes, signed URLs), locate the holder by its diagnostic tell ("works in incognito" → client copy; "fixes at a fixed interval" → token TTL), state an owner-confirmed revocation-latency bound, design invalidation per surface (owned: token policy, server-session invalidation, client purge; composed: the mechanism owners), and verify with the deny-direction-first battery for the CHANGED principal. ≠ `caching-strategy-designer` (designing a cache), `authorization-matrix-designer` (the matrix; never-worked access), `rls-policy-auditor` (policy SQL), `realtime-subscription-architect` (cross-tenant channel leaks), `systematic-debugger` (no authority-change shape). |
 
 ---
 
