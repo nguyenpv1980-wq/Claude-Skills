@@ -2129,7 +2129,6 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     identically before the mass edit) + a HARD strict-YAML parse check in
     `validate-skills.py` so the corpus stays portable (touches the
     validator → gate-guard will fire → D43-style admin-merge expected).
-    **BUILT as D50 (below).**
   - Validator: **184 skills, exit 0** (skill-EDIT + docs; D43 count/family
     markers unchanged at 184/22).
 
@@ -2159,6 +2158,10 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     precedent.
   - Validator: **184 skills, exit 0** (D43 count/family markers unchanged
     at 184/22).
+  - Post-review hardening (same PR): sentinel check made bidirectional +
+    block-scalar descriptions rejected (both proven able to fail); PyYAML
+    install documented for local runs; the retroactive D49 annotation
+    reverted to keep §5 append-only. Source: Codex-review P2s on PR #59.
 
 ---
 

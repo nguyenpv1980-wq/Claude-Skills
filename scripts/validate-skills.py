@@ -7,6 +7,11 @@ Checks performed per skill (see docs/skill-generation-standard.md):
     HARD: lenient in-house parsing let 67 descriptions ship that strict
     Agent-Skills consumers such as Codex CLI silently DROP; see the
     "Portability contract" in docs/skill-generation-standard.md).
+  * the raw `description:` line must not open a YAML block scalar (`>`/`|`)
+    (D50 follow-up per PR #59 review — check_description_not_block_scalar,
+    HARD: spec-strict parsers ACCEPT block scalars, but the Portability
+    contract forbids them because consumers differ on folding/chomping, so
+    this is checked on the RAW line BEFORE the parse).
   * frontmatter `name` exactly equals the skill's directory name.
   * frontmatter `description` present, non-empty, and < 1024 characters
     measured on the strict-PARSED value — quoting characters and doubled
@@ -16,7 +21,10 @@ Checks performed per skill (see docs/skill-generation-standard.md):
     32-char sentinel "MANUAL-ONLY; never auto-invoke. " as the FIRST 32
     characters of the parsed description (decision D50 —
     check_manual_only_sentinel, HARD: strict consumers ignore the field and
-    surface only the description front at selection time, per D49).
+    surface only the description front at selection time, per D49). The
+    check is BIDIRECTIONAL (D50 follow-up per PR #59 review): a description
+    that LEADS with the sentinel but lacks the field also fails — Claude
+    Code itself would auto-invoke a skill whose text forbids it.
   * no BROAD `allowed-tools` grant (e.g. "*", "all", bare "Bash").
   * SKILL.md body is < 500 lines.
   * all nine required sections present (v4 standard): Purpose, Use When,
@@ -113,6 +121,11 @@ BROAD_TOOL_TOKENS = {"*", "all", "any", "bash"}
 # parsed description value is the sentinel's only guaranteed-visible position.
 MANUAL_ONLY_SENTINEL = "MANUAL-ONLY; never auto-invoke. "
 
+# A raw frontmatter `description:` line whose value opens a YAML block scalar
+# (`>` folded / `|` literal, with or without chomping/indentation indicators).
+# A quoted scalar can never match: its first value character is a quote.
+BLOCK_SCALAR_DESC_RE = re.compile(r"^description:\s*([>|])", re.MULTILINE)
+
 
 def split_frontmatter(text: str):
     """Return (frontmatter_text, body_str) or (None, text) if no ----fenced block."""
@@ -129,6 +142,26 @@ def split_frontmatter(text: str):
     if end is None:
         return None, text
     return "\n".join(lines[1:end]), "\n".join(lines[end + 1 :])
+
+
+def check_description_not_block_scalar(fm_text: str, name_ctx: str, rep: Report) -> None:
+    """Decision D50 follow-up (HARD; Codex-review P2 on PR #59): the raw
+    `description:` line must not open a YAML block scalar. The Portability
+    contract says "One physical line. No block scalars (`>`, `|`)" because
+    consumers differ on folding/chomping behavior — but a spec-strict parser
+    happily ACCEPTS a block scalar and returns an ordinary string, so the
+    parsed-value checks alone cannot catch one. This runs on the RAW
+    frontmatter text, BEFORE the parse.
+    """
+    m = BLOCK_SCALAR_DESC_RE.search(fm_text)
+    if m:
+        rep.error(
+            f"[{name_ctx}] `description:` opens a YAML block scalar "
+            f"('{m.group(1)}') — forbidden by the Portability contract in "
+            "docs/skill-generation-standard.md (consumers differ on "
+            "folding/chomping); write the description as ONE single-quoted "
+            "line ('' doubles an internal apostrophe)"
+        )
 
 
 def check_frontmatter_strict_yaml(fm_text: str, name_ctx: str, rep: Report):
@@ -160,20 +193,34 @@ def check_frontmatter_strict_yaml(fm_text: str, name_ctx: str, rep: Report):
 
 
 def check_manual_only_sentinel(name_ctx: str, fm: dict, desc, rep: Report) -> None:
-    """Decision D50 (HARD): every manual-only skill carries the exact sentinel
-    as the first 32 characters of its parsed description, so consumers that
+    """Decision D50 (HARD, BIDIRECTIONAL): the `disable-model-invocation`
+    field and the sentinel front of the parsed description must agree.
+
+    field -> sentinel: every manual-only skill carries the exact sentinel as
+    the first 32 characters of its parsed description, so consumers that
     ignore `disable-model-invocation` (D49: Codex CLI) still surface the
     safety contract in the only position they are guaranteed to show.
+
+    sentinel -> field (D50 follow-up per PR #59 review): a description that
+    claims MANUAL-ONLY without the field set is worse than either alone —
+    Claude Code enforces the FIELD, so it would auto-invoke a skill whose
+    own text forbids it.
     """
     dmi = fm.get("disable-model-invocation")
-    if not (dmi is True or str(dmi).strip().lower() == "true"):
-        return
-    if not isinstance(desc, str) or not desc.startswith(MANUAL_ONLY_SENTINEL):
+    is_manual = dmi is True or str(dmi).strip().lower() == "true"
+    has_sentinel = isinstance(desc, str) and desc.startswith(MANUAL_ONLY_SENTINEL)
+    if is_manual and not has_sentinel:
         rep.error(
             f"[{name_ctx}] disable-model-invocation is true but the parsed "
             f"description does not START with the exact sentinel "
             f"{MANUAL_ONLY_SENTINEL!r} (32 chars incl. trailing space) — "
             "strict consumers ignore the field and see only the description front"
+        )
+    elif has_sentinel and not is_manual:
+        rep.error(
+            f"[{name_ctx}] description claims MANUAL-ONLY (starts with the "
+            f"exact 32-char sentinel) but disable-model-invocation is not set "
+            "— Claude Code would auto-invoke a skill whose text forbids it"
         )
 
 
@@ -228,6 +275,11 @@ def validate_skill(skill_dir: Path, rep: Report) -> str | None:
     if fm_text is None:
         rep.error(f"[{name_ctx}] SKILL.md has no parseable frontmatter block")
         return None
+
+    # Decision D50 follow-up (PR #59 review): raw-line check BEFORE the parse
+    # — a spec-strict parser ACCEPTS the block-scalar descriptions the
+    # Portability contract forbids, so the parsed values cannot reveal them.
+    check_description_not_block_scalar(fm_text, name_ctx, rep)
 
     # Decision D50: the frontmatter must strict-parse, and every field check
     # below runs on the strictly PARSED values — exactly what external

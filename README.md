@@ -1149,6 +1149,13 @@ and document the irreversible step under **Stop Conditions**.
 
 ## Validation
 
+One-time setup: the strict frontmatter parse (D50) requires PyYAML — the validator fails
+closed without it (CI installs it automatically):
+
+```bash
+python -m pip install pyyaml
+```
+
 Run from the repo root:
 
 ```bash

@@ -56,7 +56,9 @@ own proven practice, including failures it absorbed during its own construction.
    neighbor session's work or pushing to the wrong branch.
 
 8. **The validator is the structural gate.** `python scripts/validate-skills.py` must pass
-   (**exit 0**) before any PR. Skills that do not register in the
+   (**exit 0**) before any PR. One-time local setup: `python -m pip install pyyaml` — the
+   strict frontmatter parse (D50) requires it, and the validator fails closed without it
+   (CI installs it automatically). Skills that do not register in the
    catalog and README fail validation.
    *Why:* the validator is the one automated check that the library's structure is intact; a
    red validator means the change is not shippable, full stop.
