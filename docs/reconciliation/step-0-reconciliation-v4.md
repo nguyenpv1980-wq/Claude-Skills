@@ -2015,6 +2015,36 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     be checked by `skill-quality-reviewer` + `library-diff-reviewer` for the
     compose-vs-restate seam.
 
+- **D47 (2026-07-18) — Built `superadmin-observability-console-designer`
+  (183→184) — designs the cross-tenant superadmin OBSERVABILITY console
+  (panel taxonomy + layered IA with restraint; the cross-tenant
+  READ-security model: dedicated deny-all-RLS platform-admin registry, no
+  self-service grant, three-layer server-side re-check,
+  read-only-by-default with privileged-write-only telemetry,
+  denied-access-as-metric, break-glass CONTENT-reveal; the server-shaped
+  read model; honest-gap typing; the DB/query-perf panel spec;
+  posture-as-verification-results + the DB self-monitoring caveat).**
+  - Fills a genuinely UNOWNED gap (`admin-console-architect` punts telemetry
+    → `observability-operator` operates backends → nobody designed the
+    console; the three-way pointer had no owner). COMPOSES ~12 feed/adjacent
+    skills rather than restating them.
+  - Three seams: SEEING-vs-ACTING (`admin-console-architect` owns
+    actions/elevation; this owns the read console + content-reveal
+    break-glass), DESIGN-vs-OPERATE (`observability-operator`),
+    CONSOLE-vs-FEED (slo / audit / security-logging / synthetic / metering /
+    authz owners).
+  - Grounded in a read-only discovery mining THREE real production
+    implementations that independently converged on the read-security core;
+    product-agnostic.
+  - Roster: joins family 18 (SaaS architecture depth — strong cluster,
+    D31, 10→11 — beside its acting-surface sibling
+    `admin-console-architect`) rather than opening a second 1-skill family;
+    FAMILY-COUNT stays 22. New roles-table row ("a superadmin console and
+    platform-observability designer"). Count markers 183→184. No doctrine
+    change.
+  - To be checked by `skill-quality-reviewer` + `library-diff-reviewer` for
+    the three seams.
+
 ---
 
 ## 6. Post-merge corrections

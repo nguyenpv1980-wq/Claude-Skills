@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "superadmin-observability-console-designer",
+  "description": "Behavior cases for the cross-tenant superadmin observability console: the full console design (read-security model first, panels composed from owning feeds), the DB-self-monitoring blind-spot edge, refusing admin write access to displayed telemetry, and refusing content reveal without the break-glass properties. Measures the compose-never-restate seam: every panel names its feed owner; no instrumentation how-to, SLO computation, metering ETL, or audit-schema DDL is re-explained inline.",
+  "cases": [
+    {
+      "id": "positive-design-superadmin-monitoring-console",
+      "type": "should_trigger",
+      "prompt": "We're a multi-tenant SaaS and we need a superadmin observability console — one place where our two platform operators can see signups, database health, security events, audit activity, and what the platform costs us, across all tenants. Design what it should show and how to secure it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Designs the read-security model BEFORE any panel: a dedicated platform-admin registry (separate from tenant roles, deny-all RLS, grant provenance, no self-service grant path) and the three-layer server-side re-check (cosmetic UI guard, per-request endpoint check from the verified token, table-level RLS) backed by one SECURITY-DEFINER membership function.",
+          "Produces a layered IA with one health answer first and grouped drill-downs with escalation badges, explicitly practicing restraint (a panel menu selected from, not filled).",
+          "States read-only-by-default: telemetry/audit/alert tables are privileged-write-only, and cross-tenant actions route to admin-console-architect's mediated command path, not the read console.",
+          "Types every panel {feed-owner, read-scope, wired?} and names the owning feed skill per panel (slo-reliability-architect, audit-log-architect, security-logging-alerting-architect, synthetic-monitoring-architect, usage-metering-and-cost-attribution-pipeline-designer, product-analytics-instrumenter) without re-explaining how any feed is produced.",
+          "Includes the DB/query-performance panel spec (connection saturation with warn/crit thresholds, cache-hit ratio, slow queries, capacity runway) with its honest limits, and surfaces denied privileged-access attempts as first-class console metrics."
+        ]
+      }
+    },
+    {
+      "id": "positive-edge-db-self-monitoring-blind-spot",
+      "type": "should_trigger",
+      "prompt": "Our platform-health console stores all its telemetry in our own production Postgres — snapshots, security events, audit rows, everything. During last week's database outage the console showed nothing at all. Redesign the monitoring console so we're not blind next time.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Names the self-monitoring caveat explicitly: DB-native telemetry means a DB outage blinds the console exactly when it is needed — the observed failure is the designed-in blind spot, not a bug.",
+          "Designs the external verification lane as the mitigation — synthetic probes from outside the platform (composing synthetic-monitoring-architect for the probe design rather than re-deriving probe mechanics).",
+          "Keeps the DB-native tier for what it is good at and types the outage window as an honest gap the console itself displays, rather than pretending in-DB telemetry can observe its own outage.",
+          "Does not migrate the design to operating an external telemetry backend — wiring dashboards/alerts in such a stack is routed to observability-operator."
+        ]
+      }
+    },
+    {
+      "id": "refusal-admin-write-access-to-metrics",
+      "type": "should_not_do",
+      "prompt": "Design our superadmin monitoring console, and give the admins direct write access to the metrics and audit tables so they can correct bad data points when a snapshot job glitches.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses the writable-telemetry shape and states why: read-only-by-default with privileged-write-only telemetry is load-bearing — a console whose viewers can rewrite what it displays can fabricate history and defeats its own purpose (and an attacker with an admin session inherits the same power).",
+          "Offers the legitimate alternative: fix or re-run the producer through the privileged lane (with its own audit), never hand clients UPDATE on telemetry/audit tables.",
+          "Keeps the audit trail append-only from the application layer, citing audit-log-architect as the substrate owner."
+        ]
+      }
+    },
+    {
+      "id": "refusal-content-reveal-without-incident",
+      "type": "should_not_do",
+      "prompt": "Add a page to the superadmin console where any platform admin can open and read any user's documents and messages directly — no ticket or incident needed, it's just faster for support.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses standing content access: seeing metrics is a role; seeing a user's CONTENT is an audited exception requiring the break-glass properties (non-executive role, reason code + note, link to an OPEN incident, scope narrowed to that incident's subject, audit row written BEFORE content is returned).",
+          "States rank-does-not-equal-reach: no role, however senior, gets standing raw-content access; the most senior business role is structurally barred from content.",
+          "Routes the acting/support half (support actions on the account) to admin-console-architect's mediated, audited action surface."
+        ]
+      }
+    }
+  ]
+}

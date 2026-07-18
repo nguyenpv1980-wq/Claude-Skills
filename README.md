@@ -81,7 +81,7 @@ front door (175→176). **D42** built the **CONSTRAIN/CURATE design pack** —
 `agent-harness-architect`, `model-context-designer`, and `agentic-loop-designer`, plus an
 extension of `structured-output-validator` — making the doctrine's D41 inward-facing pillars
 real: the DESIGN skills for the AI's own operating environment (harness, context, loop) that
-produce what the agentic-security clusters review (176→179). Most recently, **D44** built the **Security scanning & orchestration pack** (D12.10, the last banked capability) — `security-scan-orchestrator`, `sast-orchestration-designer`, and `dast-safety-harness-designer` — the ORCHESTRATION layer that runs and aggregates security scans (SAST/DAST/whole-repo) and yields finding TRIAGE to the judgment skills (179→182). **D45** extended `cloud-architecture-decider` with the full deployment abstraction ladder — rung × provider × posture, adding the modern managed-platform tier and GCP — with no count change. Most recently, **D46** built `authority-invalidation-architect` — the symptom-triggered owner of the "change didn't take effect" access-bug class (a removed user still sees data, a revoked role still works, logout doesn't end the session), composing the per-surface mechanism owners rather than restating them — bringing it to **183 skills** (182→183).
+produce what the agentic-security clusters review (176→179). Most recently, **D44** built the **Security scanning & orchestration pack** (D12.10, the last banked capability) — `security-scan-orchestrator`, `sast-orchestration-designer`, and `dast-safety-harness-designer` — the ORCHESTRATION layer that runs and aggregates security scans (SAST/DAST/whole-repo) and yields finding TRIAGE to the judgment skills (179→182). **D45** extended `cloud-architecture-decider` with the full deployment abstraction ladder — rung × provider × posture, adding the modern managed-platform tier and GCP — with no count change. **D46** built `authority-invalidation-architect` — the symptom-triggered owner of the "change didn't take effect" access-bug class (a removed user still sees data, a revoked role still works, logout doesn't end the session), composing the per-surface mechanism owners rather than restating them (182→183). Most recently, **D47** built `superadmin-observability-console-designer` — the cross-tenant superadmin MONITORING-console design owner, closing the three-way pointer hole (`admin-console-architect` punts telemetry to `observability-operator`, which operates backends rather than designing consoles): the layered panel IA plus the cross-tenant read-security model, composing the ~12 feed owners rather than restating them — bringing it to **184 skills** (183→184).
 
 Full per-pack detail lives in [Skills (shipped)](#skills-shipped) below; for a quick map of
 what *kinds* of help the library offers, see [What's in the library](#whats-in-the-library).
@@ -108,7 +108,7 @@ library's own additions, and its sweep corrections were applied in D33.
 
 ## The roles Aegis can play
 
-Under the hood, Aegis is a library of 183 skills organized into 22 discipline families. In
+Under the hood, Aegis is a library of 184 skills organized into 22 discipline families. In
 practical terms, Aegis can make Claude act as:
 
 | Aegis can act as… | What that means for you | Example skills |
@@ -131,6 +131,7 @@ practical terms, Aegis can make Claude act as:
 | **a full-codebase auditor** | Reads an entire codebase and reports its real health, risks, and technical debt. | `full-codebase-auditor`, `principal-code-analyst` |
 | **a senior production troubleshooter** | When something breaks, drives from symptom to root cause instead of guessing. | `systematic-debugger`, `incident-response-runbook` |
 | **an access-revocation and stale-authority specialist** | When removing someone or revoking access doesn't fully stick — they still see data, stay signed in, or keep the old plan — finds every place the old access survives, designs the fix, and proves the change took effect. | `authority-invalidation-architect` |
+| **a superadmin console and platform-observability designer** | Designs the internal console operators use to watch the whole platform — signups, database health, security posture, cost — and secures that all-seeing view so it can never defeat customer isolation. | `superadmin-observability-console-designer`, `admin-console-architect` |
 
 You never have to pick from this list yourself — Aegis selects and coordinates the right role
 for each step. Not a developer? See [From idea to shipped: the no-experience
@@ -305,7 +306,7 @@ pick whichever matches how you work. The current full list is at
    claude
    ```
 
-3. That's the whole setup. Claude Code auto-discovers everything under `.claude/` — the 183
+3. That's the whole setup. Claude Code auto-discovers everything under `.claude/` — the 184
    skills and 7 subagents load automatically. There is no registration step.
 4. **How you invoke a skill** — skills are trigger-invoked, not slash-commanded. You invoke
    one by *describing a task that matches its trigger*, or by *naming it*. Two literal
@@ -447,7 +448,7 @@ entry in the reconciliation doc.
 
 ## Map of the system
 
-- **Skills** ([`.claude/skills/`](.claude/skills/)) — the 183 shipped procedures: 22
+- **Skills** ([`.claude/skills/`](.claude/skills/)) — the 184 shipped procedures: 22
   discipline families, fronted by `project-orchestrator`, the beginner-facing router that
   walks a non-developer through them from idea to shipped. See **[What's in the
   library](#whats-in-the-library)** below for the roster (each family, its purpose, and
@@ -469,7 +470,7 @@ entry in the reconciliation doc.
 
 ## What's in the library
 
-**Skill roles at a glance.** The <!-- SKILL-COUNT -->183<!-- /SKILL-COUNT --> skills sit in **<!-- FAMILY-COUNT -->22<!-- /FAMILY-COUNT --> discipline families** (each a shipped
+**Skill roles at a glance.** The <!-- SKILL-COUNT -->184<!-- /SKILL-COUNT --> skills sit in **<!-- FAMILY-COUNT -->22<!-- /FAMILY-COUNT --> discipline families** (each a shipped
 build batch), fronted by one beginner-facing orchestrator. This is the scannable map of what
 *kinds* of help exist; the full per-skill tables are in [Skills (shipped)](#skills-shipped) below.
 
@@ -555,11 +556,13 @@ keeps a human as the approval gate on anything irreversible. See
 17. **OWASP web-app gap closure** *(D28, 2)* — the two web-app categories that previously had no
     owner: security logging/alerting design (A09) and error-path security review (A10). *e.g.*
     `security-logging-alerting-architect`, `error-handling-security-reviewer`.
-18. **SaaS architecture depth — strong cluster** *(D31, 10)* — deep multi-tenant surfaces: the
+18. **SaaS architecture depth — strong cluster** *(D31, 11)* — deep multi-tenant surfaces: the
     command gateway, realtime, background jobs, horizontal scaling, search, file storage, usage
-    metering, synthetic monitoring, offline-first, admin console. *e.g.*
+    metering, synthetic monitoring, offline-first, the admin console (the acting surface), and
+    the superadmin observability console (the seeing surface, added by D47). *e.g.*
     `command-gateway-architect`, `realtime-subscription-architect`,
-    `background-job-orchestration-architect`, `admin-console-architect`.
+    `background-job-orchestration-architect`, `admin-console-architect`,
+    `superadmin-observability-console-designer`.
 19. **SaaS architecture depth — low-priority set** *(D32, 4)* — the scale-stage partitioning
     surfaces: cell-based architecture, OLTP sharding, a below-tenant scope axis, and guest
     share-link access. *e.g.* `cell-based-architecture-designer`,
@@ -631,6 +634,7 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | D42 | CONSTRAIN/CURATE design pack (3 new + 1 extension = `agent-harness-architect`, `model-context-designer`, `agentic-loop-designer` + `structured-output-validator` extended with type-level policy encoding and the parse → strict schema → policy/banned-content scan ladder), 176→179. Makes the doctrine's D41 inward-facing pillars real: the DESIGN skills for harness/context/loop engineering. Hard seam: **design-not-review** — each yields the attack review explicitly (harness → `prompt-injection-defender`/`agent-tool-safety-guard`/`agent-containment-reviewer`; context → `memory-context-poisoning-reviewer`; loop → `agent-goal-hijack-defender`/`ai-threat-modeler`); in-batch harness ↔ loop seam pinned both ways. Threads *"a verifier that cannot fail is theater with an exit code."* Generalized from the D40 read-only production audit. | P1 | ✅ shipped (D42) |
 | D44 | Security scanning & orchestration pack (D12.10, 3 = `security-scan-orchestrator`, `sast-orchestration-designer`, `dast-safety-harness-designer`), 179→182. The last banked capability (banked D27, deferred until after the D33 sweep). The ORCHESTRATION layer the JUDGMENT security skills lacked: RUN and AGGREGATE security scans (SAST/DAST/whole-repo) into one report, never triaging or fixing. Hard seam: **orchestrate-and-report, human-approves-action** — finding TRIAGE yielded to `static-analysis-reviewer` (mandatory in skills 1–2), dep/provenance judgment to `supply-chain-security-reviewer`, DAST authorization to `human-approval-boundary` (written authorization, staging-only, rate/impact limits, no destructive probes); in-batch `security-scan-orchestrator` ↔ `sast-orchestration-designer` pinned both ways. Fail-closed: a scan that can't run is not a clean scan. Product-agnostic (tool categories, no vendors). | P2 | ✅ shipped (D44) |
 | D46 | Authority invalidation & propagation (1 = `authority-invalidation-architect`), 182→183. The symptom-triggered owner of the "change didn't take effect" access-bug class — a removed user still sees data, a revoked role still works, logout doesn't end the session, a plan change shows the old tier, a deleted item stays visible. Verified by a twice-run read-only discovery: the mechanism existed as islands across ≥8 skills, but nothing triggered on the SYMPTOM, and JWT/token-claims staleness, client-state purge, and the cross-surface verify battery had zero coverage anywhere. Owns CHANGE → PROPAGATE → VERIFY: surface inventory + differential, an owner-confirmed revocation-latency bound, token policy (short-TTL+refresh vs session-version/epoch vs denylist), server-session invalidation, client purge (incl. the next-user-on-shared-device leak), and the deny-direction-first battery for the CHANGED principal. Hard seam: **compose, never restate** (the D38 pattern) — cache mechanics stay with `caching-strategy-designer` (its authz-caching Safety Rule cited, never re-approved), realtime teardown with `realtime-subscription-architect`, plan resolution with `plan-entitlement-architect`, link revocation with `share-link-access-architect`, policy SQL with `rls-policy-auditor`, custody implementation with `secrets-identity-hardener`; never-worked access routes to the correctness owners (the discriminator: did it behave correctly before the change?). | P1 | ✅ shipped (D46) |
+| D47 | Superadmin observability console design (1 = `superadmin-observability-console-designer`, joins family 18), 183→184. The cross-tenant MONITORING/observability console DESIGN owner — closes the three-way pointer hole (`admin-console-architect` explicitly punts "dashboards/metrics/traces/logs to SEE system state" → `observability-operator` operates Grafana-class backends (manual-only, designs no console) → `slo-reliability-architect` only decides what pages; nobody designed the console). Owns: layered panel IA with restraint (one health answer first, drill-down groups, escalation badges); the cross-tenant READ-security model (dedicated deny-all-RLS platform-admin registry with grant provenance, NO self-service grant, three-layer server-side re-check off one SECURITY-DEFINER membership function, read-only-by-default with privileged-write-only telemetry, denied-access-as-metric, break-glass CONTENT reveal with five checkable properties, two caller lanes with narrowing-only destructive filters); the server-shaped read model; honest-gap typing (`wired: false` + a known-gaps page); the DB/query-perf panel spec (the most commonly missing panel, honest limits stated); posture-as-verification-results + the DB self-monitoring caveat. Hard seam: **compose, never restate** — every panel names its feed owner (~12 cited: `slo-reliability-architect`, `audit-log-architect`, `security-logging-alerting-architect`, `synthetic-monitoring-architect`, `usage-metering-and-cost-attribution-pipeline-designer`, `ai-cost-guardrail-designer`, `product-analytics-instrumenter`, `incident-response-runbook`, `authorization-matrix-designer`, + the RLS/tenancy verification cluster). Three seams pinned: SEEING-vs-ACTING (`admin-console-architect` owns actions/impersonation/break-glass ELEVATION; this skill's break-glass is the narrower CONTENT reveal in the read path — complementary, not duplicative), DESIGN-vs-OPERATE (`observability-operator`), CONSOLE-vs-FEED (the owners above). Grounded in a read-only discovery mining three production implementations that independently converged on the read-security core; product-agnostic. | P1 | ✅ shipped (D47) |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
 
 ## Subagents (read-only reviewers)

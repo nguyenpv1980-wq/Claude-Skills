@@ -1,0 +1,80 @@
+{
+  "skill": "superadmin-observability-console-designer",
+  "description": "Trigger discrimination for the cross-tenant monitoring-console DESIGN owner (this skill) vs its three seams: SEEING vs ACTING (admin-console-architect owns cross-tenant actions, impersonation, break-glass ELEVATION, the operator control-plane; this skill owns the read console and the narrower break-glass CONTENT reveal), DESIGN vs OPERATE (observability-operator wires/operates the telemetry backend; this skill designs the in-product console), and CONSOLE vs FEED (slo-reliability-architect decides what pages, audit-log-architect owns the audit substrate, security-logging-alerting-architect owns detection coverage, synthetic-monitoring-architect owns probes, usage-metering-and-cost-attribution-pipeline-designer owns the metering ETL, authorization-matrix-designer owns the authz policy). The discriminating trigger token is observability/monitoring/see: a console to SEE platform state lands here; a console to ACT, a backend to WIRE, or a feed to PRODUCE lands with its owner.",
+  "overlaps_with": [
+    "admin-console-architect",
+    "observability-operator",
+    "slo-reliability-architect",
+    "audit-log-architect",
+    "security-logging-alerting-architect",
+    "synthetic-monitoring-architect",
+    "usage-metering-and-cost-attribution-pipeline-designer",
+    "authorization-matrix-designer"
+  ],
+  "cases": [
+    {
+      "id": "monitoring-console-design-lands-here",
+      "prompt": "Design a superadmin monitoring console for our multi-tenant platform — the operators want to see signups, database performance, security events, and cost across all tenants in one place, and we need to know how to secure that god-view.",
+      "expected_skill": "superadmin-observability-console-designer",
+      "should_not_trigger": ["admin-console-architect", "observability-operator", "slo-reliability-architect"],
+      "note": "SEAM CASE (primary) — 'monitoring console to SEE across tenants' is this skill's owned surface. admin-console-architect explicitly excludes telemetry ('seeing is not acting'); observability-operator operates backends and designs no console; slo-reliability-architect decides what pages, not what a console shows.",
+      "reason": "The cross-tenant observability/monitoring console's design — panels, IA, and the read-security model — is this skill's owned deliverable; the three neighbors each point at another for exactly this request."
+    },
+    {
+      "id": "platform-health-console-lands-here",
+      "prompt": "What should my superadmin panel show, and how do I make sure it can't be abused? We want a platform-health dashboard: open incidents, denied logins, audit activity, DB capacity.",
+      "expected_skill": "superadmin-observability-console-designer",
+      "should_not_trigger": ["admin-console-architect", "security-logging-alerting-architect"],
+      "note": "The what-to-show + how-to-secure-the-READ question. Which security events to DETECT would be security-logging-alerting-architect; here the events exist and the question is the console that displays them.",
+      "reason": "Panel selection with restraint plus the cross-tenant read-security model (registry, three-layer re-check, read-only-by-default, denied-access-as-metric) is this skill's core."
+    },
+    {
+      "id": "impersonation-and-actions-go-to-admin-console-architect",
+      "prompt": "Add impersonation and support actions to our internal admin console — support agents need to log in as a customer to reproduce bugs, retry stuck jobs, and issue refunds, with break-glass elevation for the dangerous ones.",
+      "expected_skill": "admin-console-architect",
+      "should_not_trigger": ["superadmin-observability-console-designer"],
+      "note": "SEEING-vs-ACTING SEAM — impersonation, support ACTIONS, the operator control-plane, and break-glass ELEVATION (time-boxed approved access to ACT) are the action surface. This skill's break-glass clause is the narrower CONTENT reveal in the read path; the two are complementary, not interchangeable.",
+      "reason": "admin-console-architect owns the surface operators act THROUGH — cross-tenant write actions, impersonation with hard boundaries, elevation, the control-plane."
+    },
+    {
+      "id": "wiring-dashboards-goes-to-observability-operator",
+      "prompt": "Instrument our checkout service and wire up dashboards and alert rules in our observability backend so the on-call can see error rates and latency.",
+      "expected_skill": "observability-operator",
+      "should_not_trigger": ["superadmin-observability-console-designer"],
+      "note": "DESIGN-vs-OPERATE SEAM — instrumenting services and creating/editing dashboards and alert rules in a Grafana-class backend is stack OPERATION (manual-only). No in-product cross-tenant console is being designed.",
+      "reason": "observability-operator instruments and operates the telemetry stack; this skill only designs the in-product console that surfaces already-produced telemetry."
+    },
+    {
+      "id": "what-pages-goes-to-slo-reliability-architect",
+      "prompt": "Define our SLOs and decide what should page the on-call versus open a ticket — we keep alerting on infrastructure noise instead of what users feel.",
+      "expected_skill": "slo-reliability-architect",
+      "should_not_trigger": ["superadmin-observability-console-designer"],
+      "note": "CONSOLE-vs-FEED SEAM — deciding SLIs/SLOs, error budgets, and page-vs-ticket is the reliability DESIGN that feeds one panel family. The console displays its outcomes; it never derives them.",
+      "reason": "slo-reliability-architect owns what matters and what pages; this skill only places the resulting reliability signals in a console panel."
+    },
+    {
+      "id": "audit-schema-goes-to-audit-log-architect",
+      "prompt": "Design our audit log — the event taxonomy, the record schema, tamper-evidence, and how long we retain audit data.",
+      "expected_skill": "audit-log-architect",
+      "should_not_trigger": ["superadmin-observability-console-designer"],
+      "note": "CONSOLE-vs-FEED SEAM — the audit SUBSTRATE (taxonomy, schema, integrity, retention) is the feed. This skill contributes only the platform-tier read rules and the admin-readable viewer panel over that substrate.",
+      "reason": "audit-log-architect owns the audit system's design; the console skill composes it as a panel feed."
+    },
+    {
+      "id": "detection-coverage-goes-to-security-logging-alerting-architect",
+      "prompt": "Which security events should we be logging and alerting on — failed logins, privilege changes, injection attempts? Set the detection coverage and thresholds.",
+      "expected_skill": "security-logging-alerting-architect",
+      "should_not_trigger": ["superadmin-observability-console-designer"],
+      "note": "CONSOLE-vs-FEED SEAM — detection coverage and alert rules PRODUCE the security signals. The console only displays them (and adds denied-superadmin-access as one displayed metric).",
+      "reason": "security-logging-alerting-architect owns what to detect and when to alert; the console skill owns where those signals appear and who may read them cross-tenant."
+    },
+    {
+      "id": "probe-design-goes-to-synthetic-monitoring-architect",
+      "prompt": "Set up scheduled synthetic probes against production — which journeys to probe, how often, and how to keep the probes from mutating real data.",
+      "expected_skill": "synthetic-monitoring-architect",
+      "should_not_trigger": ["superadmin-observability-console-designer"],
+      "note": "CONSOLE-vs-FEED SEAM — the probe catalog and prod-safety contract are the feed. The console skill displays probe RESULTS in its verification panels.",
+      "reason": "synthetic-monitoring-architect owns black-box production probing; this skill renders its outcomes as posture."
+    }
+  ]
+}

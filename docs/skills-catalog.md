@@ -68,13 +68,19 @@ checks that every *implemented* skill is listed here and in `README.md`.
 > banked capability, the ORCHESTRATION layer that RUNS and AGGREGATES security
 > scans while yielding finding TRIAGE to the judgment skills (179→182); **D45**
 > then extended `cloud-architecture-decider` with the full deployment
-> abstraction ladder (rung × provider × posture; no count change). Most
-> recently the **D46** build shipped `authority-invalidation-architect` — the
+> abstraction ladder (rung × provider × posture; no count change). The
+> **D46** build shipped `authority-invalidation-architect` — the
 > symptom-triggered owner of the "change didn't take effect" access-bug class
 > (a removed user still sees data, a revoked role still works, logout doesn't
 > end the session), composing the per-surface mechanism owners rather than
-> restating them (182→183) — bringing the library to its current **183
-> skills**.
+> restating them (182→183). Most recently the **D47** build shipped
+> `superadmin-observability-console-designer` — the cross-tenant superadmin
+> MONITORING/observability console DESIGN owner, closing the three-way
+> pointer hole (`admin-console-architect` punts telemetry →
+> `observability-operator` operates backends → nobody designed the console):
+> the layered panel IA with restraint plus the cross-tenant READ-security
+> model, composing the ~12 feed owners rather than restating them (183→184)
+> — bringing the library to its current **184 skills**.
 > `_template` remains a reference template ignored by the validator.
 > Everything under "Backlog" is planned, not built.
 
@@ -999,6 +1005,48 @@ the change?"*. Design/diagnosis only, edits nothing and executes no purges
 | Skill | Source (D46) | Model-invocable? | Trigger summary |
 | --- | --- | --- | --- |
 | `authority-invalidation-architect` | reconciliation §5 D46 (stale-authority discovery, independently verified twice) | yes | The "change didn't take effect" access-bug class: a removed user still sees data, a revoked role still works, logout doesn't end the session, a plan change shows the old tier, a deleted item stays visible. CHANGE → PROPAGATE → VERIFY: classify the change (deny direction first), inventory the eleven surfaces where old authority survives (server sessions, JWT/token claims, client stores/data caches, server/CDN caches, DB session context, realtime subscriptions, share links, entitlements, search indexes, signed URLs), locate the holder by its diagnostic tell ("works in incognito" → client copy; "fixes at a fixed interval" → token TTL), state an owner-confirmed revocation-latency bound, design invalidation per surface (owned: token policy, server-session invalidation, client purge; composed: the mechanism owners), and verify with the deny-direction-first battery for the CHANGED principal. ≠ `caching-strategy-designer` (designing a cache), `authorization-matrix-designer` (the matrix; never-worked access), `rls-policy-auditor` (policy SQL), `realtime-subscription-architect` (cross-tenant channel leaks), `systematic-debugger` (no authority-change shape). |
+
+### Skills (D47 — Superadmin observability console design)
+
+The 1-skill D47 build (reconciliation §5 D47; built 2026-07-18 from a
+read-only discovery mining three production multi-tenant implementations
+that independently converged on the same read-security core) — the
+cross-tenant superadmin OBSERVABILITY/monitoring console DESIGN owner,
+joining roster family 18 (SaaS architecture depth — strong cluster, beside
+its acting-surface sibling `admin-console-architect`). The discovery's
+finding: the library draws the seeing/acting seam and leaves the seeing
+side unowned — `admin-console-architect` explicitly punts "dashboards,
+metrics, traces, logs to SEE system state" to `observability-operator`, but
+that is a stack OPERATOR (wires Grafana-class backends,
+manual-invocation-only, designs no in-product console), and
+`slo-reliability-architect` only decides what pages — a three-way pointer
+with no owner. The skill owns: the layered panel IA with restraint (one
+health answer first, grouped drill-downs, escalation badges on collapsed
+groups), the cross-tenant READ-security model (dedicated deny-all-RLS
+platform-admin registry with grant provenance and no self-service grant,
+three-layer server-side re-check off one SECURITY-DEFINER membership
+function, read-only-by-default with privileged-write-only telemetry,
+denied-access-as-metric, break-glass CONTENT reveal with five checkable
+properties, two caller lanes with narrowing-only destructive filters), the
+server-shaped read model with its split-when-oversized tradeoff, honest-gap
+typing (`wired: false` + a known-gaps page), the DB/query-performance panel
+spec (the most commonly missing panel, its two honest limits stated), and
+posture-as-verification-results with the DB self-monitoring caveat named.
+The hard seam: **compose, never restate** — every panel names its feed
+owner (`slo-reliability-architect`, `audit-log-architect`,
+`security-logging-alerting-architect`, `synthetic-monitoring-architect`,
+`usage-metering-and-cost-attribution-pipeline-designer`,
+`ai-cost-guardrail-designer`, `product-analytics-instrumenter`,
+`incident-response-runbook`, `authorization-matrix-designer`, plus the
+RLS/tenancy verification cluster for isolation-scan panels); the two
+break-glass clauses (this skill's CONTENT reveal in the read path vs
+`admin-console-architect`'s ELEVATION to act) are stated as complementary,
+not duplicative. Design-only, edits no live config and grants no access →
+**model-invocable**; ships both eval files.
+
+| Skill | Source (D47) | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `superadmin-observability-console-designer` | reconciliation §5 D47 (superadmin-console discovery) | yes | Design the cross-tenant superadmin observability/monitoring console — the surface operators use to SEE platform health (signups, DB health, security, audits, cost, incidents) across every tenant. Read-security model FIRST (deny-all-RLS platform-admin registry with grant provenance, no self-service grant, three-layer server-side re-check, read-only-by-default with privileged-write-only telemetry, denied-access-as-metric, break-glass CONTENT reveal), then the layered IA with restraint (one health answer first), the server-shaped read model, per-panel `{feed-owner, read-scope, wired?}` typing with a known-gaps page, the DB/query-perf panel spec, and posture-as-verification-results with the DB self-monitoring caveat. ≠ `admin-console-architect` (cross-tenant ACTIONS/impersonation/break-glass ELEVATION — seeing is not acting), `observability-operator` (wires/operates the telemetry backend), `slo-reliability-architect` (what pages), `audit-log-architect` (the audit substrate), `security-logging-alerting-architect` (detection coverage), `synthetic-monitoring-architect` (the probes), `usage-metering-and-cost-attribution-pipeline-designer` (the metering ETL), `authorization-matrix-designer` (the authz policy). |
 
 ---
 
