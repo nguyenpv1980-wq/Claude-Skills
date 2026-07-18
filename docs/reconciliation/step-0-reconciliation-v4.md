@@ -2132,6 +2132,37 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   - Validator: **184 skills, exit 0** (skill-EDIT + docs; D43 count/family
     markers unchanged at 184/22).
 
+- **D50 (2026-07-18) — Portability enforcement (strict-YAML normalization
+  ×67 + validator hard checks + portability contract; skill-EDIT +
+  validator + docs, count stays 184).**
+  - Normalized the 67 strict-YAML-invalid descriptions to single-quoted
+    scalars (parsed values byte-identical — pure serialization; precondition
+    verified: Claude Code renders quoted descriptions identically, tested on
+    `code-reviewer` before the mass edit — and the current build goes
+    further: it FALLS BACK to the H1 title for strict-invalid frontmatter,
+    so normalization restores description visibility in Claude Code's own
+    selection listing too, not just in Codex-class consumers).
+  - Validator hardened: strict-YAML frontmatter parse (HARD,
+    `check_frontmatter_strict_yaml`), description length measured on the
+    PARSED value (matching Codex's counting — quoting chars and doubled
+    apostrophes don't count), MANUAL-ONLY sentinel position check for all
+    `disable-model-invocation` skills (HARD, `check_manual_only_sentinel`)
+    — each proven able to fail on-branch before merge. Requires PyYAML
+    (fail-closed; installed in the CI workflow).
+  - Portability contract added to skill-generation-standard + `_template`
+    (description now models the quoted, front-loaded shape) + CONTRIBUTING;
+    README caveat 1 updated (silent-drop fixed; three live caveats remain).
+  - The corpus is now portable BY CONSTRUCTION: any future skill either
+    satisfies the contract or fails CI. Gate-guard fired by design
+    (validator + workflow change); admin-merged after review per D43
+    precedent.
+  - Validator: **184 skills, exit 0** (D43 count/family markers unchanged
+    at 184/22).
+  - Post-review hardening (same PR): sentinel check made bidirectional +
+    block-scalar descriptions rejected (both proven able to fail); PyYAML
+    install documented for local runs; the retroactive D49 annotation
+    reverted to keep §5 append-only. Source: Codex-review P2s on PR #59.
+
 ---
 
 ## 6. Post-merge corrections

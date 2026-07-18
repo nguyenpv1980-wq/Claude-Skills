@@ -56,7 +56,9 @@ own proven practice, including failures it absorbed during its own construction.
    neighbor session's work or pushing to the wrong branch.
 
 8. **The validator is the structural gate.** `python scripts/validate-skills.py` must pass
-   (**exit 0**) before any PR. Skills that do not register in the
+   (**exit 0**) before any PR. One-time local setup: `python -m pip install pyyaml` — the
+   strict frontmatter parse (D50) requires it, and the validator fails closed without it
+   (CI installs it automatically). Skills that do not register in the
    catalog and README fail validation.
    *Why:* the validator is the one automated check that the library's structure is intact; a
    red validator means the change is not shippable, full stop.
@@ -68,6 +70,10 @@ own proven practice, including failures it absorbed during its own construction.
 2. Rewrite every section against
    [`docs/skill-generation-standard.md`](docs/skill-generation-standard.md) — required
    sections, description length, discriminating triggers, overlap avoidance, and evals.
+   Description contract: strict-YAML-valid (single-quote it if it contains `: `), parsed
+   value < 1024 chars, capability front-loaded; manual-only skills carry the
+   `MANUAL-ONLY; never auto-invoke. ` sentinel first *(validator-enforced — see the
+   Portability contract in the standard)*.
 3. **Register the skill on every surface it must appear on.** "Register in the README" is not
    one table — it is all of the surfaces below. The validator mechanically enforces the
    deterministic parts (3a, 3b, 3d, and the family-count reconciliation); the judgment parts —

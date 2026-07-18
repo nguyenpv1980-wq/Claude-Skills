@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Review an ACTUAL diff — a PR, branch delta, or staged/working changes obtained from git — and report findings by severity (blocker/major/minor/nit), each with file:line evidence and a concrete remediation. Covers correctness, security, performance, reliability, maintainability, test adequacy, and migration safety, and reads enough surrounding unchanged code to judge the change in context. Use when asked to review a diff, PR, branch, or commit. Do NOT use for behavior-preserving cleanup application (code-simplifier), whole-repository audits (full-codebase-auditor), or strategic architecture assessment of a subsystem (principal-code-analyst). Never reviews imagined code: no diff, no review.
+description: 'Review an ACTUAL diff — a PR, branch delta, or staged/working changes obtained from git — and report findings by severity (blocker/major/minor/nit), each with file:line evidence and a concrete remediation. Covers correctness, security, performance, reliability, maintainability, test adequacy, and migration safety, and reads enough surrounding unchanged code to judge the change in context. Use when asked to review a diff, PR, branch, or commit. Do NOT use for behavior-preserving cleanup application (code-simplifier), whole-repository audits (full-codebase-auditor), or strategic architecture assessment of a subsystem (principal-code-analyst). Never reviews imagined code: no diff, no review.'
 ---
 
 # Code Reviewer

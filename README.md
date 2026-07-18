@@ -409,10 +409,13 @@ Claude Code, OpenAI Codex, Cursor, Gemini CLI and other tools consume. Two ways 
 - **Optional native mode:** copy the skills to where the other tool discovers them —
   `cp -r .claude/skills .codex/skills` inside a project, or per-skill copies into
   `~/.codex/skills/` for a user-level install. Use real copies (no symlinks — they break
-  on Windows). Four verified caveats before you choose this path:
-  1. Strict-YAML consumers currently drop 67 of the 184 skills silently — descriptions
-     containing an unquoted `: ` fail spec-strict parsers (a YAML normalization pass is
-     planned; Claude Code's parser accepts all 184 today).
+  on Windows). Verified caveats before you choose this path (the first is fixed, kept
+  for the record):
+  1. ~~Strict-YAML consumers silently drop skills whose descriptions contain an unquoted
+     `: `~~ — **fixed by the D50 normalization**: every description is now a
+     strict-YAML-valid scalar (single-quoted where needed, parsed values byte-identical),
+     so strict consumers parse the full corpus, and the validator hard-fails any future
+     skill whose frontmatter a spec-strict parser rejects.
   2. Descriptions cap at 1024 characters ecosystem-wide.
   3. Native selection sees only roughly the first 92 characters of each description.
   4. Codex does not honor `disable-model-invocation` — do **not** copy the 18 manual-only
@@ -421,8 +424,8 @@ Claude Code, OpenAI Codex, Cursor, Gemini CLI and other tools consume. Two ways 
      enforcement).
 
   For those reasons, don't commit a `.codex/skills` copy to this repo — a committed copy
-  drifts on every skill edit and bakes in all four caveats. The copy is per-user opt-in
-  only.
+  drifts on every skill edit and bakes in the three live caveats. The copy is per-user
+  opt-in only.
 
 **Your first session — from a vague idea.** If you're not a developer and you have an idea but
 no idea what to do first, name the front door: `project-orchestrator`. It works out where your
@@ -1145,6 +1148,13 @@ Side-effecting skills (writes, network, deploy, spend) MUST set `disable-model-i
 and document the irreversible step under **Stop Conditions**.
 
 ## Validation
+
+One-time setup: the strict frontmatter parse (D50) requires PyYAML — the validator fails
+closed without it (CI installs it automatically):
+
+```bash
+python -m pip install pyyaml
+```
 
 Run from the repo root:
 

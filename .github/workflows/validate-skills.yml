@@ -23,6 +23,11 @@ jobs:
         with:
           python-version: '3.x'
 
+      # PyYAML powers the spec-strict frontmatter parse (decision D50); the
+      # validator fails closed without it.
+      - name: Install validator dependency (PyYAML)
+        run: python -m pip install --quiet pyyaml
+
       # The default bash shell runs with `-eo pipefail`, so a nonzero exit
       # from the validator fails this job.
       - name: Run skill validator

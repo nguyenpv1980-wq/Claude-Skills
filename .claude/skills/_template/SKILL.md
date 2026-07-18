@@ -1,7 +1,10 @@
 ---
 name: _template
-description: TEMPLATE ONLY — not a real skill and never invoked. Copy this directory to .claude/skills/<your-skill-name>/, rename it, set `name` to match the new directory, and rewrite every section against docs/skill-generation-standard.md.
-# disable-model-invocation: true   # uncomment if the real skill has side effects
+description: 'TEMPLATE ONLY — not a real skill and never invoked. Copy this directory to .claude/skills/<your-skill-name>/, rename it, set `name` to match the new directory, and rewrite every section against docs/skill-generation-standard.md. Write the real description to the Portability contract: front-load what the skill DOES in the first ~90 characters, keep it ONE strict-YAML-valid line (single-quote it like this one and double internal apostrophes, ''like this''), parsed value under 1024 characters.'
+# disable-model-invocation: true   # uncomment if the real skill has side effects — the
+#   description must then START with the exact 32-char sentinel (trailing space included):
+#   MANUAL-ONLY; never auto-invoke.
+#   (validator-enforced; see the Portability contract in the standard)
 # allowed-tools: Read, Grep, Glob  # optional & narrow only; omit to inherit defaults
 ---
 

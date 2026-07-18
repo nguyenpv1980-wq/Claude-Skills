@@ -35,14 +35,49 @@ standard and is exempt from validation (it is a template, not a shipped skill).
 | Field | Required | Rule |
 | --- | --- | --- |
 | `name` | yes | Must exactly equal the containing directory name. This is the repo convention that keeps invocation, filesystem, and catalog in sync. Lowercase kebab-case. |
-| `description` | yes | Specific and **trigger-oriented** — say *when* to use the skill and *what it does*, in terms a model can match against a user request. Under **1024 characters**. Avoid vague verbs ("helps with", "handles"). |
-| `disable-model-invocation` | conditional | Set to `true` for any skill that performs **side effects** (writes files outside scratch, calls networks, mutates external state, spends money, deploys). Such skills must be invoked explicitly by a human, never auto-triggered by the model. |
+| `description` | yes | Specific and **trigger-oriented** — say *when* to use the skill and *what it does*, in terms a model can match against a user request. Under **1024 characters**, measured on the parsed value (see the Portability contract below). Avoid vague verbs ("helps with", "handles"). |
+| `disable-model-invocation` | conditional | Set to `true` for any skill that performs **side effects** (writes files outside scratch, calls networks, mutates external state, spends money, deploys). Such skills must be invoked explicitly by a human, never auto-triggered by the model — and their description must lead with the exact `MANUAL-ONLY; never auto-invoke. ` sentinel (see the Portability contract below). |
 | `allowed-tools` | optional | If present, must be a **narrow** list. Broad grants (`*`, `all`, `Bash` alone with no scoping) are forbidden — they defeat least-privilege. Omit the field to inherit the session default rather than widening it. |
 
 ### Description guidance
 
 - **Good:** `"Convert a messy .xlsx export into a normalized sheet with typed columns and a summary tab. Use when the user hands you a spreadsheet to clean, reformat, or chart."`
 - **Bad:** `"Helps with spreadsheets."` (not trigger-oriented, not specific)
+
+### Portability contract
+
+Aegis skills are consumed by more tools than Claude Code — the open Agent Skills
+format is read by Codex CLI, Cursor, Gemini CLI and others, and those consumers
+parse frontmatter with SPEC-STRICT YAML parsers and select skills from the
+description alone (decisions D49/D50). Claude Code being lenient is not license
+to author leniently: a skill only Claude Code can parse is not portable, and
+before D50 exactly that shipped 67 times. The contract:
+
+- **Strict-YAML-valid, always.** If the description contains `: ` (colon-space)
+  or anything else a plain YAML scalar cannot carry, single-quote the whole
+  scalar and double internal apostrophes (`'it''s'` parses to `it's`). Strict
+  consumers silently DROP a skill whose frontmatter fails to parse — the skill
+  simply does not exist there.
+- **One physical line.** No block scalars (`>`, `|`) — consumers differ on
+  folding behavior.
+- **Parsed value under 1024 characters.** The validator measures the PARSED
+  value: quoting characters and doubled apostrophes are serialization, not
+  content, and do not count toward the limit.
+- **Front-load the capability.** Some consumers' native selection sees only
+  roughly the first ~90 characters of the description (D49 measurement: Codex
+  ≈92). The first clause must say what the skill DOES; qualifiers and "Do NOT
+  use" boundaries come later. *(Authoring guidance — judged in review, not
+  mechanically checked.)*
+- **Manual-only skills lead with the sentinel.** Every skill with
+  `disable-model-invocation: true` carries the exact 32-character sentinel
+  `MANUAL-ONLY; never auto-invoke. ` (trailing space included) as the FIRST 32
+  characters of the parsed description. Consumers that ignore the field still
+  surface the description front, so that position is the only
+  guaranteed-visible safety signal.
+
+The checks in `scripts/validate-skills.py` (strict-parse, parsed-value length,
+sentinel position — each proven able to fail before shipping) are the
+enforcement; this section is the why.
 
 ---
 
