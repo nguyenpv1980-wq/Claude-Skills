@@ -118,8 +118,6 @@ in the reconciliation doc §5.
 | Item | Type | Status |
 | --- | --- | --- |
 | `docs/skill-generation-standard.md` | standard | ✅ |
-| `docs/templates/skill-template.md` | template | ✅ |
-| `docs/templates/evals-template.json` | template | ✅ |
 | `docs/reconciliation/step-0-reconciliation-v4.md` | reconciliation record | ✅ |
 | `docs/skills-catalog.md` | this catalog | ✅ |
 | `scripts/validate-skills.py` | validator | ✅ |

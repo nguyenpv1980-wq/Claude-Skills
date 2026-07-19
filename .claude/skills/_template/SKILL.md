@@ -5,6 +5,14 @@ description: 'TEMPLATE ONLY — not a real skill and never invoked. Copy this di
 #   description must then START with the exact 32-char sentinel (trailing space included):
 #   MANUAL-ONLY; never auto-invoke.
 #   (validator-enforced; see the Portability contract in the standard)
+#   ONE narrow exception (standard §5): an auto-invocable skill MAY create or append
+#   to a non-executable documentation or project-state file in the working tree, but
+#   only as a second-phase action — show the exact target path and exact content or
+#   diff, receive explicit, content-specific, single-use approval in the current
+#   session, and write exactly what was approved. Overwrite/delete/rename, source
+#   code, executable/config files, agent-instruction files, security/identity/
+#   policy/CI files, secrets, network calls, external mutation, spending, and
+#   deployment are NOT covered — those stay manual-only.
 # allowed-tools: Read, Grep, Glob  # optional & narrow only; omit to inherit defaults
 ---
 
@@ -48,7 +56,11 @@ schema. Be specific enough that two runs produce consistent shapes.
 
 - [ ] Output matches the shape declared above.
 - [ ] No **Stop Conditions** were silently bypassed.
-- [ ] Any side-effecting step was gated behind explicit human confirmation.
+- [ ] Any side-effecting step was gated behind explicit human confirmation. The
+      only write an auto-invocable skill may make (standard §5): create/append a
+      non-executable documentation or project-state file, AFTER showing the exact
+      path + content and receiving explicit, content-specific, single-use
+      approval — path and content unchanged between approval and write.
 
 ## Gotchas
 
@@ -61,11 +73,16 @@ schema. Be specific enough that two runs produce consistent shapes.
 - Stop and ask if required input is missing or the request is ambiguous.
 - Stop and confirm before any irreversible or destructive action (delete, deploy,
   overwrite, spend).
+- Before a documentation/project-state append under the standard-§5 approved-write
+  exception: show the exact target path and exact content, wait for the explicit
+  content-specific yes, and write only what was approved. A declined, ambiguous,
+  or changed approval means NO write. Every other side effect stays manual-only
+  (`disable-model-invocation: true`).
 
 ## Supporting Files
 
-- `evals/evals.json` — required for every real skill; see the copy in this template
-  directory and [docs/templates/evals-template.json](../../../docs/templates/evals-template.json).
+- `evals/evals.json` — required for every real skill; the copy in this template
+  directory ([evals/evals.json](evals/evals.json)) is the canonical starting point.
 - `evals/trigger-evals.json` — add when the skill's trigger overlaps another skill.
 - `references/`, `assets/`, `scripts/` — add only when they reduce errors (progressive
   disclosure). Use "None" here if the skill is self-contained.

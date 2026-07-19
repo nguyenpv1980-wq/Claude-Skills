@@ -36,7 +36,7 @@ standard and is exempt from validation (it is a template, not a shipped skill).
 | --- | --- | --- |
 | `name` | yes | Must exactly equal the containing directory name. This is the repo convention that keeps invocation, filesystem, and catalog in sync. Lowercase kebab-case. |
 | `description` | yes | Specific and **trigger-oriented** — say *when* to use the skill and *what it does*, in terms a model can match against a user request. Under **1024 characters**, measured on the parsed value (see the Portability contract below). Avoid vague verbs ("helps with", "handles"). |
-| `disable-model-invocation` | conditional | Set to `true` for any skill that performs **side effects** (writes files outside scratch, calls networks, mutates external state, spends money, deploys). Such skills must be invoked explicitly by a human, never auto-triggered by the model — and their description must lead with the exact `MANUAL-ONLY; never auto-invoke. ` sentinel (see the Portability contract below). |
+| `disable-model-invocation` | conditional | Set to `true` for any skill that performs **side effects** (writes files outside scratch, calls networks, mutates external state, spends money, deploys). Such skills must be invoked explicitly by a human, never auto-triggered by the model — and their description must lead with the exact `MANUAL-ONLY; never auto-invoke. ` sentinel (see the Portability contract below). **Narrow approved-write exception (mirrors §5):** an auto-invocable skill may create or append to a non-executable documentation or project-state file in the current working tree, only as a second-phase action after showing the exact target path and exact content or diff and receiving explicit, content-specific, single-use approval in the current session; the approved path and content must not change before the write. The exception does NOT cover overwrite, delete, or rename; source code; executable or configuration files; agent-instruction or behavior-steering files; security, identity, authorization, policy, or CI/workflow files; secrets; network calls; external or live-state mutation; spending; deployment; or other irreversible action — those remain manual-only and require `disable-model-invocation: true`. |
 | `allowed-tools` | optional | If present, must be a **narrow** list. Broad grants (`*`, `all`, `Bash` alone with no scoping) are forbidden — they defeat least-privilege. Omit the field to inherit the session default rather than widening it. |
 
 ### Description guidance
@@ -126,15 +126,28 @@ headers must all be present.
 - Default to **read-only**. A skill that only reads and reports needs no `allowed-tools`
   widening at all.
 - Any write/network/deploy/spend behavior requires `disable-model-invocation: true`
-  AND an explicit **Stop Conditions** entry describing the irreversible step.
+  AND an explicit **Stop Conditions** entry describing the irreversible step — with
+  ONE narrow exception, next.
+- **Approved-write exception (the only one; mirrors the frontmatter table).** An
+  auto-invocable skill may create or append to a **non-executable documentation
+  or project-state file in the current working tree** only as a second-phase
+  action: it first shows the exact target path and the exact content or diff,
+  and receives **explicit, content-specific, single-use approval in the current
+  session**. The approved path and content must not change before the write.
+- The exception does **NOT** cover: overwrite, delete, or rename; source code;
+  executable or configuration files; agent-instruction or behavior-steering
+  files; security, identity, authorization, policy, or CI/workflow files;
+  secrets; network calls; external or live-state mutation; spending; deployment;
+  or other irreversible action. Those remain manual-only and require
+  `disable-model-invocation: true`.
 - Never embed secrets, tokens, or absolute machine-specific paths in a skill.
 
 ---
 
 ## 6. Evaluations
 
-Every shipped skill MUST ship `evals/evals.json` (see
-[`docs/templates/evals-template.json`](templates/evals-template.json)) describing
+Every shipped skill MUST ship `evals/evals.json` (see the canonical template's
+[`.claude/skills/_template/evals/evals.json`](../.claude/skills/_template/evals/evals.json)) describing
 representative trigger prompts and expected behaviors, with at least a happy path, an
 edge case, a should-not-do case, and objective assertions. Skills whose trigger
 description overlaps another skill MUST also ship `evals/trigger-evals.json`.

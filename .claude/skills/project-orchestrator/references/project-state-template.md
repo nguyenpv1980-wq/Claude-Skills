@@ -2,9 +2,11 @@
 
 This is the durable memory of a project's journey from idea to shipped. The
 orchestrator **reads it first every session** (to locate the project on the
-lifecycle map) and **appends to it** as the project advances. It lives in the
-**user's product repo** at `docs/project-state.md` — never in the skills
-library.
+lifecycle map) and **appends to it** as the project advances — each entry
+previewed (exact path + content) and explicitly approved by the user before
+it is written (the orchestrator's Capability 4 propose → approve → append
+contract). It lives in the **user's product repo** at `docs/project-state.md`
+— never in the skills library.
 
 ## Composition (what this schema reuses, by name)
 

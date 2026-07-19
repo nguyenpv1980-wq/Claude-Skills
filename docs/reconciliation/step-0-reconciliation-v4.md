@@ -2191,6 +2191,48 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   - Validator: **184 skills, exit 0** (no SKILL.md touched; D43/D50
     markers, roster, and workflows unchanged — normal human merge).
 
+- **D52 (2026-07-19) — External-audit correction batch (skill-EDIT + docs;
+  count stays 184).**
+  - Source: independent external audit of main at `40a39b9`; the five
+    correctness findings selected for this batch were re-verified against
+    current main before editing.
+  - Fixed:
+    1. Replaced the stale `~96` live count in `skill-quality-reviewer` with
+       countless full-corpus wording. D43 protects marked README counts, but
+       live skill prose had no equivalent protection.
+    2. Updated `project-orchestrator` Stage 8 routing to follow the D45
+       cloud decider's outcome: AWS/Azure use their shipped mappers; the
+       modern managed tier follows the decider's emitted seam-owner
+       handoffs; GCP pauses the mapping hop at the missing-mapper boundary
+       for human direction (no invented mapper, no silent rerouting);
+       `iac-reviewer` is conditional on an actual IaC/config-as-code
+       artifact; the remaining stage-8 chain stays unconditional.
+    3. Changed project-state recording to propose → exact preview →
+       explicit content-specific approval → append, aligned across
+       Workflow, Output Format, Validation Checklist, Gotchas, Stop
+       Conditions, and evals. Updated the authoring standard (both the
+       frontmatter row and §5) and the canonical template with the narrow
+       approved-write exception; autonomous and high-authority mutations
+       remain manual-only.
+    4. Removed the two divergent `docs/templates` files, retained
+       `.claude/skills/_template/` as the single canonical template,
+       repointed current links (including the template's own back-link),
+       and removed both duplicate catalog rows.
+    5. Annotated the auto-merge policy's Repo field with the Project-Aegis
+       rename while preserving the dated record.
+  - BANKED from the same audit for D53 (one gate-touching batch,
+    discovery-first, after scope approval): validator fixture tests; strict
+    required-section ORDER validation; `.claude/agents/` schema and
+    read-only tool validation; `docs/paths/` skill-reference resolution;
+    action full-SHA pinning and validator dependency pinning; CODEOWNERS
+    and Dependabot; assessment of a live-prose current-count heuristic.
+  - OWNER-DECISION items (not AI-selected policy): LICENSE choice;
+    SECURITY.md reporting channel; repository-setting auto-merge
+    capability.
+  - STRATEGIC NEXT ARC: behavioral eval runner — discovery-first,
+    advisory-first, piloted on high-blast-radius skills; structural
+    validity must not be presented as behavioral proof.
+
 ---
 
 ## 6. Post-merge corrections

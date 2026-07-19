@@ -18,9 +18,10 @@ app") to a shipped product.
 It is a **thin router**, not a method. Its entire body is one loop:
 
 > **detect the current stage → translate the next decision into a plain-language
-> business question → invoke the owning stage skill BY NAME → record the outcome
-> (dated) in `docs/project-state.md` → gate on the human before anything
-> irreversible → advance.**
+> business question → invoke the owning stage skill BY NAME → propose the dated
+> outcome entry and, once the user approves it, record it in
+> `docs/project-state.md` → gate on the human before anything irreversible →
+> advance.**
 
 **It composes; it never restates.** The canonical stage list, the per-stage
 entry/exit gate, the authority model, and the change-classification matrix are
@@ -155,12 +156,21 @@ here.
   `api-contract-test-designer`, `playwright-e2e-engineer`,
   `manual-test-case-creator`, `accessibility-test-harness`,
   `performance-test-harness`.
-- **Stage 8 — Get it ready to run.** → `cloud-architecture-decider` →
-  (`azure-saas-architect` OR `aws-saas-architect`) → `iac-reviewer` →
+- **Stage 8 — Get it ready to run.** Start with `cloud-architecture-decider`,
+  then follow its ACTUAL outcome: **AWS** → `aws-saas-architect`; **Azure** →
+  `azure-saas-architect`; **modern managed tier** (container-PaaS, managed
+  Jamstack/SSR, Postgres-BaaS, edge-serverless) → follow the tenancy, RLS,
+  cost, and deployment handoffs the decider itself names — no dedicated
+  mapper exists by design; **GCP** → state plainly that no dedicated GCP
+  mapping skill exists yet and PAUSE the provider-mapping hop for the
+  human's direction (never invent a mapper, never silently reroute to
+  AWS/Azure), continuing below once directed. Then `iac-reviewer` ONLY when
+  an actual IaC or config-as-code artifact exists, and unconditionally:
   `ci-pipeline-architect` → `slo-reliability-architect` →
   `observability-operator` → `rollback-runbook-author` →
   `incident-response-runbook`. *If merge == deploy on the platform:*
-  `merge-is-deploy-governance`.
+  `merge-is-deploy-governance`. Route FROM the decider's result; never
+  re-derive or copy its decision model here.
 - **Stage 9 — Decide to release.** → `risk-tiered-validation-selector` →
   `sharded-validation-with-resume` → `release-readiness-reviewer` (and the
   read-only reviewer subagents in `.claude/agents/`).
@@ -183,13 +193,21 @@ authorizes**. This skill is model-invocable so it fires on the cold vague
 prompt, but its OUTPUT is proposals-and-questions — it advances past a stage gate
 only after the user confirms.
 
-**Capability 4 — Record the outcome (dated) in `docs/project-state.md`.** Append
-a decision entry every time a decision is made or a stage advances (schema and
-template: [references/project-state-template.md](references/project-state-template.md)).
-Append-only: a correction is a NEW dated entry that flags the change, never a
-silent overwrite — the Zero Trust AI Engineering Discipline (Zet-AI Engineering
-for short) applied to the build journey. Then restate the single next recommended
-action in plain language.
+**Capability 4 — Record the outcome (dated) in `docs/project-state.md`, by
+propose → approve → append.** When a decision is made or a stage advances:
+(1) prepare the complete dated entry (schema and template:
+[references/project-state-template.md](references/project-state-template.md));
+(2) show the exact target path, entry ID, date, and exact content in plain
+language; (3) ask ONE lightweight question — "Here is the log entry for what
+we just decided — OK to record it?"; (4) append ONLY after an explicit yes to
+that exact path and content. A decline, an ambiguous answer, or any change to
+the content or path means no write — revise and re-propose. Approval is
+single-use and covers only the displayed entry; the user's answer to the
+business question is NOT itself approval to write. Append-only semantics hold:
+a correction is a NEW dated entry that flags the change, never a silent
+overwrite — the Zero Trust AI Engineering Discipline (Zet-AI Engineering for
+short) applied to the build journey. After an approved append, restate the
+single next recommended action in plain language.
 
 ## Output Format
 
@@ -201,7 +219,9 @@ WHAT I CHECKED:  <state file + repo signals that put you here>
 ONE QUESTION:    <a single business question, if a decision is needed>   (else: —)
 WHAT HAPPENS NEXT: <the owning skill I'll hand this to, named plainly>  → invokes `<skill-name>`
 IF IT'S IRREVERSIBLE: GO | CONDITIONAL-GO | NO-GO — <plain-language reason + evidence>; you authorize.
-RECORDED:        <the docs/project-state.md entry ID + one-line summary + date>
+LOG ENTRY PROPOSED: <docs/project-state.md path + entry ID + date + exact content>
+RECORDING STATUS: AWAITING EXPLICIT APPROVAL — nothing written
+                  (after your explicit yes → RECORDED: <path + ID + date + exact content appended>)
 ```
 
 `docs/project-state.md` is the durable artifact; its structure is the template
@@ -224,8 +244,12 @@ the next recommended action.
 - [ ] Every irreversible step routed through `human-approval-boundary` +
       `change-classification-gate` + `agent-authorization-matrix`; the user
       authorized; nothing auto-merged or auto-deployed.
-- [ ] The decision was appended (dated, stable ID, who-decided) to
-      `docs/project-state.md`; no prior entry was overwritten.
+- [ ] Recording followed propose → approve → append: the exact target path,
+      entry ID, date, and content were shown BEFORE any write; an explicit,
+      content-specific yes was received; the content and path did not change
+      between approval and append; the append (dated, stable ID, who-decided)
+      happened only after that approval; a declined or ambiguous answer caused
+      NO write; no prior entry was overwritten.
 - [ ] The next recommended action is stated in plain language.
 
 ## Gotchas
@@ -253,6 +277,10 @@ the next recommended action.
 - **Silent scope drift in the state file.** Overwriting a past decision hides
   the change. A changed decision is a new dated entry that flags the deviation
   (the `phased-work-handoff-designer` register discipline).
+- **Treating the business answer as write approval.** "Shared space is fine"
+  authorized the DECISION, not the recording of it. The log entry is its own
+  approval: preview the exact path + content, ask, and append only on the
+  explicit yes — a decline or ambiguous reply means nothing is written.
 
 ## Stop Conditions
 
@@ -269,6 +297,10 @@ the next recommended action.
   knows their next step, or who wants the requirements interview itself, is
   routed to the owning skill (`requirements-gathering-facilitator`,
   `product-spec-writer`, `code-reviewer`, …); this skill steps aside.
+- **A `docs/project-state.md` append without its own approval** — the entry's
+  exact path and content have not been shown, the explicit content-specific
+  yes has not arrived, or the content/path changed after the yes. Do not
+  write; re-propose. A business-question answer is never write approval.
 
 ## Supporting Files
 
@@ -277,10 +309,15 @@ the next recommended action.
   approved brief + MVP scope, the append-only dated decision log (composing
   `phased-work-handoff-designer`'s decision-ID register +
   `scoped-approval-register`'s approval-citation pattern + the house
-  decision-log format), open questions, and next action.
+  decision-log format; every entry previewed and explicitly approved before
+  append — Capability 4), open questions, and next action.
 - `evals/evals.json` — behavior cases: the cold vague-idea happy path, the
-  mid-flight state-file edge case, and the refusals (don't auto-merge, don't
-  apply a migration without approval, don't decide a business-scope question).
+  mid-flight state-file edge case, the stage-8 decision-driven routing edges
+  (managed tier without a cloud mapper, the GCP missing-mapper pause,
+  `iac-reviewer` only on an actual IaC artifact), and the refusals (don't
+  auto-merge, don't apply a migration without approval, don't decide a
+  business-scope question, don't treat a business answer as approval to
+  write the log).
 - `evals/trigger-evals.json` — discrimination against
   `requirements-gathering-facilitator` (elicitation), `ai-sdlc-operating-model`
   (team policy), `product-spec-writer` (spec authoring), and `code-reviewer`

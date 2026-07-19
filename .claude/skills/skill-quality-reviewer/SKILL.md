@@ -1,6 +1,6 @@
 ---
 name: skill-quality-reviewer
-description: 'Review ONE library skill''s quality — the judgment layer above scripts/validate-skills.py. Runs the mechanical validator first (structure/lengths/registration/name collisions are its job — never re-checked), judges what it cannot: description trigger-oriented ("use when <situation>") vs merely descriptive; trigger collision with shipped skills, colliders NAMED (the main failure mode at ~96 skills); duplication better shipped as an EXTENSION (the LLM03/ASI04 pattern); evals that test real boundaries vs hollow filler; section substance (Stop Conditions that actually refuse); scope (one job); invocation posture (manual-only iff side effects). Per-check PASS/CONCERN/FAIL with evidence; verdict ship/revise/reject/make-it-an-extension. Use when a skill is drafted, revised, or quality-audited. Do NOT use for a change''s process compliance (agent-governance-audit), product code (code-reviewer, full-codebase-auditor), or a whole skill-adding PR (library-diff-reviewer).'
+description: 'Review ONE library skill''s quality — the judgment layer above scripts/validate-skills.py. Runs the mechanical validator first (structure/lengths/registration/name collisions are its job — never re-checked), judges what it cannot: description trigger-oriented ("use when <situation>") vs merely descriptive; trigger collision with shipped skills, colliders NAMED (the main failure mode across the full shipped skill corpus); duplication better shipped as an EXTENSION (the LLM03/ASI04 pattern); evals that test real boundaries vs hollow filler; section substance (Stop Conditions that actually refuse); scope (one job); invocation posture (manual-only iff side effects). Per-check PASS/CONCERN/FAIL with evidence; verdict ship/revise/reject/make-it-an-extension. Use when a skill is drafted, revised, or quality-audited. Do NOT use for a change''s process compliance (agent-governance-audit), product code (code-reviewer, full-codebase-auditor), or a whole skill-adding PR (library-diff-reviewer).'
 ---
 
 # Skill Quality Reviewer
@@ -10,12 +10,13 @@ description: 'Review ONE library skill''s quality — the judgment layer above s
 Give one skill — newly drafted or already shipped — the review the mechanical
 validator cannot perform. `scripts/validate-skills.py` proves a skill is
 structurally VALID; this skill judges whether it is GOOD: whether an AI
-matching a user request against ~96 descriptions would pick it at the right
-moment and yield at the wrong one, whether it earns a place in the library
-instead of duplicating one, and whether its evals would actually catch it
-misbehaving. The deliverable is a per-check verdict with cited evidence and
-one overall recommendation a maintainer can act on: ship, revise, reject, or
-make-it-an-extension of a named existing skill.
+matching a user request against the full shipped corpus of descriptions
+would pick it at the right moment and yield at the wrong one, whether it
+earns a place in the library instead of duplicating one, and whether its
+evals would actually catch it misbehaving. The deliverable is a per-check
+verdict with cited evidence and one overall recommendation a maintainer can
+act on: ship, revise, reject, or make-it-an-extension of a named existing
+skill.
 
 ## Use When
 

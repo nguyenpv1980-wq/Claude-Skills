@@ -1,7 +1,7 @@
 # Auto-Merge Policy
 
 **Recorded:** 2026-07-06
-**Repo:** `nguyenpv1980-wq/Claude-Skills`
+**Repo:** `nguyenpv1980-wq/Claude-Skills` (renamed → `nguyenpv1980-wq/Project-Aegis`; the old URL redirects)
 **Context:** companion decision to the CI merge gate
 ([`.github/workflows/validate-skills.yml`](../../.github/workflows/validate-skills.yml));
 extends the decisions in [`step-0-reconciliation-v4.md`](step-0-reconciliation-v4.md).
