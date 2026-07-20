@@ -30,6 +30,9 @@ Checks performed per skill (see docs/skill-generation-standard.md):
   * all nine required sections present (v4 standard): Purpose, Use When,
     Inputs to Inspect, Workflow, Output Format, Validation Checklist, Gotchas,
     Stop Conditions, Supporting Files.
+  * those nine also appear in the canonical ORDER the standard mandates
+    (decision D55 — check_section_order, HARD: presence alone let a scrambled
+    skill pass; optional sections interleave freely, duplicates are errors).
   * evals convention (repo decision D3 — structural only, no runner):
     evals/evals.json exists and parses; evals/trigger-evals.json parses if present.
 
@@ -38,6 +41,18 @@ Repo-level checks:
     AND in README.md.
   * bundled-name collision: no skill name duplicates another skill, and no
     skill name shadows a reserved bundled skill name.
+  * `.claude/agents/` schema (decision D55 — check_agents_schema, HARD): the
+    reviewer agents strict-parse, their `name` matches the filename stem, their
+    `tools` grant stays inside the read-only set {Read, Grep, Glob} (any
+    widening is a privilege escalation, not a preference), and `model`, when
+    present, is one the runtime recognises.
+  * guided-path link resolution (decision D55 — check_docs_paths_links, HARD):
+    every SKILL.md link in docs/paths/ and every docs/paths link in the README
+    resolves on disk, and a `[`foo`](.../bar/SKILL.md)` label matches its
+    target. Automates the manual "on rename or retire, grep docs/paths/" step.
+  * workflow action pinning (decision D55 — check_workflows_sha_pinned, HARD):
+    every `uses: …@ref` under .github/workflows/ names a full 40-hex commit SHA,
+    never a movable tag, so a floating pin cannot be reintroduced.
   * README map-matches-territory (decision D43): the README's marked SKILL-COUNT
     equals the real skill count on disk, and the roster's per-family counts (plus
     the one project-orchestrator front door) reconcile with disk and with the
@@ -51,8 +66,9 @@ and exits 0.
 
 Exit code 0 = clean (possibly with warnings), non-zero = at least one error.
 Requires PyYAML for the strict frontmatter parse (decision D50):
-`python -m pip install pyyaml`. Fails closed if it is missing. No other
-third-party dependencies.
+`python -m pip install -r requirements.txt`. Fails closed if it is missing. No
+other third-party dependencies — and the self-tests in scripts/tests/ keep it
+that way by using plain asserts rather than a test framework (decision D55).
 """
 from __future__ import annotations
 
@@ -70,7 +86,10 @@ except ImportError:  # reported fail-closed in main() — see decision D50
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = REPO_ROOT / ".claude" / "skills"
+AGENTS_DIR = REPO_ROOT / ".claude" / "agents"
 CATALOG = REPO_ROOT / "docs" / "skills-catalog.md"
+PATHS_DIR = REPO_ROOT / "docs" / "paths"
+WORKFLOWS_DIR = REPO_ROOT / ".github" / "workflows"
 README = REPO_ROOT / "README.md"
 
 IGNORED_DIRS = {"_template"}
@@ -224,14 +243,54 @@ def check_manual_only_sentinel(name_ctx: str, fm: dict, desc, rep: Report) -> No
         )
 
 
+SECTION_HEADER_RE = re.compile(r"^##\s+(.*\S)\s*$")
+
+
+def ordered_headers(body: str) -> list[str]:
+    """Return the `##`-level section titles in the order the body writes them.
+
+    The ordered twin of section_headers(). Order is what decision D55's
+    section-order check needs, and duplicates must survive the extraction so
+    that a required header written twice is visible.
+    """
+    out = []
+    for line in body.splitlines():
+        m = SECTION_HEADER_RE.match(line)
+        if m:
+            out.append(m.group(1).strip())
+    return out
+
+
 def section_headers(body: str) -> set[str]:
     """Return the set of `##`-level section titles present in the body."""
-    out = set()
-    for line in body.splitlines():
-        m = re.match(r"^##\s+(.*\S)\s*$", line)
-        if m:
-            out.add(m.group(1).strip())
-    return out
+    return set(ordered_headers(body))
+
+
+def check_section_order(body: str, name_ctx: str, rep: Report) -> None:
+    """Decision D55 (HARD): the required sections must appear in canonical order.
+
+    Presence has been checked since the beginning; ORDER never was, so a skill
+    could ship the nine required sections scrambled and pass. The standard is
+    explicit that it is an ordering (docs/skill-generation-standard.md: "these
+    `##` sections, in this order").
+
+    Optional sections (e.g. "Safety Rules") interleave freely: the body order is
+    filtered down to the required nine before comparison, so only the RELATIVE
+    order of required sections is constrained.
+    """
+    ordered = [h for h in ordered_headers(body) if h in REQUIRED_SECTIONS]
+    deduped = list(dict.fromkeys(ordered))
+    if len(ordered) != len(deduped):
+        repeated = sorted({h for h in ordered if ordered.count(h) > 1})
+        rep.error(
+            f"[{name_ctx}] duplicate required section header(s): {', '.join(repeated)}"
+        )
+    expected = [s for s in REQUIRED_SECTIONS if s in deduped]
+    if deduped != expected:
+        rep.error(
+            f"[{name_ctx}] required sections are out of order: found {deduped}, "
+            f"expected canonical order {expected}"
+        )
 
 
 # --- validation ------------------------------------------------------------
@@ -336,11 +395,12 @@ def validate_skill(skill_dir: Path, rep: Report) -> str | None:
             f"[{name_ctx}] SKILL.md is {n_lines} lines (must be < {MAX_SKILL_LINES})"
         )
 
-    # required sections
+    # required sections — present, and in the canonical order (decision D55)
     present = section_headers(body)
     missing = [s for s in REQUIRED_SECTIONS if s not in present]
     if missing:
         rep.error(f"[{name_ctx}] missing required section(s): {', '.join(missing)}")
+    check_section_order(body, name_ctx, rep)
 
     # evals convention (structural only — no runner yet, per decision D3)
     evals_json = skill_dir / "evals" / "evals.json"
@@ -405,8 +465,9 @@ FAMILY_LINE = re.compile(
     r"^\d+\.\s+\*\*.+?\*\*\s+\*\([^)]*?,\s*(\d+)\)\*",
     re.MULTILINE,
 )
-# A backticked kebab-case token (skill-name shape) inside the roster prose.
-ROSTER_SKILL_TOKEN = re.compile(r"`([a-z0-9]+(?:-[a-z0-9]+)+)`")
+# A backticked kebab-case token (skill-name shape). Shared by the roster
+# flagship check below and the D55 guided-path paired-token rule.
+BACKTICKED_KEBAB_TOKEN = re.compile(r"`([a-z0-9]+(?:-[a-z0-9]+)+)`")
 
 WHATS_IN_THE_LIBRARY = "## What's in the library"
 ROLES_SECTION = "## The roles Aegis can play"
@@ -517,7 +578,7 @@ def check_roster_flagships_exist(real_names: set[str], rep: Report) -> None:
     section = _section_text(text, WHATS_IN_THE_LIBRARY)
     if section is None:
         return
-    for token in sorted({m.group(1) for m in ROSTER_SKILL_TOKEN.finditer(section)}):
+    for token in sorted({m.group(1) for m in BACKTICKED_KEBAB_TOKEN.finditer(section)}):
         if token not in real_names:
             rep.warn(
                 f"README roster references `{token}`, which is not a skill on disk "
@@ -540,6 +601,193 @@ def check_roles_table_present(rep: Report) -> None:
             f"README is missing the '{ROLES_SECTION}' section "
             "(the curated positioning layer)"
         )
+
+
+# --- repo-surface checks (decision D55) ------------------------------------
+#
+# Surfaces the gate could not see before D55. Each was already conforming when
+# its check was written, so each shipped green; the point is that none of them
+# can rot silently from here.
+
+
+def _rel(path: Path) -> str:
+    """Repo-relative POSIX path for error messages (absolute if outside the repo)."""
+    try:
+        return path.resolve().relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
+# The reviewer agents are read-only personas by contract, so ANY widening is an
+# error rather than a warning: it is the one security-relevant check in D55.
+AGENT_ALLOWED_TOOLS = {"Read", "Grep", "Glob"}
+AGENT_ALLOWED_MODELS = {"opus", "sonnet", "haiku"}
+
+
+def check_agents_schema(rep: Report, agents_dir: Path | None = None) -> None:
+    """Decision D55 (HARD): validate the `.claude/agents/*.md` frontmatter.
+
+    Seven reviewer agents sat wholly outside validation until D55. Each must:
+      * strict-parse its frontmatter (the same parser skills use, decision D50);
+      * carry a `name` equal to the filename stem, so the name an operator
+        addresses and the file that is discovered cannot diverge;
+      * declare `tools` (the field is `tools`, NOT `allowed-tools`) within the
+        read-only set — a Write/Edit/Bash/`*` grant turns a reviewer into an
+        actor, which is a privilege escalation, not a config preference;
+      * name a recognised `model` when it names one at all.
+    """
+    agents_dir = AGENTS_DIR if agents_dir is None else agents_dir
+    if not agents_dir.is_dir():
+        return
+    for path in sorted(agents_dir.glob("*.md")):
+        ctx = _rel(path)
+        fm_text, _ = split_frontmatter(path.read_text(encoding="utf-8"))
+        if fm_text is None:
+            rep.error(f"[{ctx}] agent has no parseable frontmatter block")
+            continue
+        fm = check_frontmatter_strict_yaml(fm_text, ctx, rep)
+        if fm is None:
+            continue
+
+        if fm.get("name") != path.stem:
+            rep.error(
+                f"[{ctx}] frontmatter name '{fm.get('name')}' != filename stem "
+                f"'{path.stem}' (the agent would be addressed by one name and "
+                "discovered under another)"
+            )
+
+        tools = fm.get("tools")
+        if isinstance(tools, str):
+            granted = {t.strip() for t in tools.split(",") if t.strip()}
+        elif isinstance(tools, list):
+            granted = {str(t).strip() for t in tools if str(t).strip()}
+        else:
+            granted = set()
+        if not granted:
+            rep.error(
+                f"[{ctx}] agent declares no `tools`; the read-only contract has "
+                "to be explicit, not implied"
+            )
+        else:
+            widened = sorted(granted - AGENT_ALLOWED_TOOLS)
+            if widened:
+                rep.error(
+                    f"[{ctx}] `tools` grants {widened} beyond the read-only set "
+                    f"{sorted(AGENT_ALLOWED_TOOLS)} — these agents read and "
+                    "report; a write or exec grant turns a reviewer into an actor"
+                )
+
+        model = fm.get("model")
+        if model is not None and str(model).strip() not in AGENT_ALLOWED_MODELS:
+            rep.error(
+                f"[{ctx}] `model` '{model}' is not one of "
+                f"{sorted(AGENT_ALLOWED_MODELS)}"
+            )
+
+
+# A guided-path step: [`skill-name`](../../.claude/skills/skill-name/SKILL.md).
+PATH_SKILL_LINK = re.compile(
+    r"\[([^\]]*)\]\(([^)\s]*\.claude/skills/([a-z0-9][a-z0-9-]*)/SKILL\.md)\)"
+)
+# A README picker entry pointing into docs/paths/.
+README_PATH_DOC_LINK = re.compile(r"\[[^\]]*\]\((docs/paths/[A-Za-z0-9._-]+\.md)\)")
+
+
+def check_docs_paths_links(
+    rep: Report, paths_dir: Path | None = None, readme: Path | None = None
+) -> None:
+    """Decision D55 (HARD): the D51 guided paths must not rot.
+
+    Three rules, each false-positive-free:
+      (a) every `.claude/skills/<n>/SKILL.md` link in docs/paths/*.md resolves
+          on disk — this automates the "on rename or retire, grep docs/paths/"
+          step the project has so far relied on someone remembering;
+      (b) every docs/paths/*.md link in the README picker resolves;
+      (c) paired-token rule: in [`foo`](.../bar/SKILL.md), foo must equal bar,
+          catching copy-paste drift that still resolves and so reads as fine.
+
+    DELIBERATELY NOT CHECKED (considered and dropped in D55): "every backticked
+    kebab-case token in a path doc must name a skill". It passes today only by
+    luck — there happen to be zero non-skill tokens. The first path doc to write
+    `read-only` or `fail-closed` in backticks would fail a correct sentence, and
+    a verifier that fires on correct prose is worse than no verifier at all.
+    """
+    paths_dir = PATHS_DIR if paths_dir is None else paths_dir
+    readme = README if readme is None else readme
+
+    if paths_dir.is_dir():
+        for doc in sorted(paths_dir.glob("*.md")):
+            ctx = _rel(doc)
+            for label, target, slug in PATH_SKILL_LINK.findall(
+                doc.read_text(encoding="utf-8")
+            ):
+                if not (doc.parent / target).resolve().is_file():
+                    rep.error(
+                        f"[{ctx}] links {target}, which does not exist on disk "
+                        "(a renamed or retired skill left a dangling path step)"
+                    )
+                tokens = BACKTICKED_KEBAB_TOKEN.findall(label)
+                if tokens and tokens[-1] != slug:
+                    rep.error(
+                        f"[{ctx}] link label `{tokens[-1]}` does not match its "
+                        f"target skill '{slug}' — the reader is named one skill "
+                        "and sent to another"
+                    )
+
+    if readme.is_file():
+        ctx = _rel(readme)
+        for target in README_PATH_DOC_LINK.findall(readme.read_text(encoding="utf-8")):
+            if not (readme.parent / target).is_file():
+                rep.error(
+                    f"[{ctx}] links {target}, which does not exist on disk "
+                    "(the guided-path picker points at a missing path doc)"
+                )
+
+
+# A workflow step referencing an action, e.g. "- uses: actions/checkout@<ref>".
+# Any trailing "# vX.Y.Z" comment is stripped before this is applied.
+USES_ACTION_REF = re.compile(
+    r"^\s*(?:-\s*)?uses:\s*(?P<action>[^\s@]+)@(?P<ref>\S+)\s*$"
+)
+FULL_COMMIT_SHA = re.compile(r"^[0-9a-f]{40}$")
+
+
+def check_workflows_sha_pinned(rep: Report, workflows_dir: Path | None = None) -> None:
+    """Decision D55 (HARD): pin every action to a full 40-hex commit SHA.
+
+    A tag is a movable pointer: `@v7` can be force-pushed onto different code,
+    so what runs tomorrow need not be what was reviewed today. A commit SHA
+    cannot move. Short SHAs are rejected too — only the full 40 characters carry
+    the collision resistance the pin depends on.
+
+    Readability is preserved by convention, not by the ref: keep the version in
+    a trailing `# vX.Y.Z` comment, which dependabot rewrites when it bumps the
+    pin. References without an `@ref` (local composite actions such as
+    `./.github/actions/foo`) are not action pins and are left alone.
+
+    This is what turns "we pinned once" into "a floating tag cannot come back".
+    """
+    workflows_dir = WORKFLOWS_DIR if workflows_dir is None else workflows_dir
+    if not workflows_dir.is_dir():
+        return
+    for wf in sorted(
+        p for p in workflows_dir.iterdir() if p.suffix in (".yml", ".yaml")
+    ):
+        ctx = _rel(wf)
+        for lineno, raw in enumerate(
+            wf.read_text(encoding="utf-8").splitlines(), start=1
+        ):
+            m = USES_ACTION_REF.match(raw.split("#", 1)[0])
+            if not m:
+                continue
+            ref = m.group("ref")
+            if not FULL_COMMIT_SHA.match(ref):
+                rep.error(
+                    f"[{ctx}:{lineno}] `uses: {m.group('action')}@{ref}` is not "
+                    "pinned to a full 40-hex commit SHA (a tag can be moved onto "
+                    "different code; keep the version legible in a trailing "
+                    "`# vX.Y.Z` comment)"
+                )
 
 
 def check_name_collisions(skill_names: list[str], rep: Report) -> None:
@@ -580,6 +828,11 @@ def main() -> int:
 
     check_name_collisions(names, rep)
     check_catalog_integrity([n for n in names if n], rep)
+
+    # Repo surfaces outside .claude/skills/ (decision D55).
+    check_agents_schema(rep)                       # HARD
+    check_docs_paths_links(rep)                    # HARD
+    check_workflows_sha_pinned(rep)                # HARD
 
     # README map-matches-territory (decision D43): reconcile the README's
     # authoritative counts and roster against the real skills on disk.

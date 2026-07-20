@@ -1,0 +1,19 @@
+# SYNTHETIC TEST FIXTURE for scripts/tests/test_validator.py, not a live
+# workflow. It lives outside .github/workflows/, so GitHub never runs it and
+# the validator only reads it when the suite passes this directory explicitly.
+name: fixture-pinned
+on: workflow_dispatch
+
+jobs:
+  example:
+    runs-on: ubuntu-latest
+    steps:
+      # Pinned to a full 40-hex commit SHA, with the version kept legible in a
+      # trailing comment. The comment must not confuse the ref parser.
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      # A local composite action carries no @ref and must not be flagged.
+      - uses: ./.github/actions/some-local-composite
+
+      - name: A step that references no action at all
+        run: echo "nothing to pin here"

@@ -1,0 +1,11 @@
+# Runtime dependencies for scripts/validate-skills.py — the repo's merge gate.
+#
+# PyYAML powers the spec-strict frontmatter parse (decision D50); the validator
+# fails closed without it. Pinned EXACTLY (decision D55) for two reasons: the
+# gate depends on safe_load semantics, so CI should be reproducible rather than
+# merely recent; and an exact pin is what dependabot bumps through a reviewed
+# PR, which is how the pin stays fresh instead of quietly rotting.
+#
+# The pin lives here rather than inline in the workflow so dependabot's pip
+# ecosystem can see it.
+pyyaml==6.0.3

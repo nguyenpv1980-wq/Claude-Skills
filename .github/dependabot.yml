@@ -1,0 +1,29 @@
+# Dependency bumps for the merge gate (decision D55).
+#
+# This file exists BECAUSE of the SHA pins in the same decision, not
+# independently of them. Pinning an action to a commit SHA and pyyaml to an
+# exact version freezes the supply chain at review time — which is the point —
+# but a frozen pin with nobody to thaw it stops receiving upstream security
+# patches, silently. Dependabot is the thaw: it understands SHA-pinned actions
+# (rewriting both the SHA and its trailing `# vX.Y.Z` comment) and exact pip
+# pins, and it proposes each bump as a reviewed pull request rather than
+# applying it. Pins without a bumper rot; a bumper without pins has nothing to
+# do. The two ship together or not at all.
+#
+# Expected volume is roughly one PR every few weeks across two actions and one
+# pip package. Note that a bump touching .github/workflows/** trips the
+# gate-guard job and therefore needs a human admin merge. That friction is
+# correct: a bot editing the merge gate should not be able to merge itself.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  # Reads requirements.txt at the repo root, which is why the pyyaml pin lives
+  # in a file rather than inline in the workflow.
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly

@@ -1,0 +1,15 @@
+# SYNTHETIC TEST FIXTURE for scripts/tests/test_validator.py, not a live
+# workflow. Pinned to a movable tag: the tag can be force-pushed onto different
+# code, so what runs tomorrow need not be what was reviewed today.
+name: fixture-floating
+on: workflow_dispatch
+
+jobs:
+  example:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # A short SHA is not enough either — only the full 40 hex characters are
+      # collision-resistant in the way the pin relies on.
+      - uses: actions/setup-python@ece7cb0

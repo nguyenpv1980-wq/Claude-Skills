@@ -1,0 +1,5 @@
+{
+  "skill": "out-of-order-sections",
+  "description": "Synthetic fixture evals for scripts/tests/test_validator.py; not a shipped skill.",
+  "cases": []
+}

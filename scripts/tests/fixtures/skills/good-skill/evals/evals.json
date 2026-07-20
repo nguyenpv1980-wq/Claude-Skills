@@ -1,0 +1,5 @@
+{
+  "skill": "good-skill",
+  "description": "Synthetic fixture evals for scripts/tests/test_validator.py; not a shipped skill. The validator checks only that this file exists and parses.",
+  "cases": []
+}

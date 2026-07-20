@@ -2356,6 +2356,133 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   - Validator: **184 skills, exit 0**; evals JSON parses (10 cases); no
     `scripts/` or `.github/` files touched — normal merge.
 
+- **D55 (2026-07-20) — Gate hardening: the validator's first self-tests, four
+  new hard checks, and supply-chain pins (tooling/config only; count stays
+  184).**
+  - Scope: ONE deliberately gate-touching batch, discovery-first. It edits
+    `scripts/validate-skills.py` and `.github/workflows/validate-skills.yml`,
+    so the `gate-guard` job fails **by design** (D43 precedent) and a human
+    admin merge is required; the `validate-skills` job must be green or the
+    batch is not ready. **Zero `.claude/skills/` files touched** — no skill
+    content, no README, no CONTRIBUTING.
+  - **The meta-gap closed.** The single load-bearing merge gate had no tests at
+    all. Every hard check it had grown — the D43 count markers, the D50
+    strict-YAML / sentinel / block-scalar trio — was hand-proved once in a pull
+    request description and never proved again. `scripts/tests/test_validator.py`
+    now re-proves them on every CI run (38 assertions), wired in as a step
+    BEFORE the validator step; the `gate-guard` job's logic is untouched.
+    Plain-python asserts, NOT pytest: the repo's whole dependency surface is one
+    package and the validator fails closed on it, so adding a framework to test
+    one script would invert that minimalism. Every bad fixture is paired with
+    the error text it must produce, and the suite header documents the one-line
+    mutation that turns it red — so "proven able to fail" stays re-checkable
+    rather than being a claim in a commit message.
+  - INCLUDED (items 1-5 and 7):
+    - **Item 1 — validator self-tests + fixtures** (above). Fixtures live
+      outside every directory the validator scans, so a normal run never
+      discovers them.
+    - **Item 2 — section ORDER, not just presence.** `ordered_headers()` (with
+      `section_headers()` now its `set()` twin, so the two cannot drift) plus
+      `check_section_order()`: required headers in body order, deduped, must
+      equal the canonical order restricted to those present — so optional
+      sections such as **Safety Rules** interleave freely — and a required
+      header written twice is its own error. A skill could previously ship the
+      nine required sections scrambled and pass.
+    - **Item 3 — `.claude/agents/` schema.** Seven reviewer agents sat wholly
+      outside validation, their read-only contract nothing but prose in each
+      file. Now: frontmatter strict-parses; `name` equals the filename stem;
+      `tools` (the field is `tools`, NOT `allowed-tools`) stays inside
+      {Read, Grep, Glob}, with ANY widening an error — the one
+      security-relevant check in the batch, since a Write/Edit/Bash grant turns
+      a reviewer into an actor; `model`, when present, is recognised.
+    - **Item 4 — guided-path link resolution.** Every
+      `.claude/skills/<n>/SKILL.md` link in `docs/paths/*.md` and every
+      `docs/paths/*.md` link in the README picker must resolve on disk, plus a
+      paired-token rule (in ``[`foo`](.../bar/SKILL.md)``, `foo` must equal
+      `bar`) that catches drift resolution cannot: the link works, so the doc
+      reads as fine, while the reader is named one skill and sent to another.
+      This automates the manual "on rename or retire, grep `docs/paths/`" step
+      that D51 left as a convention — and conventions that depend on
+      remembering are the ones that rot.
+      - **Half deliberately NOT built**, recorded in a comment beside the
+        check: "every backticked kebab-case token must name a skill". It passes
+        today only by luck (0 non-skill tokens exist right now); the first path
+        doc to write `read-only` or `fail-closed` in backticks would fail a
+        correct sentence, and a verifier that fires on correct prose is worse
+        than no verifier.
+    - **Item 5 — supply-chain pins, made self-enforcing.**
+      `check_workflows_sha_pinned()` was added and watched FAILING against the
+      real, still-unpinned workflow (3 errors) before the pins were applied —
+      the check is what converts "we pinned once" into "a floating tag cannot
+      come back"; abbreviated SHAs are rejected too, local composite actions
+      left alone. Tags resolved at build time, not from memory:
+      `actions/checkout` v7 → v7.0.0 → `9c091bb2…`, `actions/setup-python`
+      v6 → v6.3.0 → `ece7cb06…`, each carrying a `# vX.Y.Z` comment for
+      legibility. New `requirements.txt` pins `pyyaml==6.0.3` — the current
+      release, verified against PyPI at build time rather than the `6.0.2` the
+      discovery report anticipated. Exact rather than a range (the gate depends
+      on `safe_load` semantics, so CI should be reproducible rather than merely
+      recent) and in a file rather than inline, so dependabot's pip ecosystem
+      can see it.
+      - Check and pins ship in ONE commit on purpose: splitting them would
+        leave a commit on the branch whose validator exits 1, and a red commit
+        nobody intends to keep is a trap for `git bisect`. The fixture-first
+        ORDER is preserved in the authoring, which is what the discipline is
+        actually for.
+    - **Item 7 — dependabot** (github-actions + pip, weekly, both at `/`),
+      explicitly as item 5's maintenance arm. **The coupling is the point:** a
+      SHA pin and an exact version pin freeze the supply chain at review time,
+      which is the intent, but a frozen pin with nobody to thaw it silently
+      stops receiving upstream security patches. Pins without a bumper rot; a
+      bumper without pins has nothing to do — if 5 were out, 7 would be out
+      too. `.github/dependabot.yml` is not under `.github/workflows/`, so
+      adding it does not itself trip `gate-guard` (verified against the guard's
+      own regex); bot PRs that bump a workflow SHA will trip it, which is
+      correct — a bot editing the merge gate should not be able to merge
+      itself.
+  - DROPPED (items 6 and 8), with reasons:
+    - **Item 6 — CODEOWNERS.** Solo maintainer: it routes review to self, and
+      GitHub does not let you approve your own PR to satisfy a required review,
+      so a CODEOWNERS-backed requirement can *block* the admin-merge flow
+      rather than aid it. Its one cited upside — documenting protected paths
+      for future contributors — is already served, and served with teeth, by
+      the `gate-guard` job plus the CONTRIBUTING prose. A CODEOWNERS file with
+      no second human to route to is documentation cosplaying as enforcement.
+      Revisit only if a second maintainer joins.
+    - **Item 8 — live-prose current-count heuristic.** Live and historical
+      counts are textually identical: README:76's "175 skills" is a frozen D33
+      milestone, README:111's "184 skills" must track disk, and this
+      reconciliation log holds roughly forty more legitimate frozen counts. A
+      regex over bare `N skills` has no signal to tell them apart, so it would
+      either false-positive on every historical entry or, tuned away from that,
+      catch nothing. *A verifier that cannot fail correctly is theater with an
+      exit code.* The real defense already exists and needs no new check: the
+      D43 `SKILL-COUNT` / `FAMILY-COUNT` markers pin the one authoritative live
+      count machine-checked, and the countless-full-corpus wording convention
+      installed in D52 keeps other prose from asserting a number at all.
+  - **The three censuses that made this batch content-free** — each re-run at
+    build time rather than trusted from the discovery report, because a census
+    gone stale would silently turn a "ships green" check into a skill-content
+    edit: section-order **0 offenders across 184** (and 0 duplicate required
+    headers); agents **7/7 conform**; `docs/paths` **33 links, 0 unresolved, 3
+    picker links, 0 mismatched pairs**. All three held, so all four new checks
+    shipped green and no skill file was edited. (One discovery-report nit found
+    and not acted on: its agent table transposes the `model` values of
+    `release-readiness-reviewer` and `senior-troubleshooting-lead`. Both are in
+    the allowed set, so the 7/7 verdict is unaffected.)
+  - RESIDUAL, deliberately deferred: README:111's **unmarked** live count
+    ("184 skills … 22 discipline families") duplicates the marked line at :523.
+    The next count bump will update :523 under D43 and leave :111 stale. It is
+    unfixable by a gate check — the same theater problem as item 8 — and
+    trivially fixable by a one-line docs edit (reword to drop the bare live
+    count, or wrap both numbers in the D43 markers). That is content, so it
+    belongs to a future docs pass and is explicitly not part of this gate
+    batch.
+  - Validator: **184 skills, exit 0, 0 warnings** with all four new checks
+    active; self-tests **38/38**. `scripts/validate-skills.py` and
+    `.github/workflows/validate-skills.yml` ARE touched — `gate-guard` **red by
+    design, human admin merge required**.
+
 ---
 
 ## 6. Post-merge corrections
