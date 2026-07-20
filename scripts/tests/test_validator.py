@@ -288,6 +288,46 @@ def test_section_order():
     )
 
 
+def test_agents_schema():
+    """D55: .claude/agents/*.md must strict-parse and stay read-only."""
+    agents = FIXTURES / "agents"
+
+    rep = validator.Report()
+    validator.check_agents_schema(rep, agents / "good")
+    expect_clean(rep, "an agent granting only Read, Grep, Glob is accepted")
+
+    rep = validator.Report()
+    validator.check_agents_schema(rep, agents / "widened-tools")
+    expect_error(
+        rep,
+        "beyond the read-only set",
+        "`tools: Read, Write` is rejected as a privilege escalation",
+    )
+
+    rep = validator.Report()
+    validator.check_agents_schema(rep, agents / "name-mismatch")
+    expect_error(
+        rep, "!= filename stem", "an agent whose name disagrees with its file is rejected"
+    )
+
+    rep = validator.Report()
+    validator.check_agents_schema(rep, agents / "bad-model")
+    expect_error(rep, "is not one of", "an unrecognised model is rejected")
+
+    rep = validator.Report()
+    validator.check_agents_schema(rep, agents / "no-such-directory")
+    expect_clean(rep, "a missing agents directory degrades quietly")
+
+    # That graceful degrade is also how this check could silently become a
+    # no-op, so pin the real surface: the directory must exist, be non-empty,
+    # and conform.
+    shipped = list(validator.AGENTS_DIR.glob("*.md"))
+    assert shipped, f"expected agent files under {validator.AGENTS_DIR}"
+    rep = validator.Report()
+    validator.check_agents_schema(rep)
+    expect_clean(rep, f"all {len(shipped)} shipped reviewer agents conform")
+
+
 TESTS = [
     test_strict_yaml_parse,
     test_description_block_scalar,
@@ -295,6 +335,7 @@ TESTS = [
     test_readme_count_markers,
     test_skill_end_to_end,
     test_section_order,
+    test_agents_schema,
 ]
 
 

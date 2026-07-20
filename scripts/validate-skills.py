@@ -41,6 +41,11 @@ Repo-level checks:
     AND in README.md.
   * bundled-name collision: no skill name duplicates another skill, and no
     skill name shadows a reserved bundled skill name.
+  * `.claude/agents/` schema (decision D55 — check_agents_schema, HARD): the
+    reviewer agents strict-parse, their `name` matches the filename stem, their
+    `tools` grant stays inside the read-only set {Read, Grep, Glob} (any
+    widening is a privilege escalation, not a preference), and `model`, when
+    present, is one the runtime recognises.
   * README map-matches-territory (decision D43): the README's marked SKILL-COUNT
     equals the real skill count on disk, and the roster's per-family counts (plus
     the one project-orchestrator front door) reconcile with disk and with the
@@ -73,6 +78,7 @@ except ImportError:  # reported fail-closed in main() — see decision D50
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = REPO_ROOT / ".claude" / "skills"
+AGENTS_DIR = REPO_ROOT / ".claude" / "agents"
 CATALOG = REPO_ROOT / "docs" / "skills-catalog.md"
 README = REPO_ROOT / "README.md"
 
@@ -586,6 +592,88 @@ def check_roles_table_present(rep: Report) -> None:
         )
 
 
+# --- repo-surface checks (decision D55) ------------------------------------
+#
+# Surfaces the gate could not see before D55. Each was already conforming when
+# its check was written, so each shipped green; the point is that none of them
+# can rot silently from here.
+
+
+def _rel(path: Path) -> str:
+    """Repo-relative POSIX path for error messages (absolute if outside the repo)."""
+    try:
+        return path.resolve().relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
+# The reviewer agents are read-only personas by contract, so ANY widening is an
+# error rather than a warning: it is the one security-relevant check in D55.
+AGENT_ALLOWED_TOOLS = {"Read", "Grep", "Glob"}
+AGENT_ALLOWED_MODELS = {"opus", "sonnet", "haiku"}
+
+
+def check_agents_schema(rep: Report, agents_dir: Path | None = None) -> None:
+    """Decision D55 (HARD): validate the `.claude/agents/*.md` frontmatter.
+
+    Seven reviewer agents sat wholly outside validation until D55. Each must:
+      * strict-parse its frontmatter (the same parser skills use, decision D50);
+      * carry a `name` equal to the filename stem, so the name an operator
+        addresses and the file that is discovered cannot diverge;
+      * declare `tools` (the field is `tools`, NOT `allowed-tools`) within the
+        read-only set — a Write/Edit/Bash/`*` grant turns a reviewer into an
+        actor, which is a privilege escalation, not a config preference;
+      * name a recognised `model` when it names one at all.
+    """
+    agents_dir = AGENTS_DIR if agents_dir is None else agents_dir
+    if not agents_dir.is_dir():
+        return
+    for path in sorted(agents_dir.glob("*.md")):
+        ctx = _rel(path)
+        fm_text, _ = split_frontmatter(path.read_text(encoding="utf-8"))
+        if fm_text is None:
+            rep.error(f"[{ctx}] agent has no parseable frontmatter block")
+            continue
+        fm = check_frontmatter_strict_yaml(fm_text, ctx, rep)
+        if fm is None:
+            continue
+
+        if fm.get("name") != path.stem:
+            rep.error(
+                f"[{ctx}] frontmatter name '{fm.get('name')}' != filename stem "
+                f"'{path.stem}' (the agent would be addressed by one name and "
+                "discovered under another)"
+            )
+
+        tools = fm.get("tools")
+        if isinstance(tools, str):
+            granted = {t.strip() for t in tools.split(",") if t.strip()}
+        elif isinstance(tools, list):
+            granted = {str(t).strip() for t in tools if str(t).strip()}
+        else:
+            granted = set()
+        if not granted:
+            rep.error(
+                f"[{ctx}] agent declares no `tools`; the read-only contract has "
+                "to be explicit, not implied"
+            )
+        else:
+            widened = sorted(granted - AGENT_ALLOWED_TOOLS)
+            if widened:
+                rep.error(
+                    f"[{ctx}] `tools` grants {widened} beyond the read-only set "
+                    f"{sorted(AGENT_ALLOWED_TOOLS)} — these agents read and "
+                    "report; a write or exec grant turns a reviewer into an actor"
+                )
+
+        model = fm.get("model")
+        if model is not None and str(model).strip() not in AGENT_ALLOWED_MODELS:
+            rep.error(
+                f"[{ctx}] `model` '{model}' is not one of "
+                f"{sorted(AGENT_ALLOWED_MODELS)}"
+            )
+
+
 def check_name_collisions(skill_names: list[str], rep: Report) -> None:
     seen: set[str] = set()
     for name in skill_names:
@@ -624,6 +712,9 @@ def main() -> int:
 
     check_name_collisions(names, rep)
     check_catalog_integrity([n for n in names if n], rep)
+
+    # Repo surfaces outside .claude/skills/ (decision D55).
+    check_agents_schema(rep)                       # HARD
 
     # README map-matches-territory (decision D43): reconcile the README's
     # authoritative counts and roster against the real skills on disk.
