@@ -328,6 +328,52 @@ def test_agents_schema():
     expect_clean(rep, f"all {len(shipped)} shipped reviewer agents conform")
 
 
+def test_docs_paths_links():
+    """D55: guided-path and README picker links must resolve."""
+    tree = FIXTURES / "paths-tree"
+    good_paths, good_readme = tree / "docs" / "paths", tree / "README-good.md"
+
+    rep = validator.Report()
+    validator.check_docs_paths_links(rep, good_paths, good_readme)
+    expect_clean(rep, "resolving path links and a resolving picker are accepted")
+
+    rep = validator.Report()
+    validator.check_docs_paths_links(rep, tree / "docs" / "paths-dangling", good_readme)
+    expect_error(
+        rep, "which does not exist on disk", "a dangling SKILL.md link is rejected"
+    )
+
+    rep = validator.Report()
+    validator.check_docs_paths_links(rep, tree / "docs" / "paths-mismatch", good_readme)
+    expect_error(
+        rep,
+        "does not match its target skill",
+        "a resolving link whose label names a DIFFERENT skill is rejected",
+    )
+
+    rep = validator.Report()
+    validator.check_docs_paths_links(rep, good_paths, tree / "README-dangling.md")
+    expect_error(
+        rep,
+        "which does not exist on disk",
+        "a README picker pointing at a missing path doc is rejected",
+    )
+
+    # Pin the real surface, so a mis-pathed PATHS_DIR cannot make this a no-op.
+    shipped = list(validator.PATHS_DIR.glob("*.md"))
+    assert shipped, f"expected guided-path docs under {validator.PATHS_DIR}"
+    linked = sum(
+        len(validator.PATH_SKILL_LINK.findall(d.read_text(encoding="utf-8")))
+        for d in shipped
+    )
+    assert linked, "expected the shipped guided paths to contain SKILL.md links"
+    rep = validator.Report()
+    validator.check_docs_paths_links(rep)
+    expect_clean(
+        rep, f"all {linked} links across {len(shipped)} shipped guided paths resolve"
+    )
+
+
 TESTS = [
     test_strict_yaml_parse,
     test_description_block_scalar,
@@ -336,6 +382,7 @@ TESTS = [
     test_skill_end_to_end,
     test_section_order,
     test_agents_schema,
+    test_docs_paths_links,
 ]
 
 

@@ -46,6 +46,10 @@ Repo-level checks:
     `tools` grant stays inside the read-only set {Read, Grep, Glob} (any
     widening is a privilege escalation, not a preference), and `model`, when
     present, is one the runtime recognises.
+  * guided-path link resolution (decision D55 — check_docs_paths_links, HARD):
+    every SKILL.md link in docs/paths/ and every docs/paths link in the README
+    resolves on disk, and a `[`foo`](.../bar/SKILL.md)` label matches its
+    target. Automates the manual "on rename or retire, grep docs/paths/" step.
   * README map-matches-territory (decision D43): the README's marked SKILL-COUNT
     equals the real skill count on disk, and the roster's per-family counts (plus
     the one project-orchestrator front door) reconcile with disk and with the
@@ -80,6 +84,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = REPO_ROOT / ".claude" / "skills"
 AGENTS_DIR = REPO_ROOT / ".claude" / "agents"
 CATALOG = REPO_ROOT / "docs" / "skills-catalog.md"
+PATHS_DIR = REPO_ROOT / "docs" / "paths"
 README = REPO_ROOT / "README.md"
 
 IGNORED_DIRS = {"_template"}
@@ -455,8 +460,9 @@ FAMILY_LINE = re.compile(
     r"^\d+\.\s+\*\*.+?\*\*\s+\*\([^)]*?,\s*(\d+)\)\*",
     re.MULTILINE,
 )
-# A backticked kebab-case token (skill-name shape) inside the roster prose.
-ROSTER_SKILL_TOKEN = re.compile(r"`([a-z0-9]+(?:-[a-z0-9]+)+)`")
+# A backticked kebab-case token (skill-name shape). Shared by the roster
+# flagship check below and the D55 guided-path paired-token rule.
+BACKTICKED_KEBAB_TOKEN = re.compile(r"`([a-z0-9]+(?:-[a-z0-9]+)+)`")
 
 WHATS_IN_THE_LIBRARY = "## What's in the library"
 ROLES_SECTION = "## The roles Aegis can play"
@@ -567,7 +573,7 @@ def check_roster_flagships_exist(real_names: set[str], rep: Report) -> None:
     section = _section_text(text, WHATS_IN_THE_LIBRARY)
     if section is None:
         return
-    for token in sorted({m.group(1) for m in ROSTER_SKILL_TOKEN.finditer(section)}):
+    for token in sorted({m.group(1) for m in BACKTICKED_KEBAB_TOKEN.finditer(section)}):
         if token not in real_names:
             rep.warn(
                 f"README roster references `{token}`, which is not a skill on disk "
@@ -674,6 +680,65 @@ def check_agents_schema(rep: Report, agents_dir: Path | None = None) -> None:
             )
 
 
+# A guided-path step: [`skill-name`](../../.claude/skills/skill-name/SKILL.md).
+PATH_SKILL_LINK = re.compile(
+    r"\[([^\]]*)\]\(([^)\s]*\.claude/skills/([a-z0-9][a-z0-9-]*)/SKILL\.md)\)"
+)
+# A README picker entry pointing into docs/paths/.
+README_PATH_DOC_LINK = re.compile(r"\[[^\]]*\]\((docs/paths/[A-Za-z0-9._-]+\.md)\)")
+
+
+def check_docs_paths_links(
+    rep: Report, paths_dir: Path | None = None, readme: Path | None = None
+) -> None:
+    """Decision D55 (HARD): the D51 guided paths must not rot.
+
+    Three rules, each false-positive-free:
+      (a) every `.claude/skills/<n>/SKILL.md` link in docs/paths/*.md resolves
+          on disk — this automates the "on rename or retire, grep docs/paths/"
+          step the project has so far relied on someone remembering;
+      (b) every docs/paths/*.md link in the README picker resolves;
+      (c) paired-token rule: in [`foo`](.../bar/SKILL.md), foo must equal bar,
+          catching copy-paste drift that still resolves and so reads as fine.
+
+    DELIBERATELY NOT CHECKED (considered and dropped in D55): "every backticked
+    kebab-case token in a path doc must name a skill". It passes today only by
+    luck — there happen to be zero non-skill tokens. The first path doc to write
+    `read-only` or `fail-closed` in backticks would fail a correct sentence, and
+    a verifier that fires on correct prose is worse than no verifier at all.
+    """
+    paths_dir = PATHS_DIR if paths_dir is None else paths_dir
+    readme = README if readme is None else readme
+
+    if paths_dir.is_dir():
+        for doc in sorted(paths_dir.glob("*.md")):
+            ctx = _rel(doc)
+            for label, target, slug in PATH_SKILL_LINK.findall(
+                doc.read_text(encoding="utf-8")
+            ):
+                if not (doc.parent / target).resolve().is_file():
+                    rep.error(
+                        f"[{ctx}] links {target}, which does not exist on disk "
+                        "(a renamed or retired skill left a dangling path step)"
+                    )
+                tokens = BACKTICKED_KEBAB_TOKEN.findall(label)
+                if tokens and tokens[-1] != slug:
+                    rep.error(
+                        f"[{ctx}] link label `{tokens[-1]}` does not match its "
+                        f"target skill '{slug}' — the reader is named one skill "
+                        "and sent to another"
+                    )
+
+    if readme.is_file():
+        ctx = _rel(readme)
+        for target in README_PATH_DOC_LINK.findall(readme.read_text(encoding="utf-8")):
+            if not (readme.parent / target).is_file():
+                rep.error(
+                    f"[{ctx}] links {target}, which does not exist on disk "
+                    "(the guided-path picker points at a missing path doc)"
+                )
+
+
 def check_name_collisions(skill_names: list[str], rep: Report) -> None:
     seen: set[str] = set()
     for name in skill_names:
@@ -715,6 +780,7 @@ def main() -> int:
 
     # Repo surfaces outside .claude/skills/ (decision D55).
     check_agents_schema(rep)                       # HARD
+    check_docs_paths_links(rep)                    # HARD
 
     # README map-matches-territory (decision D43): reconcile the README's
     # authoritative counts and roster against the real skills on disk.
