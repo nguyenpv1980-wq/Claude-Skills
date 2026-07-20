@@ -235,12 +235,66 @@ def test_skill_end_to_end():
     expect_error(rep, "missing SKILL.md", "a skill directory without SKILL.md is rejected")
 
 
+# --- checks added by decision D55 -------------------------------------------
+
+
+def _body(sections) -> str:
+    """Build a SKILL.md body carrying exactly these `##` sections, in order."""
+    return "\n".join(f"## {s}\n\nprose\n" for s in sections)
+
+
+def test_section_order():
+    """D55: the required sections must appear in the canonical order."""
+    canonical = list(validator.REQUIRED_SECTIONS)
+
+    rep = validator.Report()
+    validator.check_section_order(_body(canonical), "x", rep)
+    expect_clean(rep, "canonical section order accepted")
+
+    interleaved = canonical[:6] + ["Safety Rules"] + canonical[6:]
+    rep = validator.Report()
+    validator.check_section_order(_body(interleaved), "x", rep)
+    expect_clean(rep, "an optional section (Safety Rules) may interleave freely")
+
+    scrambled = [s for s in canonical if s != "Gotchas"]
+    scrambled.insert(scrambled.index("Workflow"), "Gotchas")
+    rep = validator.Report()
+    validator.check_section_order(_body(scrambled), "x", rep)
+    expect_error(rep, "out of order", "Gotchas written before Workflow is rejected")
+
+    rep = validator.Report()
+    validator.check_section_order(_body(canonical + ["Workflow"]), "x", rep)
+    expect_error(
+        rep,
+        "duplicate required section header",
+        "a required section written twice is rejected",
+    )
+
+    assert validator.ordered_headers("## B\n## A\n## B\n") == ["B", "A", "B"], (
+        "ordered_headers must preserve both order and duplicates"
+    )
+    assert validator.section_headers("## B\n## A\n## B\n") == {"A", "B"}, (
+        "section_headers must remain the set twin of ordered_headers"
+    )
+
+    # ...and the check must be WIRED into the per-skill path, not merely defined.
+    rep = validator.Report()
+    validator.validate_skill(FIXTURES / "skills" / "out-of-order-sections", rep)
+    expect_error(
+        rep, "out of order", "the scrambled fixture skill is rejected end to end"
+    )
+    assert not any("missing required section" in e for e in rep.errors), (
+        "the scrambled fixture has all nine sections; only ORDER may fire"
+    )
+
+
 TESTS = [
     test_strict_yaml_parse,
     test_description_block_scalar,
     test_manual_only_sentinel_bidirectional,
     test_readme_count_markers,
     test_skill_end_to_end,
+    test_section_order,
 ]
 
 

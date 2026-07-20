@@ -30,6 +30,9 @@ Checks performed per skill (see docs/skill-generation-standard.md):
   * all nine required sections present (v4 standard): Purpose, Use When,
     Inputs to Inspect, Workflow, Output Format, Validation Checklist, Gotchas,
     Stop Conditions, Supporting Files.
+  * those nine also appear in the canonical ORDER the standard mandates
+    (decision D55 — check_section_order, HARD: presence alone let a scrambled
+    skill pass; optional sections interleave freely, duplicates are errors).
   * evals convention (repo decision D3 — structural only, no runner):
     evals/evals.json exists and parses; evals/trigger-evals.json parses if present.
 
@@ -224,14 +227,54 @@ def check_manual_only_sentinel(name_ctx: str, fm: dict, desc, rep: Report) -> No
         )
 
 
+SECTION_HEADER_RE = re.compile(r"^##\s+(.*\S)\s*$")
+
+
+def ordered_headers(body: str) -> list[str]:
+    """Return the `##`-level section titles in the order the body writes them.
+
+    The ordered twin of section_headers(). Order is what decision D55's
+    section-order check needs, and duplicates must survive the extraction so
+    that a required header written twice is visible.
+    """
+    out = []
+    for line in body.splitlines():
+        m = SECTION_HEADER_RE.match(line)
+        if m:
+            out.append(m.group(1).strip())
+    return out
+
+
 def section_headers(body: str) -> set[str]:
     """Return the set of `##`-level section titles present in the body."""
-    out = set()
-    for line in body.splitlines():
-        m = re.match(r"^##\s+(.*\S)\s*$", line)
-        if m:
-            out.add(m.group(1).strip())
-    return out
+    return set(ordered_headers(body))
+
+
+def check_section_order(body: str, name_ctx: str, rep: Report) -> None:
+    """Decision D55 (HARD): the required sections must appear in canonical order.
+
+    Presence has been checked since the beginning; ORDER never was, so a skill
+    could ship the nine required sections scrambled and pass. The standard is
+    explicit that it is an ordering (docs/skill-generation-standard.md: "these
+    `##` sections, in this order").
+
+    Optional sections (e.g. "Safety Rules") interleave freely: the body order is
+    filtered down to the required nine before comparison, so only the RELATIVE
+    order of required sections is constrained.
+    """
+    ordered = [h for h in ordered_headers(body) if h in REQUIRED_SECTIONS]
+    deduped = list(dict.fromkeys(ordered))
+    if len(ordered) != len(deduped):
+        repeated = sorted({h for h in ordered if ordered.count(h) > 1})
+        rep.error(
+            f"[{name_ctx}] duplicate required section header(s): {', '.join(repeated)}"
+        )
+    expected = [s for s in REQUIRED_SECTIONS if s in deduped]
+    if deduped != expected:
+        rep.error(
+            f"[{name_ctx}] required sections are out of order: found {deduped}, "
+            f"expected canonical order {expected}"
+        )
 
 
 # --- validation ------------------------------------------------------------
@@ -336,11 +379,12 @@ def validate_skill(skill_dir: Path, rep: Report) -> str | None:
             f"[{name_ctx}] SKILL.md is {n_lines} lines (must be < {MAX_SKILL_LINES})"
         )
 
-    # required sections
+    # required sections — present, and in the canonical order (decision D55)
     present = section_headers(body)
     missing = [s for s in REQUIRED_SECTIONS if s not in present]
     if missing:
         rep.error(f"[{name_ctx}] missing required section(s): {', '.join(missing)}")
+    check_section_order(body, name_ctx, rep)
 
     # evals convention (structural only — no runner yet, per decision D3)
     evals_json = skill_dir / "evals" / "evals.json"
