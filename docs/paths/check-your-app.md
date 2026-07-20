@@ -7,9 +7,11 @@ want to know if it's safe before real users and real data depend on it. You don'
 know what any of the skill names below mean; each one is a specialist that explains itself
 when it runs.
 
-**How to run it:** open your project in Claude Code and take the steps top to bottom. For
-most steps, asking for what the step describes in plain words is enough — the named skill
-selects itself. Two steps act on secrets, so they are deliberately never invoked
+**How to run it:** open your project in your agent tool (Claude Code, Codex CLI, or any Agent
+Skills tool) and take the steps top to bottom. For most steps, asking for what the step
+describes in plain words is enough — the named skill selects itself. (Auto-selection quality
+varies by tool — see the README's [tools section](../../README.md#using-aegis-with-codex-cli-and-other-agent-skills-tools).)
+Two steps act on secrets, so they are deliberately never invoked
 automatically: they are marked **manual-only — name it explicitly**, and you start them by
 typing the skill's name.
 

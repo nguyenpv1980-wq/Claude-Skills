@@ -8,8 +8,10 @@ different from classic app security (a model can be talked into things a databas
 so the order matters: map the threats first, design the guardrails second, prove they hold
 last.
 
-**How to run it:** open your project in Claude Code and take the steps top to bottom. For
-most steps, plain words are enough — the named skill selects itself. Two steps are marked
+**How to run it:** open your project in your agent tool (Claude Code, Codex CLI, or any Agent
+Skills tool) and take the steps top to bottom. For most steps, plain words are enough — the
+named skill selects itself. (Auto-selection quality varies by tool — see the README's [tools
+section](../../README.md#using-aegis-with-codex-cli-and-other-agent-skills-tools).) Two steps are marked
 **manual-only — name it explicitly**: you start them by typing the skill's name.
 
 Steps marked *"if…"* are conditional — skip them honestly when they don't match your

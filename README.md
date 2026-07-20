@@ -5,24 +5,26 @@
 *Discipline before code. Evidence before merge.*
 
 Project Aegis is an operating system for engineering software with AI — a reusable
-Claude engineering shield: a library of skills, subagents, validation gates, and
-safety patterns, governed by Zero Trust AI Engineering Discipline (Zet-AI Engineering
-for short), that turns Claude
-into a disciplined senior/principal engineering partner for architecture, SaaS,
+engineering shield for AI coding agents: a library of skills, subagents, validation gates,
+and safety patterns in the open Agent Skills format (Claude Code as the reference surface,
+plus OpenAI Codex, Cursor, Gemini CLI, and other Agent Skills tools), governed by Zero Trust
+AI Engineering Discipline (Zet-AI Engineering for short), that turns your coding agent into a
+disciplined senior/principal engineering partner for architecture, SaaS,
 security, QA, audit, troubleshooting, and AI safety.
 
 ## About
 
-Project Aegis is a reusable Claude engineering operating system built to protect, guide,
-and sharpen AI-assisted software development. It combines reusable Claude Code skills,
-read-only specialist subagents, validation gates, eval conventions, and disciplined
-engineering workflows so Claude operates like a senior/principal engineering partner.
+Project Aegis is a reusable engineering operating system for AI coding agents, built to
+protect, guide, and sharpen AI-assisted software development. It combines reusable skills in
+the open Agent Skills format, read-only specialist subagents, validation gates, eval
+conventions, and disciplined engineering workflows so your coding agent operates like a
+senior/principal engineering partner.
 The name carries three layers: the divine shield of Zeus and Athena; the Navy's Aegis,
 shield of the fleet — fitting for a veteran-founded project whose operating model is a
 fleet of agents; and a shield proven in use — several skills' eval cases are drawn from
 real incidents this project absorbed during its own construction (an unauthorized
 auto-merge, stale-memory session collisions, an empty-directory build). The goal is not
-prompt bloat; it is a protected execution framework where Claude models before coding,
+prompt bloat; it is a protected execution framework where the agent models before coding,
 reads docs before implementation, tests before changes, keeps diffs small, respects
 human approval boundaries, and produces evidence before closeout.
 
@@ -108,8 +110,8 @@ library's own additions, and its sweep corrections were applied in D33.
 
 ## The roles Aegis can play
 
-Under the hood, Aegis is a library of 184 skills organized into 22 discipline families. In
-practical terms, Aegis can make Claude act as:
+Under the hood, Aegis is a library of <!-- SKILL-COUNT -->184<!-- /SKILL-COUNT --> skills organized into <!-- FAMILY-COUNT -->22<!-- /FAMILY-COUNT --> discipline families. In
+practical terms, Aegis can make your coding agent act as:
 
 | Aegis can act as… | What that means for you | Example skills |
 |---|---|---|
@@ -135,9 +137,13 @@ practical terms, Aegis can make Claude act as:
 
 ### Start here: pick your path
 
-You never have to pick from the list above yourself — Aegis selects and coordinates the
-right role for each step. Find the sentence that sounds like you: each door leads to a
-short guided path through the right skills, in the right order.
+You never have to pick from the list above yourself — describe your situation to your agent
+tool (Claude Code, Codex CLI, or any Agent Skills tool) and Aegis selects and coordinates the
+right role for each step. Find the sentence that sounds like you: each door leads to a short
+guided path through the right skills, in the right order. (Auto-selection quality varies by
+tool — Claude Code reads the full skill descriptions; some tools' native selection reads only
+a short description prefix. See [Using Aegis with Codex CLI and other Agent Skills
+tools](#using-aegis-with-codex-cli-and-other-agent-skills-tools).)
 
 - **"I have an idea, but I'm not a developer."** → [From idea to shipped: the no-experience
   path](#from-idea-to-shipped-the-no-experience-path). One pasted prompt starts it;
@@ -153,7 +159,7 @@ short guided path through the right skills, in the right order.
 - **"I want to add AI features without opening a security hole."** → [Add AI features
   safely](docs/paths/add-ai-safely.md): threat-model first, then design the guardrails,
   then prove they hold.
-- **"It works — now I want to launch."** → tell Claude Code: *"My app is built — use
+- **"It works — now I want to launch."** → tell your coding agent: *"My app is built — use
   project-orchestrator to get me ready to release."* It picks up at the deploy-prep stage
   and ends with a plain-language GO / NO-GO that **you** authorize.
 
@@ -289,8 +295,12 @@ with discipline and backed by evidence.
 
 ### Getting started
 
-Step 1 gets you the repo; then pick the option that matches how you work. Options 1–5 all
-run Claude Code; Option 6 is the honest fallback for when you can't run Claude Code at all.
+Step 1 gets you the repo; then pick the option that matches how you work. The options below
+are the **Claude Code path** (the reference surface): Options 1–5 all run Claude Code, and
+Option 6 is the honest fallback for when you can't run Claude Code at all. **Using a different
+Agent Skills tool** (OpenAI Codex, Cursor, Gemini CLI, …)? Step 1 is shared by every tool;
+then skip to [Using Aegis with Codex CLI and other Agent Skills
+tools](#using-aegis-with-codex-cli-and-other-agent-skills-tools) below.
 
 **Step 1 — get the repo** (every option starts here):
 
@@ -415,9 +425,11 @@ cp -r .claude/skills/tdd-engineer /path/to/your-repo/.claude/skills/
 [`docs/skill-generation-standard.md`](docs/skill-generation-standard.md) defines the
 format if you want to write your own.
 
-**Using Aegis with Codex CLI and other Agent Skills tools.** Aegis skills use the open
-Agent Skills format — one `SKILL.md` with YAML frontmatter per skill — the same format
-Claude Code, OpenAI Codex, Cursor, Gemini CLI and other tools consume. Two ways in:
+#### Using Aegis with Codex CLI and other Agent Skills tools
+
+Aegis skills use the open Agent Skills format — one `SKILL.md` with YAML frontmatter per
+skill — the same format Claude Code, OpenAI Codex, Cursor, Gemini CLI and other tools
+consume. Two ways in:
 
 - **Out of the box (recommended):** the repo-root [`AGENTS.md`](AGENTS.md) is read
   natively by Codex CLI (and as extra context by Claude Code). It points agents into

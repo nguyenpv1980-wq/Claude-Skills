@@ -2483,6 +2483,75 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     `.github/workflows/validate-skills.yml` ARE touched — `gate-guard` **red by
     design, human admin merge required**.
 
+- **D56 (2026-07-20) — Multi-agent identity: the README framed for the open
+  Agent Skills ecosystem, Claude Code as the reference surface (docs-only;
+  count stays 184).**
+  - Scope: `README.md`, the three `docs/paths/*.md` guided paths, and this
+    entry. No `scripts/`, `.github/`, or `.claude/` files — so `gate-guard`
+    passes and both CI checks are green. The skill corpus is untouched; this is
+    a framing pass, not a content one.
+  - **Why now.** D49/D50 made the corpus Agent-Skills-standard portable and
+    proved it in Codex (185/185 native-parse, the `AGENTS.md` bridge, the
+    32-char MANUAL-ONLY sentinels). The README's tools section (:418) already
+    told that multi-tool truth, but its *identity* — the hero paragraph, the
+    About block, the roles intro — still called Aegis "a reusable Claude
+    engineering shield." The framing lagged the shipped reality; this closes the
+    gap without touching a single skill.
+  - **The classified census drove the edits** (D53 pattern — the fix list is
+    derived, not guessed). Every Claude-mentioning line in the README and the
+    three path docs was classified K / G / T:
+    - **G — GENERALIZE (identity/framing that presented Aegis as Claude-only):
+      11 sites, all fixed.** The hero identity block; four About-paragraph
+      echoes ("reusable Claude engineering operating system", "reusable Claude
+      Code skills", "so Claude operates like…", "where Claude models before
+      coding"); the roles intro ("make Claude act as"); the picker lead; the
+      picker launch door ("tell Claude Code"); and the three `docs/paths` "How
+      to run it" leads. Each now names the tool-neutral reality — "your coding
+      agent" / "your agent tool (Claude Code, Codex CLI, or any Agent Skills
+      tool)" — with Claude Code named first as the reference surface.
+    - **T — TOOLS-ANCHOR: 0 pre-existing lines restated the multi-tool content**
+      (it was already contained at the tools section), so the anchor work was
+      additive — the bold tools lead was promoted to a real `####` heading so it
+      finally has a resolvable anchor, and six pointers now cite it: the
+      Getting-Started cross-tool lead-in plus the five auto-selection honesty
+      clauses.
+    - **K — KEEP (Claude-Code-specific FACTS): untouched.** The Getting-Started
+      Options 1–6 install walkthroughs with their URLs and `claude` commands,
+      the tools-section body, every `.claude/…` path literal, the historical
+      `claude-skills-*` doc filenames, the Safety note, and the two
+      reference-surface instructions ("Paste this into Claude Code";
+      check-your-app.md's "ask Claude Code to explain"). These are correct
+      instructions for a real surface, not Claude-only framing.
+  - **The asymmetry was preserved, not flattened — the point of the pass.** No
+    parity claim was added anywhere. The one true difference stays stated at the
+    tools section verbatim: **only Claude Code natively enforces
+    `disable-model-invocation`; every other tool relies on the 32-char
+    MANUAL-ONLY description sentinel plus the `AGENTS.md` rule, which reduce
+    auto-invocation risk but are not enforcement.** The "verified against
+    codex-cli 0.138.0-alpha.7 on 2026-07-18" honesty framing is left exactly
+    where cross-tool behavior is asserted.
+  - **The four instructional leads** (the README picker lead + the three path
+    "How to run it" leads) now generalize the "describe it and the right skill
+    selects itself" flow to any Agent Skills tool and carry ONE honesty clause
+    where auto-selection is implied: selection quality varies by tool — Claude
+    Code reads the full descriptions, some tools' native selection reads only a
+    short prefix. The full clause is stated once in the README picker lead; the
+    path docs cite it rather than restate the caveats.
+  - **The :111 residual, deferred by D55, is cleared.** The unmarked live count
+    ("184 skills … 22 discipline families") that duplicated the marked line at
+    :523 is now itself wrapped in the D43 `<!-- SKILL-COUNT -->` /
+    `<!-- FAMILY-COUNT -->` markers, so both numbers are machine-checked against
+    disk and the next bump cannot leave :111 stale — the marker option the D55
+    residual note anticipated. The frozen historical counts (:76's "175", the
+    phase-narrative "184") stay deliberately unmarked.
+  - **`AGENTS.md` needed no change** — it was already tool-neutral (it points
+    agents into `.claude/skills/` and names no vendor as the owner), so the doc
+    bridge and the README framing now agree without editing it.
+  - Validator: **184 skills, exit 0, 0 warnings**; self-tests **38/38**. Both
+    count-marker pairs (:111 and :523) reconcile against disk; the D55
+    guided-path link check stays green (the picker edits touched no path-doc
+    link). No `scripts/` or `.github/` files touched — normal merge.
+
 ---
 
 ## 6. Post-merge corrections

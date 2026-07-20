@@ -4,9 +4,11 @@
 
 **Who this is for:** something in your app is wrong and you don't know why.
 
-**How to run it:** in Claude Code, describe the symptom in plain words — "users can see
-someone else's data", "tests fail only in CI" — and the matching specialist selects
-itself. You never need to route anything yourself; the table below is the human-readable
+**How to run it:** in your agent tool (Claude Code, Codex CLI, or any Agent Skills tool),
+describe the symptom in plain words — "users can see someone else's data", "tests fail only
+in CI" — and the matching specialist selects itself. (Auto-selection quality varies by tool —
+see the README's [tools section](../../README.md#using-aegis-with-codex-cli-and-other-agent-skills-tools).)
+You never need to route anything yourself; the table below is the human-readable
 map of who owns what, so you can see where your problem lands.
 
 ## The symptom map
