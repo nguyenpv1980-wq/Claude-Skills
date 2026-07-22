@@ -2770,6 +2770,144 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     touched — both CI checks green, normal merge; auto-merge left unarmed (this
     repo's PR-no-merge policy).
 
+- **D60 (2026-07-22) — Enforcement batch: commit-level DCO with a named trusted-bot
+  exemption, a `push: main` validation lane, a pinned Python minor, and the merge gate
+  widened to its enforcement surfaces (CI and `scripts/` only; count stays 184).**
+  - **DCO turned from a checklist item into a check.** D58 chose the Developer
+    Certificate of Origin over a CLA, and `CONTRIBUTING.md` has asked for
+    `git commit -s` ever since — but nothing verified it, and an unverified ask is a
+    wish. New [`scripts/check_dco.py`](../../scripts/check_dco.py) requires a
+    well-formed `Signed-off-by: Name <email>` trailer on **every commit in the pull
+    request's range**, not merely the tip: a branch's second commit is exactly as
+    unsigned as its first. A bare `Signed-off-by:` with no identity certifies nobody
+    and fails. Failure output names each offending commit by full SHA and prints the
+    recovery verbatim — `git commit --amend -s` for one commit,
+    `git rebase --signoff origin/main` for several, then `git push --force-with-lease`.
+  - **The trusted-bot policy, in full.** Exempt from the trailer requirement:
+    **exactly `dependabot[bot]` and `github-actions[bot]`**, matched on their GitHub
+    noreply author addresses (an optional numeric-id prefix, the bot name, then
+    `@users.noreply.github.com`, anchored at both ends). **Why:** both are machine
+    authors with no person able to execute the DCO's certification, and neither can be
+    made to add the trailer — so without the exemption every dependency bump would
+    arrive permanently red, turning a security-patch pipeline into a nuisance to be
+    routed around. The compensating control on the riskiest bot bumps is **cited, not
+    restated**: [`.github/dependabot.yml`](../../.github/dependabot.yml) already
+    documents that a bump touching the merge gate trips `gate-guard` and therefore
+    needs a human admin merge. **Honest limit, recorded:** a commit's author field is
+    self-asserted, so this exemption is **not an authentication boundary** and is not
+    offered as one. Anyone able to write a commit could claim a bot address and skip
+    the trailer — which buys nothing, since adding `-s` is free and the sign-off was
+    never the obstacle; what actually gates merge here is human review plus branch
+    protection. The list is held to two exact identities on one domain so it cannot
+    widen by accident, and a lookalike (`renovate[bot]@users.noreply.github.com`) is
+    proved non-exempt in the suite.
+  - **Author-identity equality deliberately NOT enforced.** The sign-off email is not
+    required to equal the author email. The stricter rule would break the recovery the
+    script itself prints: `git rebase --signoff` signs as the person **running** the
+    rebase, not as each commit's original author, so a maintainer relaying an outside
+    patch would be told to run a command that cannot make the check pass. A gate whose
+    own printed remedy fails its own rule is worse than no gate.
+  - **Fail-closed on an empty range.** Zero commits is an **error**, not a vacuous
+    pass. A pull request always has at least one commit, so an empty range means the
+    range was computed wrong — the precise way a green check comes to be examining
+    nothing at all. This is the live-surface protection for the real CI invocation,
+    matching the "could pass by scanning nothing" guards D55 put on the validator's
+    directory-scanning checks.
+  - **Merge commits skipped, and the range ends at the real head.** CI passes
+    `--no-merges`, and the range ends at `github.event.pull_request.head.sha` rather
+    than `HEAD`: on a `pull_request` event `HEAD` is a synthetic merge commit **GitHub
+    authored**, which no contributor can sign. Ranging to `HEAD` would have failed
+    every pull request on a commit no human made.
+  - **The DCO check is a STEP inside `validate-skills`, not a job of its own.** A new
+    job name would be advisory until the owner registered it in branch protection; a
+    step inside the already-required job makes the contract binding the moment it
+    merges, with no owner action required. Cost: that job's checkout now uses
+    `fetch-depth: 0` so the commit range can be walked.
+  - **`push: main` validation lane.** The workflow now triggers on `pull_request`
+    **and** `push` to `main`, deliberately asymmetric:
+    - `validate-skills` (self-tests + validator) runs on **both** events.
+    - `gate-guard` and the DCO step run on **`pull_request` only**
+      (`if: github.event_name == 'pull_request'`). `gate-guard` diffs against
+      `github.base_ref`, which a push event does not have — it would fail on a missing
+      ref rather than on a real finding. DCO is a **PR-time contract**: squash and
+      rebase merges can lawfully rewrite trailers on the way in, so the sign-off is
+      asserted against the pull request's own commits, at the only moment they are the
+      thing being merged.
+    - The lane is a **detection lane, not a gate**: it runs after the merge has already
+      happened and cannot block anything. It exists to catch a `main` that went red by
+      a route no pull request saw — an admin merge past a red `gate-guard` (which this
+      repo performs by design), a direct push, or a clean merge of two individually
+      clean branches. Permissions stay `contents: read`.
+  - **Python pinned to a minor: `'3.14'`.** `python-version: '3.x'` silently followed
+    the runner image to whatever CPython shipped next — the one unpinned input left in
+    a workflow that pins its actions to commit SHAs (D55) and PyYAML to an exact
+    version. The value was **verified, not guessed**: run `29882666002` (the D59 pull
+    request, the last run before this one) logged `Successfully set up CPython (3.14.6)`
+    for `3.x` on `ubuntu-latest`, so `'3.14'` **freezes current behaviour rather than
+    changing it**. Quoted deliberately — an unquoted `3.10` would parse as the float
+    `3.1`. **Dependabot does not bump `python-version`**: it understands SHA-pinned
+    actions and pip pins, not this field. That is the point rather than a gap — the
+    interpreter the gate runs on now moves only by a deliberate reviewed pull request.
+  - **Gate-scope decision: WIDENED to all three candidates** — a recommendation
+    adopted, not a violation corrected. `gate-guard`'s protected set grows from
+    `.github/workflows/` + `scripts/validate-skills.py` to also cover
+    **`.github/CODEOWNERS`**, **`scripts/check_dco.py`**, and **`scripts/tests/`**. The
+    four considerations, weighed honestly:
+    1. **Always-red cost** — real, but near-zero at the margin. All three are
+       rare-edit, and a `scripts/tests/` change almost always accompanies a change to a
+       gate script or the workflow, which already tripped the gate. The genuinely new
+       red case is a test-only pull request — precisely the change that should not be
+       able to merge itself.
+    2. **CODEOWNERS has no other control today.** D59 deliberately deferred "Require
+       review from Code Owners" until the first external pull request or added
+       collaborator. Until that flips, the red gate is the **only** structural control
+       on the file that routes review authority — the strongest single argument for
+       widening.
+    3. **Edit frequency** — bounded. `.github/CODEOWNERS` has been edited once (D58);
+       `scripts/check_dco.py` is new and expected to be near-static.
+    4. **A separate security-surface job?** Considered and **rejected**: it would
+       duplicate the diff-and-match logic, add a second required status check for the
+       owner to register, and answer a question the log already answers — `gate-guard`
+       prints exactly which files tripped it. Revisit **if** the protected set ever
+       spans materially different merge policies (some needing security review, others
+       only an admin merge); one gate with one regex is clearer until then.
+
+    The principle recorded: **enforcement surfaces and merge-gate surfaces should
+    coincide** — a change able to disarm the gate should not be able to merge itself,
+    whichever file it lands in. `.github/dependabot.yml` was considered and left
+    **outside** the set: disabling it would stop security patches arriving, which is a
+    slow-burn risk rather than a merge-gate bypass.
+  - **`CONTRIBUTING.md`, one line added** to External contributions beside the existing
+    DCO bullet: *"CI enforces DCO; fix a missing sign-off with `git commit --amend -s`
+    or `git rebase --signoff`."* The rule and its remedy now sit together, and match
+    what CI prints on failure.
+  - **Proofs.** Self-tests **46/46** (38 before, eight added: all-signed passes, one
+    unsigned fails naming its hash, an unsigned bot commit passes, a mixed range fails
+    on the human commit only, plus a bare trailer, an empty range, an unlisted bot
+    address, and record round-tripping). Both gate scripts were proved able to fail by
+    seeded mutation and then restored: disarming `check_description_not_block_scalar()`
+    in the validator took the suite red at assertion 3, and making `has_signoff()`
+    return `True` unconditionally took it red at assertion 39 — a check nobody has
+    watched fail is an assertion, not a gate. The widened `gate-guard` regex was
+    extracted **verbatim from the workflow** and replayed on-branch:
+    `.github/CODEOWNERS`, `scripts/check_dco.py`, `scripts/tests/test_validator.py` and
+    a fixture beneath it all trip it, while `README.md`, `CONTRIBUTING.md`,
+    `docs/HISTORY.md`, `.github/dependabot.yml` and a `SKILL.md` do not. The workflow
+    parses under PyYAML — with YAML 1.1's bare `on` key arriving as the boolean `True`,
+    noted rather than fought — and all three `uses:` references remain full 40-hex
+    pins, so the edit introduced no floating tag.
+  - Validator: **184 skills, exit 0, 0 warnings**; self-tests **46/46**;
+    `check_dco.py` green against this pull request's own commit range. `git diff
+    --check` clean; private-name sweep clean. This pull request edits
+    `.github/workflows/validate-skills.yml` and `scripts/`, so **`gate-guard` is RED by
+    design** and the merge is a human admin merge (the D43/D50/D55 precedent);
+    `validate-skills` must be green. Auto-merge left unarmed (this repo's PR-no-merge
+    policy).
+  - **Owner follow-up, one glance.** The push lane's configuration is verified
+    on-branch, but its **first live execution cannot be observed until this merges** —
+    the event does not exist before then. After merging, check the Actions tab for a
+    `validate-skills` run triggered by the `push` to `main`: the `validate-skills` job
+    green, `gate-guard` skipped.
 ---
 
 ## 6. Post-merge corrections

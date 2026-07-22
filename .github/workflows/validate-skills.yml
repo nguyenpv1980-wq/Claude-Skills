@@ -1,12 +1,22 @@
-# Merge gate for main: skill validation + self-protection guard.
+# Merge gate for main: skill validation + DCO sign-off + self-protection guard.
 #
 # Job names `validate-skills` and `gate-guard` are registered as required status
 # checks — keep them unique across all workflows in this repo and do not rename
 # them without updating branch protection.
 name: validate-skills
 
+# Two events, deliberately asymmetric (decision D60):
+#   pull_request  the merge GATE — everything runs, and a failure blocks merge.
+#   push to main  a detection LANE, not a gate — it runs after the merge has
+#                 already happened, so it cannot block anything; it exists to
+#                 catch a main that went red by a route no pull request saw
+#                 (an admin merge past a red gate-guard, a direct push, or a
+#                 clean merge of two individually-clean branches).
 on:
   pull_request:
+    branches:
+      - main
+  push:
     branches:
       - main
 
@@ -18,10 +28,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          # Full history so the DCO step below can walk the pull request's
+          # commit range. Cheap on a repository this size.
+          fetch-depth: 0
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: '3.x'
+          # Pinned to a minor (decision D60). `3.x` silently followed the
+          # runner image to whatever CPython shipped next, so the interpreter
+          # the gate runs on could change without a reviewed commit — the one
+          # unpinned input left in a workflow that pins its actions to commit
+          # SHAs and PyYAML to an exact version. `3.14` is what `3.x` already
+          # resolved to on ubuntu-latest at the time of the pin (CPython
+          # 3.14.6, run 29882666002), so this froze current behaviour rather
+          # than changing it. Dependabot does NOT bump `python-version`; this
+          # line moves only by a deliberate reviewed pull request, which is
+          # the point of pinning it.
+          python-version: '3.14'
 
       # PyYAML powers the spec-strict frontmatter parse (decision D50); the
       # validator fails closed without it. Pinned exactly in requirements.txt
@@ -40,15 +64,49 @@ jobs:
       - name: Run skill validator
         run: python scripts/validate-skills.py
 
+      # DCO enforcement (decision D60). Lives INSIDE this already-required job
+      # rather than in a job of its own, so the contract is enforced the moment
+      # it merges — a new job name would be advisory until someone added it to
+      # branch protection.
+      #
+      # Pull-request-only, for two reasons: a push to main is post-merge, so
+      # there is nothing left to gate; and squash/rebase merges can lawfully
+      # rewrite trailers on the way in, so the sign-off contract is asserted
+      # against the pull request's OWN commits, at the only moment they are the
+      # thing being merged.
+      #
+      # The range ends at the pull request's real head SHA, not at HEAD: on a
+      # pull_request event HEAD is a synthetic merge commit GitHub authored,
+      # which no contributor can sign. `--no-merges` inside the script covers
+      # ordinary merges made within the branch.
+      - name: Verify DCO sign-off on every commit
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git fetch origin "$BASE_REF" --quiet
+          python scripts/check_dco.py --range "origin/${BASE_REF}..${HEAD_SHA}"
+
   gate-guard:
     runs-on: ubuntu-latest
+    # Pull-request-only (decision D60): this job diffs against the pull
+    # request's base, and a push event has no base_ref to diff against — it
+    # would fail on a missing ref rather than on a real finding.
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           # Full history so the merge-base diff against the PR base is available.
           fetch-depth: 0
 
-      - name: Fail if this PR modifies the merge gate itself
+      # The protected set was widened at decision D60 from "the merge gate" to
+      # "the merge gate and the surfaces that enforce it": review-authority
+      # routing (CODEOWNERS), the DCO check, and the tests that are the only
+      # thing proving either gate script still works. Enforcement surfaces and
+      # merge-gate surfaces should coincide — a change able to disarm the gate
+      # should not be able to merge itself, whichever file it lands in.
+      - name: Fail if this PR modifies the merge gate or its enforcement surfaces
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
@@ -56,11 +114,11 @@ jobs:
           changed_files="$(git diff --name-only "origin/${BASE_REF}...HEAD")"
           echo "Files changed in this PR:"
           echo "${changed_files}"
-          gate_files="$(echo "${changed_files}" | grep -E '^(\.github/workflows/|scripts/validate-skills\.py$)' || true)"
+          gate_files="$(echo "${changed_files}" | grep -E '^(\.github/workflows/|\.github/CODEOWNERS$|scripts/validate-skills\.py$|scripts/check_dco\.py$|scripts/tests/)' || true)"
           if [ -n "${gate_files}" ]; then
             echo "Gate files touched:"
             echo "${gate_files}"
-            echo "This PR modifies the merge gate itself and requires manual review and merge."
+            echo "This PR modifies the merge gate or an enforcement surface and requires manual review and merge."
             exit 1
           fi
-          echo "No merge-gate files modified."
+          echo "No merge-gate or enforcement-surface files modified."

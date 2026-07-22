@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Self-tests for scripts/validate-skills.py (decision D55).
+"""Self-tests for the repo's gate scripts (decisions D55, D60).
+
+Covers scripts/validate-skills.py (D55) and scripts/check_dco.py (D60). The
+file name predates the second script; the CI step runs one command, so the
+second script's cases live here rather than in a sibling nothing invokes.
 
 Run:  python scripts/tests/test_validator.py      # exit 0 = every assertion held
 
@@ -9,7 +13,8 @@ WHY THIS EXISTS
     markers, the D50 strict-YAML / sentinel / block-scalar trio — was hand-proved
     once in a pull-request description and never proved again. This suite
     re-proves them on every CI run, so a later refactor cannot quietly disarm
-    one.
+    one. check_dco.py (D60) is held to the same standard from its first day:
+    it enforces a merge condition, so it is itself proved able to fail.
 
 NO PYTEST, DELIBERATELY
     The repo's entire dependency surface is one package (PyYAML), and the
@@ -27,7 +32,9 @@ PROVING THE SUITE CAN FAIL
 
 IMPORT WRINKLE
     validate-skills.py is hyphenated, so `import validate_skills` cannot reach
-    it; it is loaded by path through importlib below.
+    it; it is loaded by path through importlib below. check_dco.py is loaded
+    the same way — not because it must be, but so both gate scripts are reached
+    identically and scripts/ never has to be put on sys.path.
 """
 from __future__ import annotations
 
@@ -39,18 +46,20 @@ from pathlib import Path
 TESTS_DIR = Path(__file__).resolve().parent
 FIXTURES = TESTS_DIR / "fixtures"
 VALIDATOR_PATH = TESTS_DIR.parent / "validate-skills.py"
+DCO_PATH = TESTS_DIR.parent / "check_dco.py"
 
 
-def _load_validator():
-    spec = importlib.util.spec_from_file_location("aegis_validator", VALIDATOR_PATH)
+def _load_by_path(path: Path, module_name: str):
+    spec = importlib.util.spec_from_file_location(module_name, path)
     if spec is None or spec.loader is None:
-        raise SystemExit(f"cannot load the validator from {VALIDATOR_PATH}")
+        raise SystemExit(f"cannot load {path}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
 
-validator = _load_validator()
+validator = _load_by_path(VALIDATOR_PATH, "aegis_validator")
+dco = _load_by_path(DCO_PATH, "aegis_check_dco")
 
 # Every satisfied expectation appends its label here, so the run ends with a
 # count rather than a bare "no news is good news".
@@ -414,6 +423,133 @@ def test_workflows_sha_pinned():
     expect_clean(rep, f"all {refs} shipped action references are SHA-pinned")
 
 
+# --- checks added by decision D60 (scripts/check_dco.py) --------------------
+#
+# These exercise check_dco.py's rules as pure functions over commit RECORDS, so
+# the suite never needs a repository, a fixture branch, or a network. The real
+# surface is pinned by the workflow step itself, which runs the script against
+# this pull request's own commit range; the script's fail-closed empty-range
+# rule (proved below) is what stops that live run from passing by checking
+# nothing.
+
+HUMAN = "a.contributor@example.com"
+SIGNED_MSG = (
+    "Fix a thing\n\nA body paragraph.\n\n"
+    "Signed-off-by: A Contributor <a.contributor@example.com>\n"
+)
+UNSIGNED_MSG = "Fix a thing\n\nA body paragraph, and no trailer at all.\n"
+
+
+def _commit(sha: str, email: str, message: str, name: str = "A Contributor"):
+    return dco.Commit(sha=sha, author_email=email, author_name=name, message=message)
+
+
+def test_dco_signoff_required():
+    """D60: every human commit in the range must carry a DCO trailer."""
+    rep = dco.Report()
+    dco.check_commits(
+        [_commit("a" * 40, HUMAN, SIGNED_MSG), _commit("b" * 40, HUMAN, SIGNED_MSG)],
+        rep,
+    )
+    expect_clean(rep, "all-signed range accepted")
+
+    rep = dco.Report()
+    dco.check_commits(
+        [_commit("c" * 40, HUMAN, SIGNED_MSG), _commit("d" * 40, HUMAN, UNSIGNED_MSG)],
+        rep,
+    )
+    expect_error(
+        rep,
+        "d" * 40,
+        "one unsigned commit is rejected, naming its hash (a tip-only check would miss it)",
+    )
+    assert len(rep.errors) == 1, "only the unsigned commit may be reported"
+
+    # A trailer that certifies nobody is not a trailer.
+    rep = dco.Report()
+    dco.check_commits(
+        [_commit("e" * 40, HUMAN, "Fix a thing\n\nSigned-off-by:\n")], rep
+    )
+    expect_error(
+        rep, "no valid", 'a bare "Signed-off-by:" with no identity is rejected'
+    )
+    assert not dco.has_signoff("Signed-off-by: NoAngleBrackets\n"), (
+        "a trailer without <email> must not satisfy the contract"
+    )
+
+    # Fail-closed: a check that examined nothing must not report success.
+    rep = dco.Report()
+    dco.check_commits([], rep)
+    expect_error(
+        rep, "examined nothing", "an empty commit range fails closed rather than passing"
+    )
+
+
+def test_dco_bot_exemption():
+    """D60: exactly two machine authors are exempt, and no lookalike is."""
+    bot = "49699333+dependabot[bot]@users.noreply.github.com"
+    actions_bot = "41898282+github-actions[bot]@users.noreply.github.com"
+
+    rep = dco.Report()
+    dco.check_commits(
+        [
+            _commit("1" * 40, bot, "Bump actions/checkout\n", name="dependabot[bot]"),
+            _commit("2" * 40, actions_bot, "Sync\n", name="github-actions[bot]"),
+        ],
+        rep,
+    )
+    expect_clean(rep, "unsigned bot commits pass (bumps are never blocked)")
+
+    rep = dco.Report()
+    dco.check_commits(
+        [
+            _commit("3" * 40, bot, "Bump pyyaml\n", name="dependabot[bot]"),
+            _commit("4" * 40, HUMAN, UNSIGNED_MSG),
+        ],
+        rep,
+    )
+    expect_error(
+        rep, "4" * 40, "a mixed range fails on the human commit only"
+    )
+    assert len(rep.errors) == 1 and "3" * 40 not in rep.errors[0], (
+        "the bot commit in a mixed range must not be reported"
+    )
+
+    # The list is an allowlist of two, not a pattern for "anything bot-shaped".
+    rep = dco.Report()
+    dco.check_commits(
+        [_commit("5" * 40, "renovate[bot]@users.noreply.github.com", UNSIGNED_MSG)], rep
+    )
+    expect_error(
+        rep, "5" * 40, "an unlisted bot address is NOT exempt (the list stays narrow)"
+    )
+    assert not dco.is_exempt_bot("dependabot[bot]@example.com"), (
+        "the exemption is anchored to GitHub's noreply domain"
+    )
+
+
+def test_dco_record_parsing():
+    """D60: the git-log record stream round-trips messages with blank lines."""
+    fs, rs = dco.FIELD_SEP, dco.RECORD_SEP
+    raw = (
+        f"{'a' * 40}{fs}{HUMAN}{fs}A Contributor{fs}{SIGNED_MSG}{rs}\n"
+        f"{'b' * 40}{fs}{HUMAN}{fs}A Contributor{fs}{UNSIGNED_MSG}{rs}\n"
+    )
+    commits = dco.parse_records(raw)
+    assert [c.sha for c in commits] == ["a" * 40, "b" * 40], "both records recovered"
+    assert commits[0].subject == "Fix a thing", "subject is the first non-blank line"
+    assert "Signed-off-by:" in commits[0].message, (
+        "a message with blank lines must survive the round trip intact"
+    )
+    assert dco.GIT_LOG_FORMAT.count(fs) == 3 and dco.GIT_LOG_FORMAT.endswith(rs), (
+        "the format string must match what parse_records expects"
+    )
+
+    rep = dco.Report()
+    dco.check_commits([commits[0]], rep)
+    expect_clean(rep, "records parsed from the git-log stream feed the rules unchanged")
+
+
 TESTS = [
     test_strict_yaml_parse,
     test_description_block_scalar,
@@ -424,6 +560,9 @@ TESTS = [
     test_agents_schema,
     test_docs_paths_links,
     test_workflows_sha_pinned,
+    test_dco_signoff_required,
+    test_dco_bot_exemption,
+    test_dco_record_parsing,
 ]
 
 
@@ -435,7 +574,7 @@ def main() -> int:
         )
         return 1
 
-    print(f"Self-testing {VALIDATOR_PATH.name} ...\n")
+    print(f"Self-testing {VALIDATOR_PATH.name} and {DCO_PATH.name} ...\n")
     for test in TESTS:
         summary = (test.__doc__ or "").strip().splitlines()[0]
         print(f"{test.__name__} - {summary}")
@@ -447,7 +586,7 @@ def main() -> int:
             return 1
         print()
 
-    print(f"OK: {len(PASSES)} validator self-test assertion(s) passed.")
+    print(f"OK: {len(PASSES)} gate self-test assertion(s) passed.")
     return 0
 
 
